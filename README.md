@@ -1,1 +1,2 @@
-# CSE416-SBU12-P4SBU
+# SBU12
+This is the repository for the source code for our P4SBU project. 
