@@ -1,0 +1,42 @@
+{
+  "name": "cse416-sbu12-p4sbu",
+  "version": "1.0.0",
+  "description": "Server-side Javascript with Node.js for P4SBU",
+  "keywords": [
+    "parking",
+    "postgresql",
+    "stony",
+    "brook",
+    "sbu",
+    "university",
+    "react"
+  ],
+  "homepage": "https://github.com/ZhenShiDaoMei/CSE416-SBU12-P4SBU#readme",
+  "bugs": {
+    "url": "https://github.com/ZhenShiDaoMei/CSE416-SBU12-P4SBU/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZhenShiDaoMei/CSE416-SBU12-P4SBU.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "nodemon": "^3.1.9",
+    "passport": "^0.7.0",
+    "pg": "^8.13.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.6"
+  }
+}
