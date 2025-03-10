@@ -1,88 +1,38 @@
-require('dotenv').config()
-const { Pool } = require('pg');
-console.log(process.env.DB_PASSWORD)
-const bcrypt = require('bcrypt');
-const saltRounds = 5;
+import pool from "../config/db.js";
+import bcrypt from "bcrypt";
 
-const pool = new Pool({
-	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	host: process.env.DB_HOST,
-	port: process.env.DB_PORT,
-	database: process.env.DB_NAME,
-});
+const saltRounds = 10;
 
-
-const getUsers = async () => {
-	try {
-		return await new Promise(function (resolve, reject) {
-			pool.query("SELECT * FROM users", (error, results) => {
-				if (error) {
-					reject(error);
-				}
-				if (results && results.rows) {
-					resolve(results.rows);
-				} else {
-					reject(new Error("No results found"));
-				}
-			});
-		});
-	} catch (error_1) {
-		console.error(error_1);
-		throw new Error("Internal server error");
-	}
+export const getUsers = async () => {
+    try {
+        const { rows } = await pool.query("SELECT * FROM users");
+        return rows;
+    } catch (error) {
+        throw new Error(error.message);
+    }
 };
 
-const createUser = (body) => {
-	return new Promise(function (resolve, reject) {
-		const { name, email, password } = body;
-		bcrypt.hash(password, saltRounds, function (err, hash) {
-			console.log(name);
-			pool.query("INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING *", [name, email, hash],
-				(error, results) => {
-					if (error) {
-						reject(error);
-					}
-					if (results && results.rows) {
-						resolve(
-							`A new user has been added: ${JSON.stringify(results.rows[0])}`
-						);
-					} else {
-						reject(new Error("No results found"));
-					}
-				}
-			);
-		})
-	});
+export const findUserByEmail = async (email) => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT * FROM users WHERE email=$1",
+            [email]
+        );
+        return rows[0];
+    } catch (error) {
+        throw new Error(error.message);
+    }
 };
 
-const loginUser = (body) => {
-	return new Promise(function (resolve, reject) {
-		const { email, password } = body;
-		pool.query("SELECT password_hash FROM users WHERE email=($1)", [email], 
-			(error, results) => {
-				if (error) {
-					reject(error);
-				}
-				if (!results.rows.length) {
-					return reject(new Error("User not found"));
-				}
-				if (results && results.rows) {
-					bcrypt.compare(password, results.rows[0].password_hash, function (err, match) {
-						if (err) {
-							return reject(err);
-						}
-						if (match) {
-							resolve({ success: true, message: "Login successful" })
-						} else {
-							reject(new Error("Invalid credentials"));
-						}
-					})
-				}
-
-			}
-		);
-	})
-}
-
-module.exports = { getUsers, createUser, loginUser };
+export const createUser = async (name, email, password) => {
+    try {
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const { rows } = await pool.query(
+            "INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING *",
+            [name, email, hashedPassword]
+        );
+        return rows[0];
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
