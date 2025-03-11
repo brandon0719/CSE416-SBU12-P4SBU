@@ -4,9 +4,9 @@ import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/register", registerUser);
-router.post("/login", loginUser);
-router.get("/protected", authMiddleware, (req, res) => {
+router.post("/auth/register", registerUser);
+router.post("/auth/login", loginUser);
+router.get("/auth/protected", authMiddleware, (req, res) => {
     res.json({ message: "You are authorized!", user: req.user });
 });
 
