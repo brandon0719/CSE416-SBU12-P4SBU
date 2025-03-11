@@ -2,24 +2,32 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiService from "../services/ApiService";
 
-const Login = () => {
+export default function Register() {
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            await ApiService.loginUser(email, password);
-            navigate("/dashboard");
+            await ApiService.registerUser(name, email, password);
+            navigate("/login");
         } catch (err) {
             setError(err.message);
         }
     };
 
     return (
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleRegister}>
+            <input
+                type="text"
+                placeholder="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+            />
             <input
                 type="email"
                 placeholder="Email"
@@ -34,10 +42,8 @@ const Login = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
             />
-            <button type="submit">Login</button>
+            <button type="submit">Register</button>
             {error && <p style={{ color: "red" }}>{error}</p>}
         </form>
     );
 }
-
-export default Login;

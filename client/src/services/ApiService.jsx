@@ -7,7 +7,7 @@ const http = axios.create({
 // Register User
 const registerUser = async (name, email, password) => {
     try {
-        const response = await API.post("/auth/register", {
+        const response = await http.post("/auth/register", {
             name,
             email,
             password,
@@ -21,7 +21,7 @@ const registerUser = async (name, email, password) => {
 // Login User
 const loginUser = async (email, password) => {
     try {
-        const response = await API.post("/auth/login", { email, password });
+        const response = await http.post("/auth/login", { email, password });
         localStorage.setItem("token", response.data.token);
         return response.data;
     } catch (error) {
@@ -37,18 +37,18 @@ const logoutUser = () => {
 // Fetch Protected Data
 const fetchProtectedData = async () => {
     try {
-        const response = await API.get("/auth/protected");
+        const response = await http.get("/auth/protected");
         return response.data;
     } catch (error) {
         throw error.response?.data || { message: "Unauthorized access" };
     }
 };
 
-const apiService = {
-    registerUser,
-    loginUser,
-    logoutUser,
-    fetchProtectedData,
+const ApiService = {
+    registerUser : registerUser,
+    loginUser : loginUser,
+    logoutUser : logoutUser,
+    fetchProtectedData : fetchProtectedData,
 }
 
-export default apiService;
+export default ApiService;
