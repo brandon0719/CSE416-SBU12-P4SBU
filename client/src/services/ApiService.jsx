@@ -1,12 +1,11 @@
 import axios from "axios";
 import { getSessionToken } from "./sessionService";
+import Cookies from "js-cookie";
+
 
 const http = axios.create({
     baseURL: "http://localhost:8000/api", 
 });
-
-import Cookies from "js-cookie";
-import ApiService from "./ApiService";
 
 export const login = (user) => {
     Cookies.set("token", user.token, { expires: 7 }); // 30 min
@@ -37,10 +36,6 @@ export const getSessionUser = () => {
         Cookies.remove("user"); // Clear corrupted cookie
         return null;
     }
-};
-
-export const getSessionToken = () => {
-    return Cookies.get("token");
 };
 
 export const handleLogin = async (email, password, setUser) => {

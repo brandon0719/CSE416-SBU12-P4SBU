@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import ApiService from "./ApiService";
+import ApiService from "./ApiService.jsx";
 
 export const login = (user) => {
     Cookies.set("token", user.token, { expires: 7 }); // 30 min
