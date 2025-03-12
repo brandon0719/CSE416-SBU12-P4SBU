@@ -1,0 +1,83 @@
+body {
+    position: relative;
+    background-image: url('..\images\SBU_background.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    color: black;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: hsla(0, 40%, 41%, 0.459); /* Red tint */
+    z-index: 1;
+}
+
+.register-container {
+    position: relative;
+    z-index: 2;
+    background-color: rgba(255, 255, 255);
+    padding: 25px 40px 25px 40px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+.register-container h1 {
+    margin-bottom: 20px;
+    font-size: x-large;
+    font-weight: 600;
+}
+
+.register-container form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.register-container .form-label {
+    font-weight: bold;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.register-container input {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    width: 300px;
+    box-sizing: border-box;
+    color:black
+}
+
+.register-container button {
+    padding: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    align-self: center;
+}
+
+.red-text {
+    color: rgb(150, 2, 2);
+}
+
+.red-button {
+    background-color: rgb(180, 0, 0);
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
