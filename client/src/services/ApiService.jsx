@@ -38,23 +38,23 @@ export const getSessionUser = () => {
     }
 };
 
-export const handleLogin = async (email, password, setUser) => {
+export const handleLogin = async (email, password) => {
     console.log("handleLogin called with:", { email, password });
 
     try {
-        const response = await ApiService.login({ email, password });
+        const response = await http.post("/auth/login", { email, password });
         console.log("Login API response:", response); // Log the full response
 
-        const { token, user } = response;
+        const { user, token } = response.data;
 
-        if (!token || !user) throw new Error("Invalid login response");
+        if (!user || !token) throw new Error("Invalid login response");
 
         Cookies.set("user", JSON.stringify(user), { expires: 7 }); // Save user to cookie
         Cookies.set("token", token, { expires: 7 }); // Save token to cookie
         console.log("HANDLING User cookie set:", JSON.stringify(user));
 
-        ApiService.setAuthToken(token); // Attach token to Axios
-        setUser(user); // Update user state
+        //ApiService.setAuthToken(token); // Attach token to Axios
+        //setUserset(user); // Update user state
     } catch (err) {
         console.error("Error during login:", err.message);
         throw err;
@@ -75,17 +75,6 @@ const registerUser = async (name, email, password) => {
     }
 };
 
-// Login User
-const loginUser = async (email, password) => {
-    try {
-        const response = await http.post("/auth/login", { email, password });
-        localStorage.setItem("token", response.data.token);
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { message: "Login failed" };
-    }
-};
-
 // Logout User
 const logoutUser = () => {
     localStorage.removeItem("token");
@@ -94,7 +83,11 @@ const logoutUser = () => {
 // Fetch Protected Data
 const fetchProtectedData = async () => {
     try {
-        const response = await http.get("/auth/protected");
+        const response = await http.get("/auth/protected", {
+            headers: {
+                Authorization: `Bearer ${Cookies.get('token')}`
+            }
+        });
         return response.data;
     } catch (error) {
         throw error.response?.data || { message: "Unauthorized access" };
@@ -103,7 +96,8 @@ const fetchProtectedData = async () => {
 
 const ApiService = {
     registerUser : registerUser,
-    loginUser : loginUser,
+    handleLogin : handleLogin,
+    login : login,
     logoutUser : logoutUser,
     fetchProtectedData : fetchProtectedData,
 }

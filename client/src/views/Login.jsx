@@ -12,7 +12,7 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            await ApiService.loginUser(email, password);
+            await ApiService.handleLogin(email, password);
             navigate("/dashboard");
         } catch (err) {
             setError(err.message);
