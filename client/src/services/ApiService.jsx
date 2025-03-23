@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getSessionToken } from "./sessionService";
 import Cookies from "js-cookie";
 
 
@@ -53,6 +52,8 @@ export const handleLogin = async (email, password) => {
         Cookies.set("token", token, { expires: 7 }); // Save token to cookie
         console.log("HANDLING User cookie set:", JSON.stringify(user));
 
+        //I don't think we need the below two lines?
+
         //ApiService.setAuthToken(token); // Attach token to Axios
         //setUserset(user); // Update user state
     } catch (err) {
@@ -73,11 +74,6 @@ const registerUser = async (name, email, password) => {
     } catch (error) {
         throw error.response?.data || { message: "Registration failed" };
     }
-};
-
-// Logout User
-const logoutUser = () => {
-    localStorage.removeItem("token");
 };
 
 // Fetch Protected Data
