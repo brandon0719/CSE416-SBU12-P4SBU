@@ -94,7 +94,6 @@ const ApiService = {
     registerUser : registerUser,
     handleLogin : handleLogin,
     login : login,
-    logoutUser : logoutUser,
     fetchProtectedData : fetchProtectedData,
 }
 
