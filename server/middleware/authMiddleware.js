@@ -5,6 +5,7 @@ dotenv.config();
 const secret = process.env.JWT_SECRET;
 
 function authMiddleware(req, res, next) {
+    console.log(req.headers);
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
         console.log("No token provided");
