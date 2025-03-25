@@ -14,7 +14,7 @@ export const registerUser = async (req, res) => {
     try {
         const existingUser = await findUserByEmail(email);
         if (existingUser)
-            return res.status(400).json({ error: "User already exists" });
+            return res.status(409).json({ error: "User already exists" });
 
         const newUser = await createUser(name, email, password);
         res.status(201).json({

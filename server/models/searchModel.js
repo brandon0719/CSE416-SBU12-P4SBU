@@ -10,3 +10,13 @@ export const queryBuildings = async (query) => {
         throw new Error(error.message);
     }
 };
+
+export const queryLots = async () => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT * FROM lots");
+        return rows;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
