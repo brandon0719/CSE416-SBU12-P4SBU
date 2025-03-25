@@ -37,8 +37,8 @@
 
         /* Rectangular map container */
         #map {
-            width: 900px;
-            height: 650px;
+            width: 600px;
+            height: 800px;
             border: 2px solid #ccc;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
@@ -70,9 +70,68 @@
             maxBounds: campusBounds // Prevents panning outside the campus
         });
 
-        // Once the map loads, adjust the view to fit the campus bounds perfectly
+        // Helper function to add a GeoJSON layer (with a label) to the map
+        function addGeoJSONLayer(url, layerId, fillColor) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    // Add a "label" property to each feature if it doesn't already exist.
+                    data.features.forEach(feature => {
+                        if (!feature.properties.label) {
+                            feature.properties.label = layerId;
+                        }
+                    });
+                    // Add the GeoJSON source
+                    map.addSource(layerId, {
+                        type: 'geojson',
+                        data: data
+                    });
+                    // Add a fill layer to display the parking section area
+                    map.addLayer({
+                        id: layerId + '-layer',
+                        type: 'fill',
+                        source: layerId,
+                        paint: {
+                            'fill-color': fillColor,
+                            'fill-opacity': 0.5,
+                            'fill-outline-color': '#000'
+                        }
+                    });
+                    // Add a symbol layer to display the label based on the "label" property
+                    map.addLayer({
+                        id: layerId + '-labels',
+                        type: 'symbol',
+                        source: layerId,
+                        layout: {
+                            'text-field': ['get', 'label'],
+                            'text-size': 14,
+                            'text-offset': [0, 0],
+                            'text-anchor': 'center'
+                        },
+                        paint: {
+                            'text-color': '#000'
+                        }
+                    });
+                })
+                .catch(error => console.error('Error loading GeoJSON from ' + url, error));
+        }
+
+        // Array holding each GeoJSON file info; adjust file paths as needed
+        const geojsonFiles = [
+            { url: 'geojson/Lot 40.geojson', id: 'Lot 40', fillColor: '#088' },
+            { url: 'geojson/Lot 53.geojson', id: 'Lot 53', fillColor: '#800' },
+            { url: 'geojson/Lot 54.geojson', id: 'Lot 54', fillColor: '#800' },
+            // Add more objects for additional files as required
+        ];
+
+        // Once the map loads, adjust the view and add each GeoJSON layer with labels
         map.on('load', function () {
+            // Fit the map to the campus bounds
             map.fitBounds(campusBounds, { padding: 0 });
+            // Loop through the array and add each GeoJSON layer along with its label layer
+            geojsonFiles.forEach(file => {
+                addGeoJSONLayer(file.url, file.id, file.fillColor);
+            });
         });
     </script>
 </body>
