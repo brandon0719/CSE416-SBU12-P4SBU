@@ -6,6 +6,7 @@ import { Navigate } from "react-router-dom";
 import Login from "./views/Login";
 import Register from "./views/Register";
 import Dashboard from "./views/Dashboard";
+import HomePage from "./views/HomePage";
 
 // Protected route wrapper
 import ProtectedRoute from "./views/ProtectedRoute";
@@ -19,6 +20,7 @@ function App() {
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/homepage" element={<HomePage />}/>
 
             {/* Protected Route */}
             <Route

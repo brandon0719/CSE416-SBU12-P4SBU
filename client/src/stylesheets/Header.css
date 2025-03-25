@@ -1,0 +1,56 @@
+.header-container {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: space-between;
+    padding: 20px 125px; /* Ensure consistent padding */
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+    width: 100%; /* Ensure the header spans the entire width */
+    margin: 0; /* Remove margin */
+    overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
+.header-logo {
+    margin-right: auto; /* Add space between the logo and the message icon */
+}
+
+.header-logo img {
+    height: 44px;
+    cursor: pointer;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-icon img {
+    height: 24px;
+    cursor: pointer;
+}
+
+.header-divider img {
+    height: 24px;
+    opacity: 0.5;
+}
+
+.header-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: black;
+    cursor: pointer;
+}
+
+.header-profile img {
+    height: 32px;
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+

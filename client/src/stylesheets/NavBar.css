@@ -1,0 +1,32 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgb(150, 0, 0);
+    padding: 30px 125px; /* Ensure consistent padding */
+    margin: 0; /* Remove margin */
+    width: 100%; /* Use 100% to avoid scrollbar issues */
+    overflow-x: hidden; /* Prevent horizontal overflow */
+}
+
+.navbar-links {
+    display: flex;
+    gap: 35px;
+    
+}
+
+.navbar-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.navbar-links a:hover {
+    text-decoration: underline;
+}
+
+.navbar-text {
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+}
