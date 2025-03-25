@@ -2,10 +2,11 @@ import { queryBuildings } from "../models/searchModel.js";
 
 // building search
 export const searchBuildings = async (req, res) => {
-    const { query } = req.body;
+    const { q } = req.query;
+    console.log(q);
 
     try {
-        const searchResults = await queryBuildings(query);
+        const searchResults = await queryBuildings(q);
         res.status(200).json({
             searchResults: searchResults,
         });
