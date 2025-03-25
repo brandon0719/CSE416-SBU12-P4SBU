@@ -1,0 +1,21 @@
+1. To start DB:
+
+brew services start postgresql
+
+2. Postgre SQL shell:
+
+psql -U postgres
+
+3. Create the DB:
+CREATE DATABASE p4sbu;
+\c p4sbu (connect)
+
+4. Create Table:
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+\dt (check tables)
