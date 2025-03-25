@@ -1,4 +1,4 @@
-body {
+.register-background{
     position: relative;
     background-image: url('..\images\SBU_background.png');
     background-size: cover;
@@ -9,9 +9,10 @@ body {
     height: 100vh;
     margin: 0;
     color: black;
+    width: 100vw;
 }
 
-body::before {
+.register-background::before{
     content: "";
     position: absolute;
     top: 0;

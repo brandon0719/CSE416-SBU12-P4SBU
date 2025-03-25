@@ -1,0 +1,29 @@
+* {
+    box-sizing: border-box; /* Include padding and borders in width/height calculations */
+}
+
+.homepage-container {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Ensure it fills the entire viewport height */
+    margin: 0;
+    color: black;
+    width: 100vw; /* Ensure it spans the full width of the viewport */
+    padding: 0; /* Ensure no padding affects width */
+    overflow-x: hidden; /* Prevent child elements from causing horizontal overflow */
+    background-color: white;
+}
+
+.mapbox-container {
+    height: 610px; /* Adjust height as needed */
+    width: 70%; /* Adjust width as needed */
+    background-color: #e0e0e0; /* Placeholder background color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 70px auto; /* Center the container horizontally */
+    box-sizing: border-box;
+}
