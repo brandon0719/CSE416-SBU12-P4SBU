@@ -7,6 +7,11 @@ import Login from "./views/Login";
 import Register from "./views/Register";
 import Dashboard from "./views/Dashboard";
 import HomePage from "./views/HomePage";
+import TicketPage from "./views/TicketPage";
+import AboutUsPage from "./views/AboutUsPage";
+import ProfilePage from "./views/ProfilePage";
+import NotificationPage from "./views/NotificationPage";
+import MessagePage from "./views/MessagePage";
 
 // Protected route wrapper
 import ProtectedRoute from "./views/ProtectedRoute";
@@ -21,7 +26,12 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/homepage" element={<HomePage />}/>
-
+            <Route path="/ticketpage" element={<TicketPage />}/>
+            <Route path="/aboutuspage" element={<AboutUsPage />}/>
+            <Route path="/profilepage" element={<ProfilePage />}/>
+            <Route path="/notificationpage" element={<NotificationPage />}/>
+            <Route path="/messagepage" element={<MessagePage />}/>
+            
             {/* Protected Route */}
             <Route
                 path="/dashboard"

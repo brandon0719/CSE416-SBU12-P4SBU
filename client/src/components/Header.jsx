@@ -13,16 +13,16 @@ const Header = () => {
                 <img src={logo} alt="Logo" />
             </a>
             <div className="header-icons">
-                <a href="/messages" className="header-icon">
+                <a href="/messagepage" className="header-icon">
                     <img src={messageIcon} alt="Messages" />
                 </a>
-                <a href="/notifications" className="header-icon">
+                <a href="/notificationpage" className="header-icon">
                     <img src={notificationIcon} alt="Notifications" />
                 </a>
                 <div className="header-divider">
                     <img src={dividerIcon} alt="Divider" />
                 </div>
-                <a href="/profile" className="header-profile">
+                <a href="/profilepage" className="header-profile">
                     <img src={profileIcon} alt="Profile" />
                     <span className="profile-name">John Doe</span>
                 </a>

@@ -5,9 +5,9 @@ function NavBar() {
     return (
         <div className="navbar">
             <div className="navbar-links">
-                <a href="#p4sbu">P4SBU</a>
-                <a href="#tickets-fines">Tickets/Fines</a>
-                <a href="#about-us">About Us</a>
+                <a href="/homepage">P4SBU</a>
+                <a href="/ticketpage">Tickets/Fines</a>
+                <a href="/aboutuspage">About Us</a>
                 <a href="#contact-us">Contact Us</a>
             </div>
             <div className="navbar-text">
