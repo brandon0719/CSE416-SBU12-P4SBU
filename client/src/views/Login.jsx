@@ -13,7 +13,7 @@ const Login = () => {
         e.preventDefault();
         try {
             await ApiService.handleLogin(email, password);
-            navigate("/dashboard");
+            navigate("/HomePage");
         } catch (err) {
             setError(err.message);
         }

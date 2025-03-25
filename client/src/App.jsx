@@ -5,7 +5,6 @@ import { Navigate } from "react-router-dom";
 // Page components
 import Login from "./views/Login";
 import Register from "./views/Register";
-import Dashboard from "./views/Dashboard";
 import HomePage from "./views/HomePage";
 import TicketPage from "./views/TicketPage";
 import AboutUsPage from "./views/AboutUsPage";
@@ -33,14 +32,14 @@ function App() {
             <Route path="/messagepage" element={<MessagePage />}/>
             
             {/* Protected Route */}
-            <Route
+            {/* <Route
                 path="/dashboard"
                 element={
                     <ProtectedRoute>
                         <Dashboard />
                     </ProtectedRoute>
                 }
-            />
+            /> */}
         </Routes>
     );
 }
