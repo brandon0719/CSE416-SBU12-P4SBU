@@ -24,7 +24,8 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --detectOpenHandles",
+    "dev": "npx nodemon"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
