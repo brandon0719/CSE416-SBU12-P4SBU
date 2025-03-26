@@ -3,80 +3,79 @@ import mapboxgl from "mapbox-gl";
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
 import "../stylesheets/HomePage.css";
-import "mapbox-gl/dist/mapbox-gl.css"; 
-
+import "mapbox-gl/dist/mapbox-gl.css"; // Import Mapbox GL CSS
 
 const HomePage = () => {
     useEffect(() => {
+        // For Vite, use import.meta.env instead of process.env
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
 
         const campusBounds = [
             [-73.147969, 40.891420], // SW corner
-            [-73.109477, 40.927109]  // NE corner
+            [-73.109477, 40.927109], // NE corner
         ];
 
         const map = new mapboxgl.Map({
-            container: 'map', // Matches the id of our map div below
-            style: 'mapbox://styles/mapbox/light-v10',
-            maxBounds: campusBounds
+            container: "map",
+            style: "mapbox://styles/mapbox/light-v10",
+            maxBounds: campusBounds,
         });
 
-        // Function to add a GeoJSON layer to the map
-        function addGeoJSONLayer(url, layerId, fillColor) {
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    data.features.forEach(feature => {
-                        if (!feature.properties.label) {
-                            feature.properties.label = layerId;
-                        }
+        map.on("load", async () => {
+            // Fit map to the campus bounds
+            map.fitBounds(campusBounds, { padding: 0 });
+
+            try {
+                // Fetch the lots from your API endpoint
+                const response = await fetch("/api/lots");
+                const lots = await response.json(); // Array of lot objects
+
+                // Loop through each lot and add it to the map
+                lots.forEach((lot) => {
+                    // Construct a unique source ID using the lot's name.
+                    // Replace spaces with dashes to ensure a valid ID.
+                    const sourceId = `lot-${lot.name.replace(/\s+/g, "-")}`;
+
+                    // Add the GeoJSON source using the 'geom' field from the DB
+                    map.addSource(sourceId, {
+                        type: "geojson",
+                        data: lot.geom, // Use lot.geom since the column is named geom
                     });
-                    map.addSource(layerId, {
-                        type: 'geojson',
-                        data: data
-                    });
+
+                    // Add a fill layer with grey fill and black outline
                     map.addLayer({
-                        id: `${layerId}-layer`,
-                        type: 'fill',
-                        source: layerId,
+                        id: `${sourceId}-fill`,
+                        type: "fill",
+                        source: sourceId,
                         paint: {
-                            'fill-color': fillColor,
-                            'fill-opacity': 0.5,
-                            'fill-outline-color': '#000'
-                        }
+                            "fill-color": "#808080",        // Grey fill
+                            "fill-opacity": 0.5,
+                            "fill-outline-color": "#000",     // Black outline
+                        },
                     });
+
+                    // Add a label layer for the lot name
                     map.addLayer({
-                        id: `${layerId}-labels`,
-                        type: 'symbol',
-                        source: layerId,
+                        id: `${sourceId}-label`,
+                        type: "symbol",
+                        source: sourceId,
                         layout: {
-                            'text-field': ['get', 'label'],
-                            'text-size': 14,
-                            'text-offset': [0, 0],
-                            'text-anchor': 'center'
+                            "text-field": lot.name, // Use the lot's name as the label
+                            "text-size": 14,
+                            "text-offset": [0, 0],
+                            "text-anchor": "center",
                         },
                         paint: {
-                            'text-color': '#000'
-                        }
+                            "text-color": "#000",
+                        },
                     });
-                })
-                .catch(error => console.error('Error loading GeoJSON from ' + url, error));
-        }
-
-        const geojsonFiles = [
-            { url: 'geojson/Lot 40.geojson', id: 'Lot 40', fillColor: '#088' },
-            { url: 'geojson/Lot 53.geojson', id: 'Lot 53', fillColor: '#800' },
-            { url: 'geojson/Lot 54.geojson', id: 'Lot 54', fillColor: '#800' }
-        ];
-
-        map.on('load', () => {
-            map.fitBounds(campusBounds, { padding: 0 });
-            geojsonFiles.forEach(file => {
-                addGeoJSONLayer(file.url, file.id, file.fillColor);
-            });
+                });
+            } catch (error) {
+                console.error("Error fetching lots data:", error);
+            }
         });
 
-        // Clean up map instance on unmount
+        // Clean up the map instance on component unmount
         return () => map.remove();
     }, []);
 
@@ -87,7 +86,7 @@ const HomePage = () => {
             <div className="map-content-container">
                 <div className="left-panel">
                     <h2>Parking Details</h2>
-                    {/* Future parking details content goes here */}
+                    {/* Add additional parking details here */}
                 </div>
                 <div className="right-panel">
                     <div
@@ -96,7 +95,7 @@ const HomePage = () => {
                             width: "600px",
                             height: "800px",
                             border: "2px solid #ccc",
-                            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)"
+                            boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
                         }}
                     ></div>
                 </div>
