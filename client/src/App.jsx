@@ -11,9 +11,7 @@ import AboutUsPage from "./views/AboutUsPage";
 import ProfilePage from "./views/ProfilePage";
 import NotificationPage from "./views/NotificationPage";
 import MessagePage from "./views/MessagePage";
-
-// Protected route wrapper
-import ProtectedRoute from "./views/ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
     return (
@@ -24,22 +22,20 @@ function App() {
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/homepage" element={<HomePage />}/>
-            <Route path="/ticketpage" element={<TicketPage />}/>
-            <Route path="/aboutuspage" element={<AboutUsPage />}/>
-            <Route path="/profilepage" element={<ProfilePage />}/>
-            <Route path="/notificationpage" element={<NotificationPage />}/>
-            <Route path="/messagepage" element={<MessagePage />}/>
-            
-            {/* Protected Route */}
-            {/* <Route
-                path="/dashboard"
+
+            <Route
+                path="/homepage"
                 element={
                     <ProtectedRoute>
-                        <Dashboard />
+                        <HomePage />
                     </ProtectedRoute>
                 }
-            /> */}
+            />
+            <Route path="/ticketpage" element={<TicketPage />} />
+            <Route path="/aboutuspage" element={<AboutUsPage />} />
+            <Route path="/profilepage" element={<ProfilePage />} />
+            <Route path="/notificationpage" element={<NotificationPage />} />
+            <Route path="/messagepage" element={<MessagePage />} />
         </Routes>
     );
 }
