@@ -1,3 +1,14 @@
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px); /* Slightly move up */
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0); /* Move to the original position */
+    }
+}
+
 .header-container {
     display: flex;
     align-items: center;
@@ -49,8 +60,117 @@
     height: 32px;
 }
 
+.messageIcon {
+    margin-right: 54px; 
+}
+
 .profile-name {
     font-size: 14px;
     font-weight: 500;
 }
 
+.logout-button {
+    margin-left: 20px;
+    background-color: rgb(150, 0, 0);
+    border: none;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.notification-container {
+    position: absolute;
+    margin-left: 54px;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: 100%;
+    right: -128px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 280px;
+    max-height: 385px; /* Limit height when "Show All" is clicked */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto; 
+    animation: fadeIn 0.3s ease-in-out; /* Fade-in effect */
+}
+
+.notification-dropdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: hidden; /* Hide overflow initially */
+}
+
+.notification-dropdown ul.show-all {
+    max-height: none; /* Remove height limit when "Show All" is clicked */
+    overflow-y: auto; /* Enable scrolling */
+}
+
+.notification-dropdown li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.notification-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.notification-dropdown a {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+
+.notification-time {
+    display: block;
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
+}
+
+.show-all-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border: none;
+    border-top: 1px solid #eee;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+}
+
+.show-all-button:hover {
+    background-color: #e8e8e8;
+}
+
+/* Custom scrollbar for the notification dropdown */
+.notification-dropdown::-webkit-scrollbar {
+    width: 8px; 
+}
+
+.notification-dropdown::-webkit-scrollbar-track {
+    background: #f8f8f8; 
+    border-radius: 5px; 
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb {
+    background: rgb(150, 0, 0); 
+    border-radius: 5px; 
+}
+
+.notification-dropdown::-webkit-scrollbar-thumb:hover {
+    background: rgb(120, 0, 0); 
+}
+
+/* For Firefox */
+.notification-dropdown {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(150, 0, 0) #f8f8f8;
+}

@@ -8,7 +8,7 @@ function NavBar() {
                 <a href="/homepage">P4SBU</a>
                 <a href="/ticketpage">Tickets/Fines</a>
                 <a href="/aboutuspage">About Us</a>
-                <a href="#contact-us">Contact Us</a>
+                <a href="/contactuspage">Contact Us</a>
             </div>
             <div className="navbar-text">
                 Resident Student

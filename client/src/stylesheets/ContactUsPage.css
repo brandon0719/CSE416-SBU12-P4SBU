@@ -2,7 +2,7 @@
     box-sizing: border-box; /* Include padding and borders in width/height calculations */
 }
 
-.notif-page-container {
+.contact-page-container {
     position: relative;
     background-size: cover;
     background-position: center;
