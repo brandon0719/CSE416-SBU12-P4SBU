@@ -40,6 +40,77 @@ export const getSessionUser = () => {
     }
 };
 
+//newly added function
+const getNotifications = async () => {
+    console.log("Fetching mock notifications...");
+    const mockNotifications = [
+        {
+            message: "New announcement posted",
+            link: "/announcements/123",
+            time: new Date("2025-04-04T16:00:00"), // Example datetime
+        },
+        {
+            message: "Your ticket has been updated",
+            link: "/tickets/123",
+            time: new Date("2025-04-04T13:00:00"),
+        },
+        {
+            message: "System maintenance scheduled",
+            link: "/announcements/456",
+            time: new Date("2025-04-03T18:22:00"),
+        },
+        {
+            message: "New parking spots added",
+            link: "/homepage",
+            time: new Date("2025-04-03T15:51:00"),
+        },
+        {
+            message: "Group reservation was approved",
+            link: "/homepage",
+            time: new Date("2025-04-03T08:55:00"),
+        },
+        {
+            message: "New commuter Lot added",
+            link: "/homepage",
+            time: new Date("2025-03-28T11:07:00"),
+        },
+        {
+            message: "New message from admin",
+            link: "/messages/advisor",
+            time: new Date("2025-03-27T09:30:00"),
+        },
+    ];
+
+    // Format the time for each notification
+    const formattedNotifications = mockNotifications.map((notification) => {
+        const now = new Date();
+        const diffMs = now - notification.time; // Difference in milliseconds
+        const diffMinutes = Math.ceil(diffMs / (1000 * 60)); // Difference in minutes
+        const diffHours = Math.floor(diffMinutes / 60); // Difference in hours
+
+        let formattedTime;
+        if (diffMinutes < 60) {
+            formattedTime = `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
+        } else if (diffHours < 24) {
+            formattedTime = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+        } else {
+            const options = { month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true };
+            formattedTime = notification.time.toLocaleString("en-US", options); // Example: "March 28 at 11:07 AM"
+        }
+
+        return {
+            ...notification,
+            time: formattedTime, // Replace the time with the formatted string
+        };
+    });
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(formattedNotifications);
+        }, 1000); // Simulate a 1-second delay
+    });
+};
+
 export const handleLogin = async (email, password) => {
     console.log("handleLogin called with:", { email, password });
 
@@ -100,6 +171,7 @@ const ApiService = {
     fetchProtectedData : fetchProtectedData,
     logout : logout,
     getSessionUser : getSessionUser,
+    getNotifications: getNotifications,
 }
 
 export default ApiService;

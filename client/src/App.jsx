@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
+import "./App.css"; // Import the CSS file
 
 // Page components
 import Login from "./views/Login";
@@ -9,9 +10,9 @@ import HomePage from "./views/HomePage";
 import TicketPage from "./views/TicketPage";
 import AboutUsPage from "./views/AboutUsPage";
 import ProfilePage from "./views/ProfilePage";
-import NotificationPage from "./views/NotificationPage";
 import MessagePage from "./views/MessagePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ContactUsPage from "./views/ContactUsPage";
 
 function App() {
     return (
@@ -34,8 +35,8 @@ function App() {
             <Route path="/ticketpage" element={<TicketPage />} />
             <Route path="/aboutuspage" element={<AboutUsPage />} />
             <Route path="/profilepage" element={<ProfilePage />} />
-            <Route path="/notificationpage" element={<NotificationPage />} />
             <Route path="/messagepage" element={<MessagePage />} />
+            <Route path="/contactuspage" element={<ContactUsPage />} />
         </Routes>
     );
 }
