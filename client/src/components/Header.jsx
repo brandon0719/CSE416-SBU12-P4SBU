@@ -6,7 +6,10 @@ import notificationIcon from "../images/notification-bell.svg";
 import dividerIcon from "../images/divider.svg";
 import profileIcon from "../images/default-profile.png";
 
+import ApiService from "../services/ApiService";
+
 const Header = () => {
+    const user = ApiService.getSessionUser();
     return (
         <header className="header-container">
             <a href="/homepage" className="header-logo">
@@ -24,8 +27,13 @@ const Header = () => {
                 </div>
                 <a href="/profilepage" className="header-profile">
                     <img src={profileIcon} alt="Profile" />
-                    <span className="profile-name">John Doe</span>
+                    <span className="profile-name">
+                        {user ? user.name : "Guest"}
+                    </span>
                 </a>
+                <button className="logout-button" onClick={ApiService.logout}>
+                    Logout
+                </button>
             </div>
         </header>
     );

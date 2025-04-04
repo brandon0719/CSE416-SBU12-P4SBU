@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { Navigate } from "react-router-dom";
 
 
 const http = axios.create({
@@ -15,6 +16,8 @@ export const login = (user) => {
 export const logout = () => {
     Cookies.remove("user");
     Cookies.remove("token");
+    console.log("User cookie removed");
+    window.location.reload(); // Reload the page to reflect the logout
 };
 
 export const getSessionUser = () => {
@@ -95,6 +98,8 @@ const ApiService = {
     handleLogin : handleLogin,
     login : login,
     fetchProtectedData : fetchProtectedData,
+    logout : logout,
+    getSessionUser : getSessionUser,
 }
 
 export default ApiService;

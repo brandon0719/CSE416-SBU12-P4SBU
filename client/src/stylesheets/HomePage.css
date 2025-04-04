@@ -1,29 +1,50 @@
+/* Reset box-sizing for all elements */
 * {
-    box-sizing: border-box; /* Include padding and borders in width/height calculations */
+    box-sizing: border-box;
 }
 
+/* Base container for the entire page */
 .homepage-container {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* Fill the full viewport */
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    color: black;
+    background-color: white;
     background-size: cover;
     background-position: center;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* Ensure it fills the entire viewport height */
-    margin: 0;
-    color: black;
-    width: 100vw; /* Ensure it spans the full width of the viewport */
-    padding: 0; /* Ensure no padding affects width */
-    overflow-x: hidden; /* Prevent child elements from causing horizontal overflow */
-    background-color: white;
+    overflow-x: hidden;
 }
 
-.mapbox-container {
-    height: 610px; /* Adjust height as needed */
-    width: 65%; /* Adjust width as needed */
-    background-color: #e0e0e0; /* Placeholder background color */
+/* Container that holds the left and right panels */
+.map-content-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 70px auto; /* Center the container horizontally */
-    box-sizing: border-box;
+    flex: 1;
+    /* allows this container to stretch and fill available space */
+}
+
+/* Left panel for parking details */
+.left-panel {
+    width: 30%;
+    background-color: #f0f0f0;
+    padding: 20px;
+    overflow-y: auto;
+    /* scroll if content is tall */
+}
+
+/* Right panel for the map */
+.right-panel {
+    width: 70%;
+    position: relative;
+}
+
+/* The map fills the entire right panel */
+.map-container {
+    width: 100%;
+    height: 100%;
+    border: 2px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
