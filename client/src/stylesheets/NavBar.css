@@ -3,7 +3,7 @@
     justify-content: space-between;
     align-items: center;
     background-color: rgb(150, 0, 0);
-    padding: 30px 125px; /* Ensure consistent padding */
+    padding: 30px 160px; /* Ensure consistent padding */
     margin: 0; /* Remove margin */
     width: 100%; /* Use 100% to avoid scrollbar issues */
     overflow-x: hidden; /* Prevent horizontal overflow */
