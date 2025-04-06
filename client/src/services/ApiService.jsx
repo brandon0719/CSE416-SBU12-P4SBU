@@ -1,7 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Navigate } from "react-router-dom";
-import { createReservation } from "../../../server/models/reservationModel";
 
 
 const http = axios.create({
@@ -165,7 +164,8 @@ const fetchProtectedData = async () => {
     }
 };
 
-const reserve = async (userId, parkingLot, startTime, endTime) => {
+//create a reservation
+const createReservation = async (userId, parkingLot, startTime, endTime) => {
     try {
         const response = await http.post("/reservation/create", {
             userId,
