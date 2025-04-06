@@ -3,7 +3,6 @@ import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import lotsRouter from "./routes/lots.js";
-import reservationRoutes from "./routes/reservationRoutes.js"
 
 
 const app = express();
@@ -12,9 +11,8 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api/search", searchRoutes);
+app.use("/api/search", searchRoutes)
 app.use("/api/lots", lotsRouter);
-app.use("/api/reservation", reservationRoutes);
 
 
 export default app;

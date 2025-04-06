@@ -1,7 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Navigate } from "react-router-dom";
-import { createReservation } from "../../../server/models/reservationModel";
 
 
 const http = axios.create({
@@ -165,20 +164,6 @@ const fetchProtectedData = async () => {
     }
 };
 
-const reserve = async (userId, parkingLot, startTime, endTime) => {
-    try {
-        const response = await http.post("/reservation/create", {
-            userId,
-            parkingLot,
-            startTime,
-            endTime
-        });
-        return response.data;
-    } catch (error) {
-        throw error.response?.data || { message: "Reservation failed" };
-    }
-};
-
 const ApiService = {
     registerUser : registerUser,
     handleLogin : handleLogin,
@@ -187,7 +172,6 @@ const ApiService = {
     logout : logout,
     getSessionUser : getSessionUser,
     getNotifications: getNotifications,
-    createReservation: createReservation
 }
 
 export default ApiService;
