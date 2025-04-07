@@ -131,7 +131,7 @@ export const handleLogin = async (email, password) => {
         //ApiService.setAuthToken(token); // Attach token to Axios
         //setUserset(user); // Update user state
     } catch (err) {
-        console.error("Error during login:", err.message);
+        console.error("Error during login:", err.response?.data || err.message);
         throw err;
     }
 };

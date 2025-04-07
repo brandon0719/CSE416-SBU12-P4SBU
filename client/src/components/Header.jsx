@@ -33,6 +33,11 @@ const Header = () => {
     const toggleShowAll = () => {
         setShowAll(!showAll);
     };
+
+    const handleLogout = () => {
+        ApiService.logout(); // Call the logout function
+        navigate("/login"); // Redirect to the login page
+    };
     
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -103,7 +108,7 @@ const Header = () => {
                         {user ? user.name : "Guest"}
                     </span>
                 </a>
-                <button className="logout-button" onClick={ApiService.logout}>
+                <button className="logout-button" onClick={handleLogout}>
                     Logout
                 </button>
             </div>
