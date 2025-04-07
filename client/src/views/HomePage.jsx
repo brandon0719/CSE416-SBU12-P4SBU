@@ -11,13 +11,10 @@ import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 function computeCentroid(geom) {
     let coords = [];
     if (geom.type === "Polygon") {
-        // For a Polygon, take the first (outer) ring.
         coords = geom.coordinates[0];
     } else if (geom.type === "MultiPolygon") {
-        // For a MultiPolygon, take the first polygon's first ring.
         coords = geom.coordinates[0][0];
     } else {
-        // Fallback: return the map's initial center if the geometry type is unexpected.
         return [-73.12246, 40.91671];
     }
 
@@ -45,7 +42,27 @@ const HomePage = () => {
             zoom: initialZoom,
         });
 
-        // Add the Directions control so that clicking adds waypoints
+        // Set up the GeolocateControl
+        const geolocateControl = new mapboxgl.GeolocateControl({
+            positionOptions: { enableHighAccuracy: true },
+            trackUserLocation: true,
+            showUserHeading: true,
+        });
+        map.addControl(geolocateControl, 'top-right');
+
+        // If user denies geolocation, remove the control so no dot is shown
+        geolocateControl.on('error', (error) => {
+            if (error.code === error.PERMISSION_DENIED) {
+                map.removeControl(geolocateControl);
+            }
+        });
+
+        // Optional: automatically ask for location on load
+        geolocateControl.on('render', () => {
+            geolocateControl.trigger();
+        });
+
+        // Create Directions control
         const directions = new MapboxDirections({
             accessToken: mapboxgl.accessToken,
             unit: 'metric',
@@ -53,8 +70,14 @@ const HomePage = () => {
         });
         map.addControl(directions, 'top-left');
 
+        // *** When user grants location, set their location as the route origin ***
+        geolocateControl.on('geolocate', (position) => {
+            const userLng = position.coords.longitude;
+            const userLat = position.coords.latitude;
+            directions.setOrigin([userLng, userLat]);
+        });
+
         map.on("load", async () => {
-            // Optional: adjust scroll zoom sensitivity if needed
             map.scrollZoom.setWheelZoomRate(100);
 
             try {
@@ -98,11 +121,10 @@ const HomePage = () => {
                         },
                     });
 
-                    // Use a closure to manage the popup for each lot
+                    // Show a popup on hover
                     (() => {
                         let lotPopup;
                         map.on("mouseenter", `${sourceId}-fill`, () => {
-                            // Compute the centroid by averaging the coordinates of the outer ring
                             const center = computeCentroid(lot.geom);
                             lotPopup = new mapboxgl.Popup({
                                 closeButton: false,
@@ -110,11 +132,11 @@ const HomePage = () => {
                             })
                                 .setLngLat(center)
                                 .setHTML(`
-                  <div style="text-align: center;">
-                    <h3>${lot.name}</h3>
-                    <p>${lot.details || "No additional information available."}</p>
-                  </div>
-                `)
+                                    <div style="text-align: center;">
+                                        <h3>${lot.name}</h3>
+                                        <p>${lot.details || "No additional information available."}</p>
+                                    </div>
+                                `)
                                 .addTo(map);
                             map.getCanvas().style.cursor = "pointer";
                         });
@@ -132,6 +154,7 @@ const HomePage = () => {
             }
         });
 
+        // Cleanup on unmount
         return () => map.remove();
     }, []);
 
