@@ -79,6 +79,12 @@
     text-decoration: none;
 }
 
+.message-and-notfication-container {
+    display: flex;
+    align-items: center;
+    margin-right: 80px;
+}
+
 .notification-container {
     position: absolute;
     margin-left: 54px;
@@ -107,7 +113,7 @@
 }
 
 .notification-dropdown ul.show-all {
-    max-height: none; /* Remove height limit when "Show All" is clicked */
+    max-height: 550; /* Remove height limit when "Show All" is clicked */
     overflow-y: auto; /* Enable scrolling */
 }
 
@@ -171,6 +177,119 @@
 
 /* For Firefox */
 .notification-dropdown {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(150, 0, 0) #f8f8f8;
+}
+
+
+/* Message container styling */
+.message-container {
+    position: absolute; /* Ensure dropdown is positioned relative to the icon */
+    margin-right: 54px; /* Adjust spacing as needed */
+}
+
+.message-dropdown-button {
+    margin-top: 15px;
+    background-color: rgb(150, 0, 0);
+    color: white;
+    border-radius: 12px;
+    margin-left: 70px;
+}
+
+.message-dropdown-button:hover {
+    background-color: rgb(120, 0, 0);
+}
+
+/* Message dropdown styling */
+.message-dropdown {
+    position: absolute;
+    top: 100%;
+    right: -88px;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 200px;
+    max-height: 385px; /* Limit height when "Show All" is clicked */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: none; 
+    animation: fadeIn 0.3s ease-in-out; /* Fade-in effect */
+}
+
+/* Message dropdown list styling */
+.message-dropdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: hidden; /* Hide overflow initially */
+}
+
+.message-dropdown ul.show-all {
+    max-height: 550px; /* Remove height limit when "Show All" is clicked */
+    overflow-y: auto; /* Enable scrolling */
+}
+
+.message-dropdown li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.message-dropdown li:last-child {
+    border-bottom: none;
+}
+
+.message-dropdown a {
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+}
+
+.message-time {
+    display: block;
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
+}
+
+/* Show All button for message dropdown */
+.message-dropdown .show-all-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #f8f8f8;
+    border: none;
+    border-top: 1px solid #eee;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+}
+
+.message-dropdown .show-all-button:hover {
+    background-color: #e8e8e8;
+}
+
+/* Custom scrollbar for the message dropdown */
+.message-dropdown::-webkit-scrollbar {
+    width: 8px; 
+}
+
+.message-dropdown::-webkit-scrollbar-track {
+    background: #f8f8f8; 
+    border-radius: 5px; 
+}
+
+.message-dropdown::-webkit-scrollbar-thumb {
+    background: rgb(150, 0, 0); 
+    border-radius: 5px; 
+}
+
+.message-dropdown::-webkit-scrollbar-thumb:hover {
+    background: rgb(120, 0, 0); 
+}
+
+/* For Firefox */
+.message-dropdown {
     scrollbar-width: thin;
     scrollbar-color: rgb(150, 0, 0) #f8f8f8;
 }
