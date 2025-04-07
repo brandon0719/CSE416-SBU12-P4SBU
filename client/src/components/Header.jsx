@@ -31,9 +31,9 @@ const Header = () => {
                         {user ? user.name : "Guest"}
                     </span>
                 </a>
-                <button className="logout-button" onClick={ApiService.logout}>
+                {user && <button className="logout-button" onClick={ApiService.logout}>
                     Logout
-                </button>
+                </button>}
             </div>
         </header>
     );
