@@ -7,12 +7,35 @@ import "../stylesheets/HomePage.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 
+// Computes the average (mean) of coordinates in the outer ring of the geometry
+function computeCentroid(geom) {
+    let coords = [];
+    if (geom.type === "Polygon") {
+        // For a Polygon, take the first (outer) ring.
+        coords = geom.coordinates[0];
+    } else if (geom.type === "MultiPolygon") {
+        // For a MultiPolygon, take the first polygon's first ring.
+        coords = geom.coordinates[0][0];
+    } else {
+        // Fallback: return the map's initial center if the geometry type is unexpected.
+        return [-73.12246, 40.91671];
+    }
+
+    let sumLng = 0, sumLat = 0;
+    coords.forEach(([lng, lat]) => {
+        sumLng += lng;
+        sumLat += lat;
+    });
+    const count = coords.length || 1;
+    return [sumLng / count, sumLat / count];
+}
+
 const HomePage = () => {
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
 
-        // Set the initial center coordinates (roughly between your previous bounds)
-        const initialCenter = [-73.12246,40.91671];
+        // Set initial center and zoom level
+        const initialCenter = [-73.12246, 40.91671];
         const initialZoom = 15;
 
         const map = new mapboxgl.Map({
@@ -22,16 +45,16 @@ const HomePage = () => {
             zoom: initialZoom,
         });
 
+        // Add the Directions control so that clicking adds waypoints
         const directions = new MapboxDirections({
             accessToken: mapboxgl.accessToken,
             unit: 'metric',
             profile: 'mapbox/driving',
         });
-
-        // Add the Directions control to the map
         map.addControl(directions, 'top-left');
 
         map.on("load", async () => {
+            // Optional: adjust scroll zoom sensitivity if needed
             map.scrollZoom.setWheelZoomRate(100);
 
             try {
@@ -41,11 +64,13 @@ const HomePage = () => {
                 lots.forEach((lot) => {
                     const sourceId = `lot-${lot.name.replace(/\s+/g, "-")}`;
 
+                    // Add the GeoJSON source for this lot
                     map.addSource(sourceId, {
                         type: "geojson",
                         data: lot.geom,
                     });
 
+                    // Add a fill layer for the lot area
                     map.addLayer({
                         id: `${sourceId}-fill`,
                         type: "fill",
@@ -57,6 +82,7 @@ const HomePage = () => {
                         },
                     });
 
+                    // Add a label layer for the lot name
                     map.addLayer({
                         id: `${sourceId}-label`,
                         type: "symbol",
@@ -71,6 +97,35 @@ const HomePage = () => {
                             "text-color": "#000",
                         },
                     });
+
+                    // Use a closure to manage the popup for each lot
+                    (() => {
+                        let lotPopup;
+                        map.on("mouseenter", `${sourceId}-fill`, () => {
+                            // Compute the centroid by averaging the coordinates of the outer ring
+                            const center = computeCentroid(lot.geom);
+                            lotPopup = new mapboxgl.Popup({
+                                closeButton: false,
+                                offset: 25,
+                            })
+                                .setLngLat(center)
+                                .setHTML(`
+                  <div style="text-align: center;">
+                    <h3>${lot.name}</h3>
+                    <p>${lot.details || "No additional information available."}</p>
+                  </div>
+                `)
+                                .addTo(map);
+                            map.getCanvas().style.cursor = "pointer";
+                        });
+                        map.on("mouseleave", `${sourceId}-fill`, () => {
+                            if (lotPopup) {
+                                lotPopup.remove();
+                                lotPopup = null;
+                            }
+                            map.getCanvas().style.cursor = "";
+                        });
+                    })();
                 });
             } catch (error) {
                 console.error("Error fetching lots data:", error);
@@ -87,7 +142,7 @@ const HomePage = () => {
             <div className="map-content-container">
                 <div className="left-panel">
                     <h2>Parking Details</h2>
-                    {/* Add additional parking details or components here */}
+                    {/* Additional parking details or interactive elements can be added here */}
                 </div>
                 <div className="right-panel">
                     <div id="map" className="map-container" />

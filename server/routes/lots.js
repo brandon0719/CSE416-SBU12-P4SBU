@@ -8,6 +8,7 @@ router.get("/", async (req, res) => {
         const result = await pool.query(`
       SELECT 
         name,
+        details,
         ST_AsGeoJSON(geom)::json AS geom 
       FROM lots
     `);
