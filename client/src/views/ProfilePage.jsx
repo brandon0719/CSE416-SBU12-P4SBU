@@ -5,13 +5,13 @@ import "../stylesheets/ProfilePage.css";
 const ProfilePage = () => {
     return (
         <div className="profile-page-container">
-        <Header />
-        <NavBar />
-        <div className="profile-page-content">
-            <h1>Profile Page</h1>
-        </div>
+            <Header />
+            <NavBar />
+            <div className="profile-page-content">
+                <h1>Profile Page</h1>
+            </div>
         </div>
     );
-}
+};
 
 export default ProfilePage;
