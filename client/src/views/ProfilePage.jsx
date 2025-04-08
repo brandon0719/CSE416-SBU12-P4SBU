@@ -127,6 +127,9 @@ const ProfilePage = () => {
                         )}
                     </ul>
                 </div>
+
+            </div>
+
         </div>
     );
 };
