@@ -136,6 +136,7 @@ const ProfilePage = () => {
                 </div>
             </div>
             <div className="reservations-section">
+
                 <h2>Previous Reservations</h2>
                 <ul>
                     {reservations.length > 0 ? (
@@ -149,6 +150,7 @@ const ProfilePage = () => {
                     )}
                 </ul>
             </div>
+
         </div>
     );
 };
