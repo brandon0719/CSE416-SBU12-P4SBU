@@ -71,6 +71,7 @@ const HomePage = () => {
         map.addControl(directions, 'top-left');
 
         // *** When user grants location, set their location as the route origin ***
+
         geolocateControl.on("geolocate", (position) => {
             const userLng = position.coords.longitude;
             const userLat = position.coords.latitude;
@@ -83,6 +84,7 @@ const HomePage = () => {
                 properties: {},
                 place_name: "Your location",
             });
+
         });
 
         map.on("load", async () => {
