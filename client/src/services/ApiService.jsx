@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 
 
 const http = axios.create({
-    baseURL: "http://localhost:8000/api", 
+    baseURL: "http://localhost:8000/api",
 });
 
 export const login = (user) => {
@@ -239,16 +239,49 @@ const createReservation = async (userId, parkingLot, startTime, endTime) => {
     }
 };
 
+// Mock function to simulate fetching tickets
+const getTickets = async (userId) => {
+    const mockTickets = [
+        { id: 1, violation: "Parking in a no-parking zone", amount: 50, date: "2025-04-01" },
+        { id: 2, violation: "Expired parking permit", amount: 75, date: "2025-03-28" },
+        { id: 3, violation: "Overstaying time limit", amount: 30, date: "2025-03-25" },
+    ];
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(mockTickets), 1000); // Simulate a delay
+    });
+    // try {
+    //     const response = await http.get(`/tickets/${userId}`);
+    //     return response.data;
+    // } catch (error) {
+    //     console.error("Failed to fetch tickets:", error);
+    //     throw error.response?.data || { message: "Failed to fetch tickets" };
+    // }
+};
+
+// mock create payment
+const createPaymentIntent = async (ticketIds) => {
+    console.log("Mocking payment intent creation for tickets:", ticketIds);
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({ clientSecret: "mock_client_secret" });
+        }, 1000); // Simulate a delay
+    });
+};
+
+
+
 const ApiService = {
-    registerUser : registerUser,
-    handleLogin : handleLogin,
-    login : login,
-    fetchProtectedData : fetchProtectedData,
-    logout : logout,
-    getSessionUser : getSessionUser,
+    registerUser: registerUser,
+    handleLogin: handleLogin,
+    login: login,
+    fetchProtectedData: fetchProtectedData,
+    logout: logout,
+    getSessionUser: getSessionUser,
     getNotifications: getNotifications,
     getMessages: getMessages,
-    createReservation: createReservation
+    createReservation: createReservation,
+    createPaymentIntent: createPaymentIntent,
+    getTickets: getTickets,
 }
 
 export default ApiService;

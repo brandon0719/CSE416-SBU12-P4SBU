@@ -30,6 +30,31 @@
     margin-bottom: 20px;
 }
 
+.profile-picture-section {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.current-profile-picture {
+    margin-right: 20px;
+}
+
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ccc;
+}
+
+.change-profile-picture input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 .profile-section label {
     display: block;
     font-weight: bold;
@@ -41,8 +66,19 @@
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid black; /* Black border */
     border-radius: 4px;
+    background-color: #f5f5f5; /* Light gray background */
+    font-size: 16px;
+    color: #333;
+}
+
+.profile-section input:focus,
+.profile-section select:focus {
+    outline: none;
+    border-color: #4caf50; /* Green border on focus */
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Green glow on focus */
+    background-color: #ffffff; /* White background on focus */
 }
 
 .reservations-section {

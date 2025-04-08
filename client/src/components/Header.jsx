@@ -12,12 +12,15 @@ const Header = () => {
     // notification dropdown stuff
     const [notifications, setNotifications] = useState([]);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-    const [showAll, setShowAll] = useState(false);
+    const [showAllNotifications, setShowAllNotifications] = useState(false);
     const dropdownRef = useRef(null);
+    
     // message dropdown stuff
     const [messages, setMessages] = useState([]);
     const [isMessageDropdownOpen, setIsMessageDropdownOpen] = useState(false);
+    const [showAllMessages, setShowAllMessages] = useState(false);
     const messageDropdownRef = useRef(null);
+    
     // user info
     const user = ApiService.getSessionUser();
 
@@ -35,8 +38,8 @@ const Header = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
 
-    const toggleShowAll = () => {
-        setShowAll(!showAll);
+    const toggleShowAllNotifications = () => {
+        setShowAllNotifications(!showAllNotifications);
     };
 
     useEffect(() => {
@@ -51,6 +54,10 @@ const Header = () => {
 
     const toggleMessageDropdown = () => {
         setIsMessageDropdownOpen(!isMessageDropdownOpen);
+    };
+
+    const toggleShowAllMessages = () => {
+        setShowAllMessages(!showAllMessages);
     };
 
     const handleLogout = () => {
@@ -96,7 +103,7 @@ const Header = () => {
                                 <hr style={{ border: "1px solid #eee", margin: "10px 0 0 0" }} />
                                 {messages.length > 0 ? (
                                     <ul>
-                                        {messages.slice(0, 3).map((message, index) => (
+                                        {(showAllMessages ? messages : messages.slice(0, 3)).map((message, index) => (
                                             <li key={index}>
                                                 <a href={message.link}>
                                                     {message.message}
@@ -113,9 +120,9 @@ const Header = () => {
                                 {messages.length > 3 && (
                                     <button
                                         className="show-all-button"
-                                        onClick={toggleShowAll}
+                                        onClick={toggleShowAllMessages}
                                     >
-                                        {showAll ? "Show Less" : "Show All"}
+                                        {showAllMessages ? "Show Less" : "Show All"}
                                     </button>
                                 )}
                             </div>
@@ -131,7 +138,7 @@ const Header = () => {
                             <div className="notification-dropdown">
                                 {notifications.length > 0 ? (
                                     <ul>
-                                        {(showAll
+                                        {(showAllNotifications
                                             ? notifications
                                             : notifications.slice(0, 5)
                                         ).map((notification, index) => (
@@ -151,9 +158,9 @@ const Header = () => {
                                 {notifications.length > 5 && (
                                     <button
                                         className="show-all-button"
-                                        onClick={toggleShowAll}
+                                        onClick={toggleShowAllNotifications}
                                     >
-                                        {showAll ? "Show Less" : "Show All"}
+                                        {showAllNotifications ? "Show Less" : "Show All"}
                                     </button>
                                 )}
                             </div>

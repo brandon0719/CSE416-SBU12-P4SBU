@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import NavBar from "../components/NavBar";
 import ApiService from "../services/ApiService";
 import "../stylesheets/ProfilePage.css";
+import profileIcon from "../images/default-profile.png";
 
 const ProfilePage = () => {
     const [user, setUser] = useState(null);
@@ -56,10 +57,31 @@ const ProfilePage = () => {
             <NavBar />
             <div className="profile-page-content">
                 <h1>Profile Page</h1>
-                <div className="profile-section">
-                    <label>Profile Picture:</label>
-                    <input type="file" accept=".png, .jpg" onChange={handleProfilePictureChange} />
-                </div>
+                <div className="profile-section profile-picture-section">
+                    <div className="current-profile-picture">
+                        {profilePicture ? (
+                            <img
+                                src={URL.createObjectURL(profilePicture)}
+                                alt="Current Profile"
+                                className="profile-picture"
+                            />
+                        ) : (
+                            <img
+                                src={user?.profilePicture || profileIcon} // Default image if none is set
+                                alt="Default Profile"
+                                className="profile-picture"
+                            />
+                        )}
+                    </div>
+                    <div className="change-profile-picture">
+                        <input
+                            type="file"
+                            accept=".png, .jpg"
+                            placeholder="Change Image"
+                            onChange={handleProfilePictureChange}
+                        />
+                    </div>
+                </div>  
                 <div className="profile-section">
                     <label>User Type:</label>
                     <select value={userType} onChange={(e) => setUserType(e.target.value)}>
@@ -107,27 +129,26 @@ const ProfilePage = () => {
                         onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                 </div>
-                
+
                 <div className="action-buttons">
                     <button onClick={handleCancel}>Cancel</button>
                     <button onClick={handleSave}>Save</button>
                 </div>
             </div>
             <div className="reservations-section">
-                    <h2>Previous Reservations</h2>
-                    <ul>
-                        {reservations.length > 0 ? (
-                            reservations.map((res, index) => (
-                                <li key={index}>
-                                    Reserved on {res.day} from {res.startTime} to {res.endTime}
-                                </li>
-                            ))
-                        ) : (
-                            <p>No reservations found.</p>
-                        )}
-                    </ul>
-                </div>
 
+                <h2>Previous Reservations</h2>
+                <ul>
+                    {reservations.length > 0 ? (
+                        reservations.map((res, index) => (
+                            <li key={index}>
+                                Reserved on {res.day} from {res.startTime} to {res.endTime}
+                            </li>
+                        ))
+                    ) : (
+                        <p>No reservations found.</p>
+                    )}
+                </ul>
             </div>
 
         </div>

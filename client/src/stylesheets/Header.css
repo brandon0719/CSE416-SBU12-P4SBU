@@ -209,10 +209,10 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     width: 200px;
-    max-height: 385px; /* Limit height when "Show All" is clicked */
+    max-height: 390px; /* Limit height when "Show All" is clicked */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    overflow-y: none; 
+    overflow-y: auto; 
     animation: fadeIn 0.3s ease-in-out; /* Fade-in effect */
 }
 
