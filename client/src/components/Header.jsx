@@ -14,13 +14,13 @@ const Header = () => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [showAllNotifications, setShowAllNotifications] = useState(false);
     const dropdownRef = useRef(null);
-    
+
     // message dropdown stuff
     const [messages, setMessages] = useState([]);
     const [isMessageDropdownOpen, setIsMessageDropdownOpen] = useState(false);
     const [showAllMessages, setShowAllMessages] = useState(false);
     const messageDropdownRef = useRef(null);
-    
+
     // user info
     const user = ApiService.getSessionUser();
 
@@ -73,7 +73,7 @@ const Header = () => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsDropdownOpen(false); // Close the notification dropdown
             }
-            
+
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -170,14 +170,21 @@ const Header = () => {
                 <div className="header-divider">
                     <img src={dividerIcon} alt="Divider" />
                 </div>
-                <a href="/profilepage" className="header-profile">
-                    <img src={profileIcon} alt="Profile" />
-                    <span className="profile-name">
-                        {user ? user.name : "Guest"}
-                    </span>
-                </a>
+                {user && user.is_admin ? (
+                    // Non-clickable profile area for admin users
+                    <div className="header-profile non-clickable">
+                        <img src={profileIcon} alt="Profile" />
+                        <span className="profile-name">{user.name}</span>
+                    </div>
+                ) : (
+                    // Clickable profile area for regular users
+                    <a href="/profilepage" className="header-profile">
+                        <img src={profileIcon} alt="Profile" />
+                        <span className="profile-name">{user ? user.name : "Guest"}</span>
+                    </a>
+                )}
                 <button className="logout-button" onClick={handleLogout}>
-                    Logout
+                    Logout  
                 </button>
             </div>
         </header>

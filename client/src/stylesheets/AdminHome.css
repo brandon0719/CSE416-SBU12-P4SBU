@@ -1,0 +1,18 @@
+* {
+    box-sizing: border-box; /* Include padding and borders in width/height calculations */
+}
+
+.admin-page-container {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Ensure it fills the entire viewport height */
+    margin: 0;
+    color: black;
+    width: 100vw; /* Ensure it spans the full width of the viewport */
+    padding: 0; /* Ensure no padding affects width */
+    overflow-x: hidden; /* Prevent child elements from causing horizontal overflow */
+    background-color: white;
+}
