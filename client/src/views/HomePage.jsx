@@ -1,13 +1,12 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
-import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.js';
+import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.js";
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
-import "../stylesheets/HomePage.css";
 import "mapbox-gl/dist/mapbox-gl.css";
-import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
+import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
+import "../stylesheets/HomePage.css";
 
-// Computes the average (mean) of coordinates in the outer ring of the geometry
 function computeCentroid(geom) {
     let coords = [];
     if (geom.type === "Polygon") {
@@ -28,6 +27,26 @@ function computeCentroid(geom) {
 }
 
 const HomePage = () => {
+    const [lots, setLots] = useState([]);
+    const [sortBy, setSortBy] = useState("distance");
+    const [userLocation, setUserLocation] = useState({ lng: -73.12246, lat: 40.91671 });
+
+    useEffect(() => {
+        const fetchLots = async () => {
+            try {
+                const response = await fetch(
+                    `/api/lots?sortBy=${sortBy}&userLng=${userLocation.lng}&userLat=${userLocation.lat}`
+                );
+                const data = await response.json();
+                setLots(data);
+            } catch (error) {
+                console.error("Error fetching lots:", error);
+            }
+        };
+
+        fetchLots();
+    }, [sortBy, userLocation]);
+
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
 
@@ -42,44 +61,37 @@ const HomePage = () => {
             zoom: initialZoom,
         });
 
-        // Set up the GeolocateControl
-        const geolocateControl = new mapboxgl.GeolocateControl({
-            positionOptions: { enableHighAccuracy: true },
-            trackUserLocation: true,
-            showUserHeading: true,
-        });
-        map.addControl(geolocateControl, 'top-right');
-
-        // If user denies geolocation, remove the control so no dot is shown
-        geolocateControl.on('error', (error) => {
-            if (error.code === error.PERMISSION_DENIED) {
-                map.removeControl(geolocateControl);
-            }
-        });
-
-        // Optional: automatically ask for location on load
-        geolocateControl.on('render', () => {
-            geolocateControl.trigger();
-        });
-
-        // Create Directions control
-        const directions = new MapboxDirections({
-            accessToken: mapboxgl.accessToken,
-            unit: 'metric',
-            profile: 'mapbox/driving',
-        });
-        map.addControl(directions, 'top-left');
-
-        // *** When user grants location, set their location as the route origin ***
-        geolocateControl.on('geolocate', (position) => {
-            const userLng = position.coords.longitude;
-            const userLat = position.coords.latitude;
-            directions.setOrigin([userLng, userLat]);
-        });
-
         map.on("load", async () => {
+            // Ensure the map is fully loaded before adding controls
             map.scrollZoom.setWheelZoomRate(100);
 
+            // Add the GeolocateControl
+            const geolocateControl = new mapboxgl.GeolocateControl({
+                positionOptions: { enableHighAccuracy: true },
+                trackUserLocation: true,
+                showUserHeading: true,
+            });
+            map.addControl(geolocateControl, "top-right");
+
+            geolocateControl.on("error", (error) => {
+                if (error.code === error.PERMISSION_DENIED) {
+                    map.removeControl(geolocateControl);
+                }
+            });
+
+            geolocateControl.on("geolocate", (position) => {
+                const userLng = position.coords.longitude;
+                const userLat = position.coords.latitude;
+                directions.setOrigin([userLng, userLat]);
+            });
+
+            // Add the Directions control
+            const directions = new MapboxDirections({
+                accessToken: mapboxgl.accessToken,
+                unit: "metric",
+                profile: "mapbox/driving",
+            });
+            map.addControl(directions, "top-left");
             try {
                 const response = await fetch("/api/lots");
                 const lots = await response.json(); // Array of lot objects
@@ -112,7 +124,7 @@ const HomePage = () => {
                         source: sourceId,
                         layout: {
                             "text-field": lot.name,
-                            "text-size": 14,
+                            "text-size": 10,
                             "text-offset": [0, 0],
                             "text-anchor": "center",
                         },
@@ -164,8 +176,43 @@ const HomePage = () => {
             <NavBar />
             <div className="map-content-container">
                 <div className="left-panel">
-                    <h2>Parking Details</h2>
-                    {/* Additional parking details or interactive elements can be added here */}
+
+                    <div className="sorting-options">
+
+                        <label htmlFor="sort-by">Starting:</label>
+                        <select
+                            id="sort-by"
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                        >
+                            <option value="current_location">Current Location</option>
+                            <option value="destination">Destination</option>
+                        </select>
+
+                        <label htmlFor="sort-by">Sort by:</label>
+                        <select
+                            id="sort-by"
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                        >
+                            <option value="distance">Distance</option>
+                            <option value="price">Price</option>
+                        </select>
+
+                    </div>
+                    <div className="lots-list">
+                        <h3>Parking Lots</h3>
+                        {lots.map((lot) => (
+                            <div key={lot.name} className="lot-item">
+                                <p><strong>{lot.name}</strong></p>
+                                <p>{lot.details}</p>
+                                <p>Price: ${lot.price}</p>
+                                <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
+                                    Reserve
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
                 <div className="right-panel">
                     <div id="map" className="map-container" />

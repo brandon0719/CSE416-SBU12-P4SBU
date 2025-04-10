@@ -2,6 +2,7 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { getSessionUser } from "../services/ApiService"; // adjust path as needed
+import HomePage from "../views/HomePage";
 
 const ProtectedRoute = ({ children }) => {
     const user = getSessionUser();
@@ -11,8 +12,9 @@ const ProtectedRoute = ({ children }) => {
         return <Navigate to="/login" replace />;
     }
 
-    if (user.is_admin) {
-        return <Navigate to="/users" replace />;
+    // If the user is not an admin, redirect to the home page
+    if (!user.is_admin) {
+        return <Navigate to="/homepage" replace />;
     }
 
     return children;

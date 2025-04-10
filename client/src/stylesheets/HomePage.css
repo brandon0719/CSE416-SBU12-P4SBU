@@ -22,17 +22,24 @@
 /* Container that holds the left and right panels */
 .map-content-container {
     display: flex;
-    flex: 1;
-    /* allows this container to stretch and fill available space */
+    flex-direction: row;
+    max-width: 1400px;
+    width: 100%;
+    height: 600px;
+    margin: 30px auto; /* Center the container horizontally */
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Left panel for parking details */
+/* Update left-panel */
 .left-panel {
     width: 30%;
     background-color: #f0f0f0;
     padding: 20px;
-    overflow-y: auto;
-    /* scroll if content is tall */
+    overflow-y: auto; /* Scrollable content */
+    display: flex;
+    flex-direction: column;
+    gap: 0; /* Add spacing between elements */
 }
 
 /* Right panel for the map */
@@ -47,4 +54,84 @@
     height: 100%;
     border: 2px solid #ccc;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    /* Hide the default directions panel */
+.mapbox-directions-panel {
+    display: none; /* Hides the default panel */
+}
+
+/* Customize the route summary (e.g., travel time and distance) */
+.mapbox-directions-route-summary {
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+/* Customize the input fields for origin and destination */
+.mapbox-directions-input {
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 14px;
+}
+
+/* Customize the buttons (e.g., profile selection: driving, walking, etc.) */
+.mapbox-directions-profile-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.mapbox-directions-profile-button:hover {
+    background-color: #0056b3;
+}
+
+.sorting-options {
+    margin-bottom: 10px;
+}
+
+.lots-list {
+    margin-top: 10px;
+}
+
+.lot-item {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.lot-item button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.lot-item button:hover {
+    background-color: #0056b3;
+}    
+
+.sorting-options select {
+    padding: 5px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+    margin: 0 6px 0 6px;
+    background-color: white ;
+    color: gray;
+}
+
+.sorting-options{
+    margin-bottom: 0;
+}
+
+.lots-list {
+    margin-top: 0;
 }
