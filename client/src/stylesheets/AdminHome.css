@@ -16,3 +16,27 @@
     overflow-x: hidden; /* Prevent child elements from causing horizontal overflow */
     background-color: white;
 }
+
+/* parking page customization */
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.popup input,
+.popup textarea {
+    display: block;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.popup button {
+    margin: 5px;
+}
