@@ -10,7 +10,7 @@ function getClosestNode(graph, coord) {
     return Object.keys(graph)[0];
 }
 
-router.get("/route/v5/mapbox/driving/:coords", (req, res) => {
+router.get("/route/v5/driving/:coords", (req, res) => {
     console.log("Received route request with coords:", req.params.coords);
 
     try {

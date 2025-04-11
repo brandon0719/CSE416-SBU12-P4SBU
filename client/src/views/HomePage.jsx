@@ -79,14 +79,20 @@ const HomePage = () => {
             const directions = new MapboxDirections({
                 accessToken: mapboxgl.accessToken,
                 unit: "metric",
-                profile: "mapbox/driving",
-                api: "http://localhost:8000/route/v5/"
+                controls: {
+                    profileSwitcher: false
+                },
+                api: "http://localhost:8000/route/v5/",
+                geometries: "geojson",
+                overview: "full",
+                steps: true,
             });
             map.addControl(directions, "top-left");
 
             directions.on("route", (e) => {
                 console.log("Route event received:", e);
             });
+
 
 
             // Add the Geolocate control next so it appears to the right of directions
@@ -172,6 +178,7 @@ const HomePage = () => {
                             }
                             map.getCanvas().style.cursor = "";
                         });
+
                     })();
                 });
             } catch (error) {

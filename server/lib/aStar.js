@@ -63,6 +63,78 @@ function reconstructPath(cameFrom, current) {
     return totalPath;
 }
 
+// server/lib/astar.js
+
+/**
+ * Computes haversine distance in meters between two [lng, lat] pairs.
+ */
+function haversineDistance([lng1, lat1], [lng2, lat2]) {
+    const R = 6371000; // Earth radius in meters
+    const toRad = (val) => (val * Math.PI) / 180;
+
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // distance in meters
+}
+
+/**
+ * Summation of distances across the route's line
+ */
+function computeTotalDistance(coords) {
+    let total = 0;
+    for (let i = 0; i < coords.length - 1; i++) {
+        total += haversineDistance(coords[i], coords[i + 1]);
+    }
+    return total; // meters
+}
+
+/**
+ * Example:  If driving speed ~ 30 km/h => ~8.33 m/s
+ *           so duration (sec) = distance (m) / speed (m/s)
+ */
+function computeDuration(distanceMeters) {
+    const speedMetersPerSec = 8.33; // ~ 30 km/h
+    return distanceMeters / speedMetersPerSec; // in seconds
+}
+
+/**
+ * Creates minimal "step" instructions for the route.
+ * We'll just create one step from start to end, to show how it can be done.
+ */
+function createSteps(coords) {
+    if (coords.length < 2) return [];
+
+    // The Directions control typically expects an array of steps.
+    // We'll define a single step that goes from the first coordinate to the last.
+    const distance = haversineDistance(coords[0], coords[coords.length - 1]);
+    return [
+        {
+            distance,                  // in meters
+            duration: computeDuration(distance), // in seconds
+            geometry: {
+                type: "LineString",
+                coordinates: coords
+            },
+            name: "",                  // Usually the street name
+            maneuver: {
+                bearing_before: 0,
+                bearing_after: 0,
+                location: coords[0],    // Start location
+                type: "depart",
+                instruction: "Head to destination"
+            }
+        }
+    ];
+}
+
+/**
+ * Convert the node path into a full OSRM-v5-like JSON response.
+ */
 function toOSRMResponse(graph, pathNodes, originCoord, destCoord) {
     let coordinates;
     if (pathNodes.length < 2) {
@@ -74,44 +146,43 @@ function toOSRMResponse(graph, pathNodes, originCoord, destCoord) {
         });
     }
 
-    // Dummy values
-    const distance = 150;
-    const duration = 30;
+    // Compute total distance across our final coords
+    const distanceMeters = computeTotalDistance(coordinates);
+    const durationSeconds = computeDuration(distanceMeters);
 
-    console.log("Origin:", originCoord);
-    console.log("Destination:", destCoord);
-    
+    // Create a single leg with optional steps
+    const steps = createSteps(coordinates);
 
     return {
         routes: [
             {
                 geometry: {
                     type: "LineString",
-                    coordinates,
+                    coordinates
                 },
-                distance,
-                duration,
+                distance: distanceMeters,         // in meters
+                duration: durationSeconds,        // in seconds
                 legs: [
                     {
-                        steps: [],
-                    },
-                ],
-            },
+                        distance: distanceMeters,
+                        duration: durationSeconds,
+                        steps
+                    }
+                ]
+            }
         ],
-        // Add proper waypoints
         waypoints: [
             {
                 name: "Origin",
-                location: originCoord,
+                location: originCoord
             },
             {
                 name: "Destination",
-                location: destCoord,
-            },
+                location: destCoord
+            }
         ],
-        code: "Ok",
+        code: "Ok"
     };
 }
-
 
 export { aStar, toOSRMResponse };
