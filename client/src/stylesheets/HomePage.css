@@ -171,3 +171,22 @@
     border-radius: 5px;
     color: black;
 }
+
+.time-selection {
+    width: 100%;
+    margin: 8px;
+    right: auto;
+    margin-left: 20%;
+}
+
+.date-picker {
+    width: 100%;
+    padding: 8px;
+    margin: 4px;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    background-color: white;
+    border-radius: 5px;
+}
+

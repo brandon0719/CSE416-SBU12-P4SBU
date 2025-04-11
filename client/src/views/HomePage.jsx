@@ -3,6 +3,8 @@ import mapboxgl from "mapbox-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.js";
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 import "../stylesheets/HomePage.css";
@@ -31,6 +33,8 @@ const HomePage = () => {
     const [sortBy, setSortBy] = useState("distance");
     const [userLocation, setUserLocation] = useState({ lng: -73.12246, lat: 40.91671 });
     const [searchTerm, setSearchTerm] = useState(""); // New state for search
+    const [reservationStart, setReservationStart] = useState("");
+    const [reservationEnd, setReservationEnd] = useState("");
 
     // Filter the lots based on the search term
     const filteredLots = lots.filter(lot =>
@@ -187,6 +191,40 @@ const HomePage = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+
+                    <div className="time-selection">
+                        <label htmlFor="start-date">Reservation start:</label>
+                        <div id="start-date">
+                            <DatePicker
+                            placeholderText="Select date and time..."
+                            selected={reservationStart}
+                            onChange={(date) => setReservationStart(date)}
+                            showTimeSelect
+                            timeFormat="h:mm aa"
+                            timeIntervals={30}
+                            dateFormat="MMMM d, yyyy h:mm aa"
+                            minDate={new Date()}
+                            className="date-picker"
+                              />
+                            
+                        </div>
+
+                        <label htmlFor="end-date">Reservation end:</label>
+                        <div id="end-date">
+                            <DatePicker
+                            placeholderText="Select date and time..."
+                            selected={reservationEnd}
+                            onChange={(date) => setReservationEnd(date)}
+                            showTimeSelect
+                            timeFormat="h:mm aa"
+                            timeIntervals={30}
+                            dateFormat="MMMM d, yyyy h:mm aa"
+                            minDate={new Date()}
+                            className="date-picker"/>
+                        </div>
+
+                    </div>
+                    
 
                     <div className="sorting-options">
                         <label htmlFor="sort-by">Starting:</label>
