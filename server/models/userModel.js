@@ -3,9 +3,18 @@ import bcrypt from "bcrypt";
 
 const saltRounds = 10;
 
-export const getUsers = async () => {
+export const getAllUsers = async () => {
     try {
         const { rows } = await pool.query("SELECT * FROM users");
+        return rows;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+export const getUnapproved = async () => {
+    try {
+        const { rows } = await pool.query("SELECT * FROM users WHERE is_approved = false");
         return rows;
     } catch (error) {
         throw new Error(error.message);
@@ -36,3 +45,25 @@ export const createUser = async (name, email, password) => {
         throw new Error(error.message);
     }
 };
+
+export const removeUser = async (userId) => {
+    try {
+        await pool.query(
+            "DELETE FROM users WHERE user_id = $1;",
+            [userId]
+        );
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+export const approve = async (userId) => {
+    try {
+        await pool.query(
+            "UPDATE users SET is_approved = true WHERE user_id = $1",
+            [userId]
+        );
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}

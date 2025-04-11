@@ -3,27 +3,37 @@ import { Routes, Route } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 import "./App.css"; // Import the CSS file
 
-// Page components
+// General components
 import Login from "./views/Login";
 import Register from "./views/Register";
+
+// User components
 import HomePage from "./views/HomePage";
 import TicketPage from "./views/TicketPage";
 import AboutUsPage from "./views/AboutUsPage";
 import ProfilePage from "./views/ProfilePage";
 import MessagePage from "./views/MessagePage";
-import ProtectedRoute from "./components/ProtectedRoute";
 import ContactUsPage from "./views/ContactUsPage";
+
+// Admin components
+import AdminHome from "./adminViews/AdminHome"; 
+import AdminTickets from "./adminViews/AdminTickets";
+import AdminParking from "./adminViews/AdminParking";
+import AdminData from "./adminViews/AdminData";
+
+// Route protection components
+import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute"; 
 
 function App() {
     return (
         <Routes>
             {/* When someone visits '/', redirect them to '/login' */}
             <Route path="/" element={<Navigate to="/login" replace />} />
-
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-
+            
             <Route
                 path="/homepage"
                 element={
@@ -32,11 +42,79 @@ function App() {
                     </ProtectedRoute>
                 }
             />
-            <Route path="/ticketpage" element={<TicketPage />} />
-            <Route path="/aboutuspage" element={<AboutUsPage />} />
-            <Route path="/profilepage" element={<ProfilePage />} />
-            <Route path="/messagepage" element={<MessagePage />} />
-            <Route path="/contactuspage" element={<ContactUsPage />} />
+            <Route
+                path="/ticketpage"
+                element={
+                    <ProtectedRoute>
+                        <TicketPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route
+                path="/aboutuspage"
+                element={
+                    <ProtectedRoute>
+                        <AboutUsPage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route path="/profilepage"
+                element={
+                    <ProtectedRoute>
+                        <ProfilePage />
+                    </ProtectedRoute>
+                }
+            />
+            <Route path="/messagepage"
+                element={
+                    <ProtectedRoute>
+                        <MessagePage />
+                    </ProtectedRoute>
+
+                }
+            />
+            <Route path="/contactuspage"
+                element={<ProtectedRoute>
+                    <ContactUsPage />
+                </ProtectedRoute>
+                }
+            />
+
+            {/* split between user and admin navigation */}
+
+            <Route
+                path="/users"
+                element={
+                    <ProtectedAdminRoute>
+                        <AdminHome />
+                    </ProtectedAdminRoute>
+                }
+            />
+            <Route
+                path="/tickets"
+                element={
+                    <ProtectedAdminRoute>
+                        <AdminTickets />
+                    </ProtectedAdminRoute>
+                }
+            />
+            <Route
+                path="/parking"
+                element={
+                    <ProtectedAdminRoute>
+                        <AdminParking />
+                    </ProtectedAdminRoute>
+                }
+            />
+            <Route
+                path="/data-analysis"
+                element={
+                    <ProtectedAdminRoute>
+                        <AdminData />
+                    </ProtectedAdminRoute>
+                }
+            />
+
         </Routes>
     );
 }
