@@ -5,6 +5,7 @@ import searchRoutes from "./routes/searchRoutes.js";
 import lotsRouter from "./routes/lots.js";
 import reservationRoutes from "./routes/reservationRoutes.js"
 import ticketRoutes from "./routes/ticketRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js"
 
 
 const app = express();
@@ -17,6 +18,7 @@ app.use("/api/search", searchRoutes);
 app.use("/api/lots", lotsRouter);
 app.use("/api/reservation", reservationRoutes);
 app.use("/api/tickets", ticketRoutes);
+app.use("/api/admin", adminRoutes);
 
 
 export default app;
