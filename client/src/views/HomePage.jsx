@@ -80,8 +80,14 @@ const HomePage = () => {
                 accessToken: mapboxgl.accessToken,
                 unit: "metric",
                 profile: "mapbox/driving",
+                api: "http://localhost:8000/route/v5/"
             });
             map.addControl(directions, "top-left");
+
+            directions.on("route", (e) => {
+                console.log("Route event received:", e);
+            });
+
 
             // Add the Geolocate control next so it appears to the right of directions
             const geolocateControl = new mapboxgl.GeolocateControl({
