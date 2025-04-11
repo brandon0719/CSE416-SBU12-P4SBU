@@ -196,35 +196,35 @@ const HomePage = () => {
                         <label htmlFor="start-date">Reservation start:</label>
                         <div id="start-date">
                             <DatePicker
-                            placeholderText="Select date and time..."
-                            selected={reservationStart}
-                            onChange={(date) => setReservationStart(date)}
-                            showTimeSelect
-                            timeFormat="h:mm aa"
-                            timeIntervals={30}
-                            dateFormat="MMMM d, yyyy h:mm aa"
-                            minDate={new Date()}
-                            className="date-picker"
-                              />
-                            
+                                placeholderText="Select date and time..."
+                                selected={reservationStart}
+                                onChange={(date) => setReservationStart(date)}
+                                showTimeSelect
+                                timeFormat="h:mm aa"
+                                timeIntervals={30}
+                                dateFormat="MMMM d, yyyy h:mm aa"
+                                minDate={new Date()}
+                                className="date-picker"
+                            />
+
                         </div>
 
                         <label htmlFor="end-date">Reservation end:</label>
                         <div id="end-date">
                             <DatePicker
-                            placeholderText="Select date and time..."
-                            selected={reservationEnd}
-                            onChange={(date) => setReservationEnd(date)}
-                            showTimeSelect
-                            timeFormat="h:mm aa"
-                            timeIntervals={30}
-                            dateFormat="MMMM d, yyyy h:mm aa"
-                            minDate={new Date()}
-                            className="date-picker"/>
+                                placeholderText="Select date and time..."
+                                selected={reservationEnd}
+                                onChange={(date) => setReservationEnd(date)}
+                                showTimeSelect
+                                timeFormat="h:mm aa"
+                                timeIntervals={30}
+                                dateFormat="MMMM d, yyyy h:mm aa"
+                                minDate={new Date()}
+                                className="date-picker" />
                         </div>
 
                     </div>
-                    
+
 
                     <div className="sorting-options">
                         <label htmlFor="sort-by">Starting:</label>
