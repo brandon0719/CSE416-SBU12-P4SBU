@@ -12,7 +12,7 @@ const TicketPage = () => {
         // Fetch tickets for the user
         const user = ApiService.getSessionUser();
         if (user) {
-            ApiService.getTickets(user.id)
+            ApiService.getTickets(user.user_id)
                 .then((data) => setTickets(data))
                 .catch((error) => console.error("Failed to fetch tickets:", error));
         }
@@ -35,7 +35,7 @@ const TicketPage = () => {
         ApiService.payTickets(selectedTickets)
             .then(() => {
                 alert("Tickets paid successfully!");
-                setTickets(tickets.filter((ticket) => !selectedTickets.includes(ticket.id)));
+                setTickets(tickets.filter((ticket) => !selectedTickets.includes(ticket.ticket_id)));
                 setSelectedTickets([]);
             })
             .catch((error) => console.error("Failed to pay tickets:", error));
@@ -50,16 +50,16 @@ const TicketPage = () => {
                 {tickets.length > 0 ? (
                     <ul className="ticket-list">
                         {tickets.map((ticket) => (
-                            <li key={ticket.id} className="ticket-item">
+                            <li key={ticket.ticket_id} className="ticket-item">
                                 <input
                                     type="checkbox"
-                                    checked={selectedTickets.includes(ticket.id)}
-                                    onChange={() => handleTicketSelection(ticket.id)}
+                                    checked={selectedTickets.includes(ticket.ticket_id)}
+                                    onChange={() => handleTicketSelection(ticket.ticket_id)}
                                 />
                                 <div className="ticket-details">
-                                    <p><strong>Violation:</strong> {ticket.violation}</p>
-                                    <p><strong>Amount:</strong> ${ticket.amount}</p>
-                                    <p><strong>Date:</strong> {ticket.date}</p>
+                                    <p><strong>Violation:</strong> {ticket.ticket_details}</p>
+                                    <p><strong>Amount:</strong> ${ticket.ticket_price}</p>
+                                    <p><strong>Date:</strong> {new Date(ticket.violation_date).toLocaleDateString()}</p>
                                 </div>
                             </li>
                         ))}

@@ -224,6 +224,17 @@ const fetchProtectedData = async () => {
     }
 };
 
+
+// // mock create payment
+// const createPaymentIntent = async (ticketIds) => {
+//     console.log("Mocking payment intent creation for tickets:", ticketIds);
+//     return new Promise((resolve) => {
+//         setTimeout(() => {
+//             resolve({ clientSecret: "mock_client_secret" });
+//         }, 1000); // Simulate a delay
+//     });
+// };
+
 //create a reservation
 const createReservation = async (userId, parkingLot, startTime, endTime) => {
     try {
@@ -239,34 +250,54 @@ const createReservation = async (userId, parkingLot, startTime, endTime) => {
     }
 };
 
-// Mock function to simulate fetching tickets
-const getTickets = async (userId) => {
-    const mockTickets = [
-        { id: 1, violation: "Parking in a no-parking zone", amount: 50, date: "2025-04-01" },
-        { id: 2, violation: "Expired parking permit", amount: 75, date: "2025-03-28" },
-        { id: 3, violation: "Overstaying time limit", amount: 30, date: "2025-03-25" },
-    ];
-    return new Promise((resolve) => {
-        setTimeout(() => resolve(mockTickets), 1000); // Simulate a delay
-    });
-    // try {
-    //     const response = await http.get(`/tickets/${userId}`);
-    //     return response.data;
-    // } catch (error) {
-    //     console.error("Failed to fetch tickets:", error);
-    //     throw error.response?.data || { message: "Failed to fetch tickets" };
-    // }
+export const createTicket = async (userId, violationDate, ticketPrice, ticketDetails) => {
+    try {
+        console.log("Creating ticket with:", { userId, violationDate, ticketPrice, ticketDetails });
+        const response = await http.post("/tickets/create", {
+            userId,
+            violationDate,
+            ticketPrice,
+            ticketDetails
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Failed to create ticket:", error);
+        throw error.response?.data || { message: "Ticket creation failed" };
+    }
+}
+
+export const getTickets = async (userId) => {
+    try {
+        console.log("Fetching tickets for user ID:", userId);
+        const response = await http.get(`/tickets/user/${userId}`);
+        console.log("Tickets fetched:", response.data); // Log the response data
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch tickets:", error);
+        throw error.response?.data || { message: "Failed to fetch tickets" };
+    }
 };
 
-// mock create payment
-const createPaymentIntent = async (ticketIds) => {
-    console.log("Mocking payment intent creation for tickets:", ticketIds);
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({ clientSecret: "mock_client_secret" });
-        }, 1000); // Simulate a delay
-    });
-};
+export const payTickets = async (ticketIds) => {
+    try {
+        const response = await http.post("/tickets/pay", {ticketIds});
+        return response.data;
+    } catch(error) {
+        console.error("Failed to pay tickets:", error);
+        throw error.response?.data || { message: "Failed to pay tickets" };
+    }
+}
+
+export const fetchAllUsers = async () => {
+    try {
+        const response = await http.get("/tickets/users");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch users:", error);
+        throw error.response?.data || { message: "Failed to fetch users" };
+    }
+}
 
 
 
@@ -280,8 +311,10 @@ const ApiService = {
     getNotifications: getNotifications,
     getMessages: getMessages,
     createReservation: createReservation,
-    createPaymentIntent: createPaymentIntent,
     getTickets: getTickets,
+    createTicket: createTicket,
+    fetchAllUsers: fetchAllUsers,
+    payTickets: payTickets,
 }
 
 export default ApiService;
