@@ -8,6 +8,7 @@ export const getAllUsers = async () => {
         const { rows } = await pool.query("SELECT * FROM users");
         return rows;
     } catch (error) {
+        console.error("Error fetching users:", error.message); 
         throw new Error(error.message);
     }
 };

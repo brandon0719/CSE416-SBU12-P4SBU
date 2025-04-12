@@ -222,16 +222,6 @@ const fetchProtectedData = async () => {
 };
 
 
-// // mock create payment
-// const createPaymentIntent = async (ticketIds) => {
-//     console.log("Mocking payment intent creation for tickets:", ticketIds);
-//     return new Promise((resolve) => {
-//         setTimeout(() => {
-//             resolve({ clientSecret: "mock_client_secret" });
-//         }, 1000); // Simulate a delay
-//     });
-// };
-
 //create a reservation
 const createReservation = async (userId, parkingLot, startTime, endTime) => {
     try {
@@ -247,6 +237,7 @@ const createReservation = async (userId, parkingLot, startTime, endTime) => {
     }
 };
 
+// ticket stuff
 export const createTicket = async (userId, violationDate, ticketPrice, ticketDetails) => {
     try {
         console.log("Creating ticket with:", { userId, violationDate, ticketPrice, ticketDetails });
@@ -266,9 +257,7 @@ export const createTicket = async (userId, violationDate, ticketPrice, ticketDet
 
 export const getTickets = async (userId) => {
     try {
-        console.log("Fetching tickets for user ID:", userId);
         const response = await http.get(`/tickets/user/${userId}`);
-        console.log("Tickets fetched:", response.data); // Log the response data
         return response.data;
     } catch (error) {
         console.error("Failed to fetch tickets:", error);
@@ -286,9 +275,11 @@ export const payTickets = async (ticketIds) => {
     }
 }
 
+
+// user stuff
 export const fetchAllUsers = async () => {
     try {
-        const response = await http.get("/tickets/users");
+        const response = await http.get("/admin/users");
         return response.data;
     } catch (error) {
         console.error("Failed to fetch users:", error);
@@ -296,6 +287,69 @@ export const fetchAllUsers = async () => {
     }
 }
 
+export const approveUser = async (userId) => {
+    try {
+        await http.post("/admin/approveUser", { userId });
+    } catch (error) {
+        console.error("Failed to approve user:", error);
+        throw error.response?.data || { message: "Failed to approve user" };
+    }
+};
+
+export const deleteUser = async (userId) => {
+    try {
+        await http.post("/admin/deleteUser", { userId });
+    } catch (error) {
+        console.error("Failed to delete user:", error);
+        throw error.response?.data || { message: "Failed to delete user" };
+    }
+};
+
+// Fetch all parking lots
+export const fetchAllParkingLots = async () => {
+    try {
+        const response = await http.get("/lots/getlots");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch parking lots:", error);
+        throw error.response?.data || { message: "Failed to fetch parking lots" };
+    }
+};
+
+// Add a new parking lot
+export const addParkingLot = async (data) => {
+    try {
+        const response = await http.post("/lots/add", data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to add parking lot:", error);
+        throw error.response?.data || { message: "Failed to add parking lot" };
+    }
+};
+
+
+// Edit an existing parking lot
+export const editParkingLot = async (id, data) => {
+    try {
+        const response = await http.put(`/lots/edit/${id}`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to edit parking lot:", error);
+        throw error.response?.data || { message: "Failed to edit parking lot" };
+    }
+};
+
+// Delete a parking lot
+export const deleteParkingLot = async (id) => {
+    try {
+        console.log("Deleting parking lot with ID:", id);
+        const response = await http.delete(`/lots/delete/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to delete parking lot:", error);
+        throw error.response?.data || { message: "Failed to delete parking lot" };
+    }
+};
 
 const updateProfile = async (profileData) => {
     try {
@@ -323,6 +377,12 @@ const ApiService = {
     createTicket: createTicket,
     fetchAllUsers: fetchAllUsers,
     payTickets: payTickets,
+    approveUser: approveUser,
+    deleteUser: deleteUser,
+    fetchAllParkingLots: fetchAllParkingLots,
+    addParkingLot: addParkingLot,
+    editParkingLot: editParkingLot,
+    deleteParkingLot: deleteParkingLot,
     updateProfile: updateProfile,
 }
 

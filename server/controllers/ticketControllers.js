@@ -7,7 +7,7 @@ export const handleCreateTicket = async (req, res) => {
     console.log(userId, violationDate, ticketPrice, ticketDetails); // Debugging line
     try {
         const newTicket = await createTicket(userId, violationDate, ticketPrice, ticketDetails);
-        res.status(201).json(newTicket);
+        res.status(200).json(newTicket);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

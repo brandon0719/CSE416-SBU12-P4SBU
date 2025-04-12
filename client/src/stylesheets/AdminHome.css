@@ -17,26 +17,318 @@
     background-color: white;
 }
 
-/* parking page customization */
+.admin-page-content {
+    margin: 30px auto;
+    color: black;
+    width: 1100px; /* Ensure it spans the full width of the viewport */
+    padding: 0; /* Ensure no padding affects width */
+    overflow-x: hidden; /* Prevent child elements from causing horizontal overflow */
+    background-color: white;
+}
+
+.admin-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.admin-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-actions button:hover {
+    background-color: #0056b3;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.admin-header h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+}
+
+.admin-header button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-header button:hover {
+    background-color: #0056b3;
+}
+
+/* User list container */
+.user-list-container {
+    height: 65vh; /* Set the height of the scrollable container */
+    overflow-y: auto; /* Enable vertical scrolling */
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+    
+.user-list {
+    list-style: none;
+    padding: 0;
+    height: 60vh;;
+}
+
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-item:last-child {
+    border-bottom: none;
+}
+
+.user-item span {
+    font-size: 16px;
+    color: #555;
+}
+
+.user-item .approve-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.user-item .delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    margin-left: 15px;
+}
+
+.user-item .approve-button:hover {
+    background-color: #218838;
+}
+
+.user-item .delete-button:hover {
+    background-color: #961010;
+}
+/* Two-column layout for the form */
+.popup-form .form-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 20px; /* Space between columns */
+}
+
+.popup-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    color: #333;
+}
+
+.popup-form input,
+.popup-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.popup-form textarea {
+    resize: vertical;
+    height: 80px;
+}
+
+.popup-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.popup-actions button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popup-actions button:hover {
+    background-color: #ddd;
+}
+
+.parking-popup label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.parking-popup input,
+.parking-popup textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.parking-popup textarea {
+    resize: vertical;
+    height: 80px;
+}
 
 .popup {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
+    max-width: 90%;
+    min-width: 500px;
+}
+
+.popup h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
 }
 
 .popup input,
 .popup textarea {
-    display: block;
-    margin: 10px 0;
     width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f0f0f0; /* Light gray background */
+    color: #000; /* Black text */
+}
+
+.popup textarea {
+    resize: none;
+    height: 80px;
+}
+
+.popup .popup-actions {
+    display: flex;
+    justify-content: space-between;
 }
 
 .popup button {
-    margin: 5px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popup button:first-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.popup button:first-child:hover {
+    background-color: #c82333;
+}
+
+.popup button:last-child {
+    background-color: #28a745;
+    color: white;
+}
+
+.popup button:last-child:hover {
+    background-color: #218838;
+}
+
+
+
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+li span {
+    font-size: 16px;
+    color: #555;
+}
+
+li button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+li button:hover {
+    background-color: #0056b3;
 }
