@@ -9,7 +9,6 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 import "../stylesheets/HomePage.css";
 
-
 function computeCentroid(geom) {
     let coords = [];
     if (geom.type === "Polygon") {
@@ -20,8 +19,7 @@ function computeCentroid(geom) {
         return [-73.12246, 40.91671];
     }
 
-    let sumLng = 0,
-        sumLat = 0;
+    let sumLng = 0, sumLat = 0;
     coords.forEach(([lng, lat]) => {
         sumLng += lng;
         sumLat += lat;
@@ -31,7 +29,7 @@ function computeCentroid(geom) {
 }
 
 const HomePage = () => {
-    // State for parking lots and reservation details
+    // Existing states for parking lots and reservation details
     const [lots, setLots] = useState([]);
     const [sortBy, setSortBy] = useState("distance");
     const [userLocation, setUserLocation] = useState({ lng: -73.12246, lat: 40.91671 });
@@ -39,25 +37,34 @@ const HomePage = () => {
     const [reservationStart, setReservationStart] = useState("");
     const [reservationEnd, setReservationEnd] = useState("");
 
-    // State for campus buildings & building selection/search
+    // New states for campus buildings & building selection/search
     const [buildings, setBuildings] = useState([]);
     const [buildingSearchTerm, setBuildingSearchTerm] = useState("");
     const [selectedBuilding, setSelectedBuilding] = useState(null);
 
-    // Ref to store the Mapbox Directions control for updating origin/destination
+    // Ref to store the Mapbox Directions control
     const directionsRef = useRef(null);
+    // Ref for the left panel container to reset its scroll position
+    const leftPanelRef = useRef(null);
 
-    // Filter parking lots based on the search term
+    // Filter the parking lots based on the search term
     const filteredLots = lots.filter((lot) =>
         lot.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Filter the buildings list based on the building search term
+    // Filter the buildings based on the building search term
     const filteredBuildings = buildings.filter((building) =>
         building.name.toLowerCase().includes(buildingSearchTerm.toLowerCase())
     );
 
-    // Fetch parking lots whenever 'sortBy' or 'userLocation' changes
+    // Effect to reset the left-panel scroll position when switching views
+    useEffect(() => {
+        if (leftPanelRef.current) {
+            leftPanelRef.current.scrollTop = 0;
+        }
+    }, [selectedBuilding, buildingSearchTerm]);
+
+    // Fetch parking lots when sortBy or userLocation changes
     useEffect(() => {
         const fetchLots = async () => {
             try {
@@ -70,11 +77,10 @@ const HomePage = () => {
                 console.error("Error fetching lots:", error);
             }
         };
-
         fetchLots();
     }, [sortBy, userLocation]);
 
-    // Fetch campus buildings
+    // Fetch campus buildings for initial building selection
     useEffect(() => {
         const fetchBuildings = async () => {
             try {
@@ -88,7 +94,7 @@ const HomePage = () => {
         fetchBuildings();
     }, []);
 
-    // Initialize Mapbox, Directions control, and parking lots display
+    // Initialize the Mapbox map, Directions control and parking lots display
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
         const initialCenter = [-73.12246, 40.91671];
@@ -134,14 +140,13 @@ const HomePage = () => {
                 directions.setOrigin([userLng, userLat]);
             });
 
-            // Fetch parking lots and add them to the map
+            // Fetch parking lot data and add them to the map
             try {
                 const response = await fetch("/api/lots");
                 const lotsData = await response.json();
 
                 lotsData.forEach((lot) => {
                     const sourceId = `lot-${lot.name.replace(/\s+/g, "-")}`;
-
                     map.addSource(sourceId, {
                         type: "geojson",
                         data: lot.geom,
@@ -184,10 +189,10 @@ const HomePage = () => {
                             })
                                 .setLngLat(center)
                                 .setHTML(`
-                    <div style="text-align: center;">
-                        <h3>${lot.name}</h3>
-                        <p>${lot.details || "No additional information available."}</p>
-                    </div>
+                  <div style="text-align: center;">
+                    <h3>${lot.name}</h3>
+                    <p>${lot.details || "No additional information available."}</p>
+                  </div>
                 `)
                                 .addTo(map);
                             map.getCanvas().style.cursor = "pointer";
@@ -209,7 +214,7 @@ const HomePage = () => {
         return () => map.remove();
     }, []);
 
-    // Handler for building selection
+    // Handler when a building is selected
     const handleBuildingSelect = (building) => {
         setSelectedBuilding(building);
         // building.location is a GeoJSON Point: { type: "Point", coordinates: [lng, lat] }
@@ -235,7 +240,8 @@ const HomePage = () => {
             <Header />
             <NavBar />
             <div className="map-content-container">
-                <div className="left-panel">
+                {/* Attach ref to left-panel */}
+                <div className="left-panel" ref={leftPanelRef}>
                     {!selectedBuilding ? (
                         <div className="buildings-list">
                             <h3>Select a Building</h3>
@@ -270,7 +276,9 @@ const HomePage = () => {
                         <>
                             <div className="selected-building-info">
                                 <h3>Selected Building: {selectedBuilding.name}</h3>
-                                <button onClick={() => setSelectedBuilding(null)}>Change Selection</button>
+                                <button onClick={() => setSelectedBuilding(null)}>
+                                    Change Selection
+                                </button>
                             </div>
                             <div className="search-bar">
                                 <input
@@ -340,7 +348,9 @@ const HomePage = () => {
                                         <p>{lot.details}</p>
                                         <p>Price: ${lot.price}</p>
                                         <div style={{ display: "flex", gap: "10px" }}>
-                                            <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>Reserve</button>
+                                            <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
+                                                Reserve
+                                            </button>
                                             {lot.geom && (
                                                 <button onClick={() => handleLotView(lot)}>View</button>
                                             )}
