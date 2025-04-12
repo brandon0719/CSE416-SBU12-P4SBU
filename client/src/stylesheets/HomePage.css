@@ -65,6 +65,22 @@
     color: black;
 }
 
+.building-item {
+    cursor: "pointer";
+    border-bottom: 1px solid #ccc;
+    transition: background-color 0.3s ease;
+}
+
+.building-item p {
+    margin: 0;
+    padding: 10px;
+}
+
+.building-item:hover {
+    background-color: #e0e0e0;
+    /* Adjust this color for your preferred darkening effect */
+}
+
 /* Header for lot selection view */
 .lot-header {
     position: sticky;
@@ -82,11 +98,14 @@
     margin-bottom: 8px;
 }
 
-.lots-scroll,
-.buildings-list {
-    max-height: calc(100% - 150px);
+.buildings-list,
+.lots-scroll {
+    /* Optional: set a max height if needed */
+    max-height: calc(100vh - 200px);
+    /* Adjust based on your header height */
     overflow-y: auto;
 }
+
 
 
 /* Right panel for the map */

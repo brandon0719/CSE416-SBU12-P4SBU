@@ -48,6 +48,9 @@ const HomePage = () => {
     // Ref for the left panel container to reset its scroll position
     const leftPanelRef = useRef(null);
 
+    const buildingListRef = useRef(null);
+    const lotsScrollRef = useRef(null);
+
     // Filter the parking lots based on the search term
     const filteredLots = lots.filter((lot) =>
         lot.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -57,13 +60,6 @@ const HomePage = () => {
     const filteredBuildings = buildings.filter((building) =>
         building.name.toLowerCase().includes(buildingSearchTerm.toLowerCase())
     );
-
-    // Effect to reset the left-panel scroll position when switching views
-    useEffect(() => {
-        if (leftPanelRef.current) {
-            leftPanelRef.current.scrollTop = 0;
-        }
-    }, [selectedBuilding, buildingSearchTerm]);
 
     // Fetch parking lots when sortBy or userLocation changes
     useEffect(() => {
@@ -215,6 +211,15 @@ const HomePage = () => {
         return () => map.remove();
     }, []);
 
+    useEffect(() => {
+        if (!selectedBuilding && buildingListRef.current) {
+            buildingListRef.current.scrollTop = 0;
+        } else if (selectedBuilding && lotsScrollRef.current) {
+            lotsScrollRef.current.scrollTop = 0;
+        }
+    }, [selectedBuilding, buildingSearchTerm, searchTerm]);
+
+
     // Handler when a building is selected
     const handleBuildingSelect = (building) => {
         setSelectedBuilding(building);
@@ -264,17 +269,12 @@ const HomePage = () => {
                                     className="building-search"
                                 />
                             </div>
-                            <div className="buildings-list">
+                            <div className="buildings-list" ref={buildingListRef}>
                                 {filteredBuildings.map((building) => (
                                     <div
                                         key={building.id}
                                         className="building-item"
                                         onClick={() => handleBuildingSelect(building)}
-                                        style={{
-                                            cursor: "pointer",
-                                            borderBottom: "1px solid #ccc",
-                                            padding: "8px 0",
-                                        }}
                                     >
                                         <p>{building.name}</p>
                                     </div>
@@ -350,7 +350,7 @@ const HomePage = () => {
                                 </div>
                                 <h3 className="lots-title">Parking Lots</h3>
                             </div>
-                            <div className="lots-scroll">
+                            <div className="lots-scroll" ref={lotsScrollRef}>
                                 {filteredLots.map((lot) => (
                                     <div key={lot.name} className="lot-item">
                                         <p>
