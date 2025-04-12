@@ -19,7 +19,6 @@ function computeCentroid(geom) {
     } else {
         return [-73.12246, 40.91671];
     }
-
     let sumLng = 0, sumLat = 0;
     coords.forEach(([lng, lat]) => {
         sumLng += lng;
@@ -27,6 +26,22 @@ function computeCentroid(geom) {
     });
     const count = coords.length || 1;
     return [sumLng / count, sumLat / count];
+}
+
+async function getWalkingDistance(origin, destination) {
+    const token = import.meta.env.VITE_MAPBOX_KEY;
+    const url = `https://api.mapbox.com/directions/v5/mapbox/walking/${origin[0]},${origin[1]};${destination[0]},${destination[1]}?access_token=${token}&overview=false`;
+    try {
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json.routes && json.routes.length > 0) {
+            return json.routes[0].distance; // distance in meters
+        }
+        return Infinity;
+    } catch (err) {
+        console.error("Error fetching walking distance:", err);
+        return Infinity;
+    }
 }
 
 const HomePage = () => {
@@ -51,6 +66,9 @@ const HomePage = () => {
     const buildingListRef = useRef(null);
     const lotsScrollRef = useRef(null);
 
+    const [startingPoint, setStartingPoint] = useState("destination");
+    const [sortCriteria, setSortCriteria] = useState("distance");
+
     // Filter the parking lots based on the search term
     const filteredLots = lots.filter((lot) =>
         lot.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -61,21 +79,53 @@ const HomePage = () => {
         building.name.toLowerCase().includes(buildingSearchTerm.toLowerCase())
     );
 
-    // Fetch parking lots when sortBy or userLocation changes
     useEffect(() => {
-        const fetchLots = async () => {
+        const fetchAndSortLots = async () => {
             try {
-                const response = await fetch(
-                    `/api/lots?sortBy=${sortBy}&userLng=${userLocation.lng}&userLat=${userLocation.lat}`
-                );
+                const response = await fetch("/api/lots");
                 const data = await response.json();
-                setLots(data);
+
+                if (sortCriteria === "distance" && startingPoint === "destination") {
+                    // Determine the origin: use selected building's location if available,
+                    // otherwise fallback to user location.
+                    const origin =
+                        selectedBuilding && selectedBuilding.location && selectedBuilding.location.coordinates
+                            ? selectedBuilding.location.coordinates
+                            : [userLocation.lng, userLocation.lat];
+
+                    // Compute walking distance for each parking lot; if the lot does not have
+                    // a valid geometry, assign Infinity so it sorts last.
+                    const lotsWithDistance = await Promise.all(
+                        data.map(async (lot) => {
+                            if (lot.geom && lot.geom.coordinates && lot.geom.coordinates.length > 0) {
+                                const centroid = computeCentroid(lot.geom);
+                                const distance = await getWalkingDistance(origin, centroid);
+                                return { ...lot, walkingDistance: distance };
+                            } else {
+                                // If lot location is not set, assign a high distance value.
+                                return { ...lot, walkingDistance: Infinity };
+                            }
+                        })
+                    );
+
+                    // Sort the lots so that those with a finite (computed) walking distance come first.
+                    lotsWithDistance.sort((a, b) => a.walkingDistance - b.walkingDistance);
+                    setLots(lotsWithDistance);
+                } else if (sortCriteria === "price") {
+                    // Sorting by price – simply sort based on the price field.
+                    data.sort((a, b) => a.price - b.price);
+                    setLots(data);
+                } else {
+                    // If no specific sorting criteria applied, set the fetched data as is.
+                    setLots(data);
+                }
             } catch (error) {
                 console.error("Error fetching lots:", error);
             }
         };
-        fetchLots();
-    }, [sortBy, userLocation]);
+
+        fetchAndSortLots();
+    }, [sortCriteria, startingPoint, userLocation, selectedBuilding]);
 
     // Fetch campus buildings for initial building selection
     useEffect(() => {
@@ -329,25 +379,27 @@ const HomePage = () => {
                                     </div>
                                 </div>
                                 <div className="sorting-options">
-                                    <label htmlFor="sort-by">Starting:</label>
+                                    <label htmlFor="starting-point">Starting:</label>
                                     <select
-                                        id="sort-by"
-                                        value={sortBy}
-                                        onChange={(e) => setSortBy(e.target.value)}
+                                        id="starting-point"
+                                        value={startingPoint}
+                                        onChange={(e) => setStartingPoint(e.target.value)}
                                     >
-                                        <option value="current_location">Current Location</option>
                                         <option value="destination">Destination</option>
+                                        <option value="current_location">Current Location</option>
                                     </select>
-                                    <label htmlFor="sort-by">Sort by:</label>
+
+                                    <label htmlFor="sort-criteria">Sort by:</label>
                                     <select
-                                        id="sort-by"
-                                        value={sortBy}
-                                        onChange={(e) => setSortBy(e.target.value)}
+                                        id="sort-criteria"
+                                        value={sortCriteria}
+                                        onChange={(e) => setSortCriteria(e.target.value)}
                                     >
                                         <option value="distance">Distance</option>
                                         <option value="price">Price</option>
                                     </select>
                                 </div>
+
                                 <h3 className="lots-title">Parking Lots</h3>
                             </div>
                             <div className="lots-scroll" ref={lotsScrollRef}>
