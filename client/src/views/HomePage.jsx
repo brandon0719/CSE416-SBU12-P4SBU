@@ -3,11 +3,12 @@ import mapboxgl from "mapbox-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.js";
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 import "../stylesheets/HomePage.css";
+
 
 function computeCentroid(geom) {
     let coords = [];
@@ -19,7 +20,8 @@ function computeCentroid(geom) {
         return [-73.12246, 40.91671];
     }
 
-    let sumLng = 0, sumLat = 0;
+    let sumLng = 0,
+        sumLat = 0;
     coords.forEach(([lng, lat]) => {
         sumLng += lng;
         sumLat += lat;
@@ -29,7 +31,7 @@ function computeCentroid(geom) {
 }
 
 const HomePage = () => {
-    // Existing state for parking lots and reservation details
+    // State for parking lots and reservation details
     const [lots, setLots] = useState([]);
     const [sortBy, setSortBy] = useState("distance");
     const [userLocation, setUserLocation] = useState({ lng: -73.12246, lat: 40.91671 });
@@ -37,16 +39,22 @@ const HomePage = () => {
     const [reservationStart, setReservationStart] = useState("");
     const [reservationEnd, setReservationEnd] = useState("");
 
-    // New state for campus buildings and the currently selected building
+    // State for campus buildings & building selection/search
     const [buildings, setBuildings] = useState([]);
+    const [buildingSearchTerm, setBuildingSearchTerm] = useState("");
     const [selectedBuilding, setSelectedBuilding] = useState(null);
 
-    // Ref to store the Mapbox Directions control so we can update its destination later
+    // Ref to store the Mapbox Directions control for updating origin/destination
     const directionsRef = useRef(null);
 
-    // Filter the parking lots based on the search term
-    const filteredLots = lots.filter(lot =>
+    // Filter parking lots based on the search term
+    const filteredLots = lots.filter((lot) =>
         lot.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // Filter the buildings list based on the building search term
+    const filteredBuildings = buildings.filter((building) =>
+        building.name.toLowerCase().includes(buildingSearchTerm.toLowerCase())
     );
 
     // Fetch parking lots whenever 'sortBy' or 'userLocation' changes
@@ -66,7 +74,7 @@ const HomePage = () => {
         fetchLots();
     }, [sortBy, userLocation]);
 
-    // Fetch campus buildings from the API endpoint for initial building selection
+    // Fetch campus buildings
     useEffect(() => {
         const fetchBuildings = async () => {
             try {
@@ -80,7 +88,7 @@ const HomePage = () => {
         fetchBuildings();
     }, []);
 
-    // Initialize the Mapbox map, Directions control and lots display
+    // Initialize Mapbox, Directions control, and parking lots display
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
         const initialCenter = [-73.12246, 40.91671];
@@ -96,14 +104,14 @@ const HomePage = () => {
             // Set scroll zoom rate
             map.scrollZoom.setWheelZoomRate(100);
 
-            // Initialize Directions control (walking mode only)
+            // Initialize the Directions control (walking only)
             const directions = new MapboxDirections({
                 accessToken: mapboxgl.accessToken,
                 unit: "metric",
                 profile: "mapbox/walking",
-                controls: { profileSwitcher: false }
+                controls: { profileSwitcher: false },
             });
-            directionsRef.current = directions; // store reference for later updates
+            directionsRef.current = directions;
             map.addControl(directions, "top-left");
 
             // Add Geolocate control
@@ -165,7 +173,7 @@ const HomePage = () => {
                         },
                     });
 
-                    // Add interactivity for each lot
+                    // Add interactivity for each lot (popups on hover)
                     (() => {
                         let lotPopup;
                         map.on("mouseenter", `${sourceId}-fill`, () => {
@@ -176,11 +184,11 @@ const HomePage = () => {
                             })
                                 .setLngLat(center)
                                 .setHTML(`
-                                    <div style="text-align: center;">
-                                        <h3>${lot.name}</h3>
-                                        <p>${lot.details || "No additional information available."}</p>
-                                    </div>
-                                `)
+                    <div style="text-align: center;">
+                        <h3>${lot.name}</h3>
+                        <p>${lot.details || "No additional information available."}</p>
+                    </div>
+                `)
                                 .addTo(map);
                             map.getCanvas().style.cursor = "pointer";
                         });
@@ -198,20 +206,27 @@ const HomePage = () => {
             }
         });
 
-        // Clean up on unmount
         return () => map.remove();
     }, []);
 
-    // Handler when a building is selected
+    // Handler for building selection
     const handleBuildingSelect = (building) => {
         setSelectedBuilding(building);
-        // building.location is expected to be a GeoJSON point object:
-        // { "type": "Point", "coordinates": [lng, lat] }
+        // building.location is a GeoJSON Point: { type: "Point", coordinates: [lng, lat] }
         const [lng, lat] = building.location.coordinates;
         setUserLocation({ lng, lat });
-        // Update the map's directions destination
         if (directionsRef.current) {
             directionsRef.current.setDestination([lng, lat]);
+        }
+    };
+
+    // Handler for the "View" button on a parking lot
+    const handleLotView = (lot) => {
+        if (lot.geom) {
+            const centroid = computeCentroid(lot.geom);
+            if (directionsRef.current) {
+                directionsRef.current.setOrigin(centroid);
+            }
         }
     };
 
@@ -224,7 +239,19 @@ const HomePage = () => {
                     {!selectedBuilding ? (
                         <div className="buildings-list">
                             <h3>Select a Building</h3>
-                            {buildings.map((building) => (
+                            <input
+                                type="text"
+                                placeholder="Search Buildings..."
+                                value={buildingSearchTerm}
+                                onChange={(e) => setBuildingSearchTerm(e.target.value)}
+                                style={{
+                                    backgroundColor: "white",
+                                    width: "100%",
+                                    padding: "8px",
+                                    marginBottom: "12px",
+                                }}
+                            />
+                            {filteredBuildings.map((building) => (
                                 <div
                                     key={building.id}
                                     className="building-item"
@@ -232,7 +259,7 @@ const HomePage = () => {
                                     style={{
                                         cursor: "pointer",
                                         borderBottom: "1px solid #ccc",
-                                        padding: "8px 0"
+                                        padding: "8px 0",
                                     }}
                                 >
                                     <p>{building.name}</p>
@@ -243,9 +270,7 @@ const HomePage = () => {
                         <>
                             <div className="selected-building-info">
                                 <h3>Selected Building: {selectedBuilding.name}</h3>
-                                <button onClick={() => setSelectedBuilding(null)}>
-                                    Change Selection
-                                </button>
+                                <button onClick={() => setSelectedBuilding(null)}>Change Selection</button>
                             </div>
                             <div className="search-bar">
                                 <input
@@ -309,12 +334,17 @@ const HomePage = () => {
                                 <h3>Parking Lots</h3>
                                 {filteredLots.map((lot) => (
                                     <div key={lot.name} className="lot-item">
-                                        <p><strong>{lot.name}</strong></p>
+                                        <p>
+                                            <strong>{lot.name}</strong>
+                                        </p>
                                         <p>{lot.details}</p>
                                         <p>Price: ${lot.price}</p>
-                                        <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
-                                            Reserve
-                                        </button>
+                                        <div style={{ display: "flex", gap: "10px" }}>
+                                            <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>Reserve</button>
+                                            {lot.geom && (
+                                                <button onClick={() => handleLotView(lot)}>View</button>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
