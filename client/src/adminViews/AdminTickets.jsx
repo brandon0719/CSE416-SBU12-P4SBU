@@ -18,7 +18,9 @@ const AdminTickets = () => {
     useEffect(() => {
         const loadUsers = async () => {
             const data = await ApiService.fetchAllUsers();
-            setUsers(data);
+            console.log("Fetched users:", data); 
+            console.log("Fetched users data:", typeof data);
+            setUsers(data.users);
         };
         loadUsers();
     }, []);
@@ -89,8 +91,8 @@ const AdminTickets = () => {
                                 setTicketDetails({ ...ticketDetails, ticketText: e.target.value })
                             }
                         />
-                        <button onClick={handleSubmit}>Submit</button>
                         <button onClick={handleClosePopup}>Cancel</button>
+                        <button onClick={handleSubmit}>Submit</button>
                     </div>
                 )}
             </div>

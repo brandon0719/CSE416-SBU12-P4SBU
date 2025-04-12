@@ -17,26 +17,184 @@
     background-color: white;
 }
 
-/* parking page customization */
+.admin-page-content {
+    margin: 30px auto;
+    color: black;
+    width: 1100px; /* Ensure it spans the full width of the viewport */
+    padding: 0; /* Ensure no padding affects width */
+    overflow-x: hidden; /* Prevent child elements from causing horizontal overflow */
+    background-color: white;
+}
+
+.admin-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.admin-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-actions button:hover {
+    background-color: #0056b3;
+}
+
+h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.user-list {
+    list-style: none;
+    padding: 0;
+}
+
+.user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-item:last-child {
+    border-bottom: none;
+}
+
+.user-item span {
+    font-size: 16px;
+    color: #555;
+}
+
+.user-item button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.user-item button:hover {
+    background-color: #218838;
+}
 
 .popup {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: white;
-    padding: 20px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
+    width: 400px;
+    max-width: 90%;
+}
+
+.popup h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
 }
 
 .popup input,
 .popup textarea {
-    display: block;
-    margin: 10px 0;
     width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f0f0f0; /* Light gray background */
+    color: #000; /* Black text */
+}
+
+.popup textarea {
+    resize: none;
+    height: 80px;
+}
+
+.popup .popup-actions {
+    display: flex;
+    justify-content: space-between;
 }
 
 .popup button {
-    margin: 5px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popup button:first-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.popup button:first-child:hover {
+    background-color: #c82333;
+}
+
+.popup button:last-child {
+    background-color: #28a745;
+    color: white;
+}
+
+.popup button:last-child:hover {
+    background-color: #218838;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+li span {
+    font-size: 16px;
+    color: #555;
+}
+
+li button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+li button:hover {
+    background-color: #0056b3;
 }
