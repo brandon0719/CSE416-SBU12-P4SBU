@@ -8,6 +8,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 import "../stylesheets/HomePage.css";
+import ApiService from "../services/ApiService";
 
 function computeCentroid(geom) {
     let coords = [];
@@ -235,6 +236,16 @@ const HomePage = () => {
         }
     };
 
+    const handleReservation = (lotName) => {
+        if (!reservationStart || !reservationEnd) {
+            alert("Please enter reservation time.");
+        } else {
+            ApiService.createReservation(ApiService.getSessionUser().user_id, lotName, reservationStart, reservationEnd);
+            alert("Reservation created.");
+        }
+        
+    }
+
     return (
         <div className="homepage-container">
             <Header />
@@ -289,34 +300,38 @@ const HomePage = () => {
                                 />
                             </div>
                             <div className="time-selection">
-                                <label htmlFor="start-date">Reservation start:</label>
-                                <div id="start-date">
-                                    <DatePicker
-                                        placeholderText="Select date and time..."
-                                        selected={reservationStart}
-                                        onChange={(date) => setReservationStart(date)}
-                                        showTimeSelect
-                                        timeFormat="h:mm aa"
-                                        timeIntervals={30}
-                                        dateFormat="MMMM d, yyyy h:mm aa"
-                                        minDate={new Date()}
-                                        className="date-picker"
-                                    />
+                                <div className="start-time">
+                                    <label htmlFor="start-date" id="timepick-label">Reservation Start:</label>
+                                    <div id="start-date">
+                                        <DatePicker
+                                            placeholderText="Select date and time..."
+                                            selected={reservationStart}
+                                            onChange={(date) => setReservationStart(date)}
+                                            showTimeSelect
+                                            timeFormat="h:mm aa"
+                                            timeIntervals={30}
+                                            dateFormat="MMMM d, yyyy h:mm aa"
+                                            minDate={new Date()}
+                                            className="date-picker"
+                                        />
+                                    </div>
                                 </div>
-                                <label htmlFor="end-date">Reservation end:</label>
-                                <div id="end-date">
-                                    <DatePicker
-                                        placeholderText="Select date and time..."
-                                        selected={reservationEnd}
-                                        onChange={(date) => setReservationEnd(date)}
-                                        showTimeSelect
-                                        timeFormat="h:mm aa"
-                                        timeIntervals={30}
-                                        dateFormat="MMMM d, yyyy h:mm aa"
-                                        minDate={new Date()}
-                                        className="date-picker"
-                                    />
-                                </div>
+                                <div className="end-time">
+                                    <label htmlFor="end-date" id="timepick-label">Reservation End:</label>
+                                    <div id="end-date">
+                                        <DatePicker
+                                            placeholderText="Select date and time..."
+                                            selected={reservationEnd}
+                                            onChange={(date) => setReservationEnd(date)}
+                                            showTimeSelect
+                                            timeFormat="h:mm aa"
+                                            timeIntervals={30}
+                                            dateFormat="MMMM d, yyyy h:mm aa"
+                                            minDate={new Date()}
+                                            className="date-picker"
+                                        />
+                                    </div>
+                                </div> 
                             </div>
                             <div className="sorting-options">
                                 <label htmlFor="sort-by">Starting:</label>
@@ -348,7 +363,7 @@ const HomePage = () => {
                                         <p>{lot.details}</p>
                                         <p>Price: ${lot.price}</p>
                                         <div style={{ display: "flex", gap: "10px" }}>
-                                            <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
+                                            <button onClick={() => handleReservation(lot.name)}>
                                                 Reserve
                                             </button>
                                             {lot.geom && (
