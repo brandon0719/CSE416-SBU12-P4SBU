@@ -243,7 +243,7 @@ const HomePage = () => {
             ApiService.createReservation(ApiService.getSessionUser().user_id, lotName, reservationStart, reservationEnd);
             alert("Reservation created.");
         }
-        
+
     }
 
     return (
@@ -251,57 +251,55 @@ const HomePage = () => {
             <Header />
             <NavBar />
             <div className="map-content-container">
-                {/* Attach ref to left-panel */}
                 <div className="left-panel" ref={leftPanelRef}>
                     {!selectedBuilding ? (
-                        <div className="buildings-list">
-                            <h3>Select a Building</h3>
-                            <input
-                                type="text"
-                                placeholder="Search Buildings..."
-                                value={buildingSearchTerm}
-                                onChange={(e) => setBuildingSearchTerm(e.target.value)}
-                                style={{
-                                    backgroundColor: "white",
-                                    width: "100%",
-                                    padding: "8px",
-                                    marginBottom: "12px",
-                                }}
-                            />
-                            {filteredBuildings.map((building) => (
-                                <div
-                                    key={building.id}
-                                    className="building-item"
-                                    onClick={() => handleBuildingSelect(building)}
-                                    style={{
-                                        cursor: "pointer",
-                                        borderBottom: "1px solid #ccc",
-                                        padding: "8px 0",
-                                    }}
-                                >
-                                    <p>{building.name}</p>
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
                         <>
-                            <div className="selected-building-info">
-                                <h3>Selected Building: {selectedBuilding.name}</h3>
-                                <button onClick={() => setSelectedBuilding(null)}>
-                                    Change Selection
-                                </button>
-                            </div>
-                            <div className="search-bar">
+                            <div className="buildings-header">
+                                <h3>Select a Building</h3>
                                 <input
                                     type="text"
-                                    placeholder="Search parking lots..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    placeholder="Search Buildings..."
+                                    value={buildingSearchTerm}
+                                    onChange={(e) => setBuildingSearchTerm(e.target.value)}
+                                    className="building-search"
                                 />
                             </div>
-                            <div className="time-selection">
-                                <div className="start-time">
-                                    <label htmlFor="start-date" id="timepick-label">Reservation Start:</label>
+                            <div className="buildings-list">
+                                {filteredBuildings.map((building) => (
+                                    <div
+                                        key={building.id}
+                                        className="building-item"
+                                        onClick={() => handleBuildingSelect(building)}
+                                        style={{
+                                            cursor: "pointer",
+                                            borderBottom: "1px solid #ccc",
+                                            padding: "8px 0",
+                                        }}
+                                    >
+                                        <p>{building.name}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="lot-header">
+                                <div className="selected-building-info">
+                                    <h3>Selected Building: {selectedBuilding.name}</h3>
+                                    <button onClick={() => setSelectedBuilding(null)}>
+                                        Change Selection
+                                    </button>
+                                </div>
+                                <div className="search-bar">
+                                    <input
+                                        type="text"
+                                        placeholder="Search parking lots..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
+                                <div className="time-selection">
+                                    <label htmlFor="start-date">Reservation start:</label>
                                     <div id="start-date">
                                         <DatePicker
                                             placeholderText="Select date and time..."
@@ -315,9 +313,7 @@ const HomePage = () => {
                                             className="date-picker"
                                         />
                                     </div>
-                                </div>
-                                <div className="end-time">
-                                    <label htmlFor="end-date" id="timepick-label">Reservation End:</label>
+                                    <label htmlFor="end-date">Reservation end:</label>
                                     <div id="end-date">
                                         <DatePicker
                                             placeholderText="Select date and time..."
@@ -331,30 +327,30 @@ const HomePage = () => {
                                             className="date-picker"
                                         />
                                     </div>
-                                </div> 
+                                </div>
+                                <div className="sorting-options">
+                                    <label htmlFor="sort-by">Starting:</label>
+                                    <select
+                                        id="sort-by"
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                    >
+                                        <option value="current_location">Current Location</option>
+                                        <option value="destination">Destination</option>
+                                    </select>
+                                    <label htmlFor="sort-by">Sort by:</label>
+                                    <select
+                                        id="sort-by"
+                                        value={sortBy}
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                    >
+                                        <option value="distance">Distance</option>
+                                        <option value="price">Price</option>
+                                    </select>
+                                </div>
+                                <h3 className="lots-title">Parking Lots</h3>
                             </div>
-                            <div className="sorting-options">
-                                <label htmlFor="sort-by">Starting:</label>
-                                <select
-                                    id="sort-by"
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                >
-                                    <option value="current_location">Current Location</option>
-                                    <option value="destination">Destination</option>
-                                </select>
-                                <label htmlFor="sort-by">Sort by:</label>
-                                <select
-                                    id="sort-by"
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                >
-                                    <option value="distance">Distance</option>
-                                    <option value="price">Price</option>
-                                </select>
-                            </div>
-                            <div className="lots-list">
-                                <h3>Parking Lots</h3>
+                            <div className="lots-scroll">
                                 {filteredLots.map((lot) => (
                                     <div key={lot.name} className="lot-item">
                                         <p>
@@ -363,7 +359,7 @@ const HomePage = () => {
                                         <p>{lot.details}</p>
                                         <p>Price: ${lot.price}</p>
                                         <div style={{ display: "flex", gap: "10px" }}>
-                                            <button onClick={() => handleReservation(lot.name)}>
+                                            <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
                                                 Reserve
                                             </button>
                                             {lot.geom && (
@@ -376,6 +372,7 @@ const HomePage = () => {
                         </>
                     )}
                 </div>
+
                 <div className="right-panel">
                     <div id="map" className="map-container" />
                 </div>
