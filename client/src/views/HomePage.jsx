@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.js";
 import Header from "../components/Header";
@@ -29,18 +29,27 @@ function computeCentroid(geom) {
 }
 
 const HomePage = () => {
+    // Existing state for parking lots and reservation details
     const [lots, setLots] = useState([]);
     const [sortBy, setSortBy] = useState("distance");
     const [userLocation, setUserLocation] = useState({ lng: -73.12246, lat: 40.91671 });
-    const [searchTerm, setSearchTerm] = useState(""); // New state for search
+    const [searchTerm, setSearchTerm] = useState("");
     const [reservationStart, setReservationStart] = useState("");
     const [reservationEnd, setReservationEnd] = useState("");
 
-    // Filter the lots based on the search term
+    // New state for campus buildings and the currently selected building
+    const [buildings, setBuildings] = useState([]);
+    const [selectedBuilding, setSelectedBuilding] = useState(null);
+
+    // Ref to store the Mapbox Directions control so we can update its destination later
+    const directionsRef = useRef(null);
+
+    // Filter the parking lots based on the search term
     const filteredLots = lots.filter(lot =>
         lot.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // Fetch parking lots whenever 'sortBy' or 'userLocation' changes
     useEffect(() => {
         const fetchLots = async () => {
             try {
@@ -57,13 +66,25 @@ const HomePage = () => {
         fetchLots();
     }, [sortBy, userLocation]);
 
+    // Fetch campus buildings from the API endpoint for initial building selection
+    useEffect(() => {
+        const fetchBuildings = async () => {
+            try {
+                const response = await fetch("/api/buildings");
+                const data = await response.json();
+                setBuildings(data);
+            } catch (error) {
+                console.error("Error fetching buildings:", error);
+            }
+        };
+        fetchBuildings();
+    }, []);
+
+    // Initialize the Mapbox map, Directions control and lots display
     useEffect(() => {
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
-
-        // Set initial center and zoom level
         const initialCenter = [-73.12246, 40.91671];
         const initialZoom = 14;
-
         const map = new mapboxgl.Map({
             container: "map",
             style: "mapbox://styles/mapbox/light-v10",
@@ -75,15 +96,17 @@ const HomePage = () => {
             // Set scroll zoom rate
             map.scrollZoom.setWheelZoomRate(100);
 
-            // Add the Directions control first so it appears to the left
+            // Initialize Directions control (walking mode only)
             const directions = new MapboxDirections({
                 accessToken: mapboxgl.accessToken,
                 unit: "metric",
-                profile: "mapbox/driving",
+                profile: "mapbox/walking",
+                controls: { profileSwitcher: false }
             });
+            directionsRef.current = directions; // store reference for later updates
             map.addControl(directions, "top-left");
 
-            // Add the Geolocate control next so it appears to the right of directions
+            // Add Geolocate control
             const geolocateControl = new mapboxgl.GeolocateControl({
                 positionOptions: { enableHighAccuracy: true },
                 trackUserLocation: true,
@@ -103,6 +126,7 @@ const HomePage = () => {
                 directions.setOrigin([userLng, userLat]);
             });
 
+            // Fetch parking lots and add them to the map
             try {
                 const response = await fetch("/api/lots");
                 const lotsData = await response.json();
@@ -141,6 +165,7 @@ const HomePage = () => {
                         },
                     });
 
+                    // Add interactivity for each lot
                     (() => {
                         let lotPopup;
                         map.on("mouseenter", `${sourceId}-fill`, () => {
@@ -173,8 +198,22 @@ const HomePage = () => {
             }
         });
 
+        // Clean up on unmount
         return () => map.remove();
     }, []);
+
+    // Handler when a building is selected
+    const handleBuildingSelect = (building) => {
+        setSelectedBuilding(building);
+        // building.location is expected to be a GeoJSON point object:
+        // { "type": "Point", "coordinates": [lng, lat] }
+        const [lng, lat] = building.location.coordinates;
+        setUserLocation({ lng, lat });
+        // Update the map's directions destination
+        if (directionsRef.current) {
+            directionsRef.current.setDestination([lng, lat]);
+        }
+    };
 
     return (
         <div className="homepage-container">
@@ -182,87 +221,105 @@ const HomePage = () => {
             <NavBar />
             <div className="map-content-container">
                 <div className="left-panel">
-
-                    <div className="search-bar">
-                        <input
-                            type="text"
-                            placeholder="Search parking lots..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="time-selection">
-                        <label htmlFor="start-date">Reservation start:</label>
-                        <div id="start-date">
-                            <DatePicker
-                                placeholderText="Select date and time..."
-                                selected={reservationStart}
-                                onChange={(date) => setReservationStart(date)}
-                                showTimeSelect
-                                timeFormat="h:mm aa"
-                                timeIntervals={30}
-                                dateFormat="MMMM d, yyyy h:mm aa"
-                                minDate={new Date()}
-                                className="date-picker"
-                            />
-
+                    {!selectedBuilding ? (
+                        <div className="buildings-list">
+                            <h3>Select a Building</h3>
+                            {buildings.map((building) => (
+                                <div
+                                    key={building.id}
+                                    className="building-item"
+                                    onClick={() => handleBuildingSelect(building)}
+                                    style={{
+                                        cursor: "pointer",
+                                        borderBottom: "1px solid #ccc",
+                                        padding: "8px 0"
+                                    }}
+                                >
+                                    <p>{building.name}</p>
+                                </div>
+                            ))}
                         </div>
-
-                        <label htmlFor="end-date">Reservation end:</label>
-                        <div id="end-date">
-                            <DatePicker
-                                placeholderText="Select date and time..."
-                                selected={reservationEnd}
-                                onChange={(date) => setReservationEnd(date)}
-                                showTimeSelect
-                                timeFormat="h:mm aa"
-                                timeIntervals={30}
-                                dateFormat="MMMM d, yyyy h:mm aa"
-                                minDate={new Date()}
-                                className="date-picker" />
-                        </div>
-
-                    </div>
-
-
-                    <div className="sorting-options">
-                        <label htmlFor="sort-by">Starting:</label>
-                        <select
-                            id="sort-by"
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                        >
-                            <option value="current_location">Current Location</option>
-                            <option value="destination">Destination</option>
-                        </select>
-
-                        <label htmlFor="sort-by">Sort by:</label>
-                        <select
-                            id="sort-by"
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                        >
-                            <option value="distance">Distance</option>
-                            <option value="price">Price</option>
-                        </select>
-                    </div>
-
-
-
-                    <div className="lots-list">
-                        <h3>Parking Lots</h3>
-                        {filteredLots.map((lot) => (
-                            <div key={lot.name} className="lot-item">
-                                <p><strong>{lot.name}</strong></p>
-                                <p>{lot.details}</p>
-                                <p>Price: ${lot.price}</p>
-                                <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
-                                    Reserve
+                    ) : (
+                        <>
+                            <div className="selected-building-info">
+                                <h3>Selected Building: {selectedBuilding.name}</h3>
+                                <button onClick={() => setSelectedBuilding(null)}>
+                                    Change Selection
                                 </button>
                             </div>
-                        ))}
-                    </div>
+                            <div className="search-bar">
+                                <input
+                                    type="text"
+                                    placeholder="Search parking lots..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </div>
+                            <div className="time-selection">
+                                <label htmlFor="start-date">Reservation start:</label>
+                                <div id="start-date">
+                                    <DatePicker
+                                        placeholderText="Select date and time..."
+                                        selected={reservationStart}
+                                        onChange={(date) => setReservationStart(date)}
+                                        showTimeSelect
+                                        timeFormat="h:mm aa"
+                                        timeIntervals={30}
+                                        dateFormat="MMMM d, yyyy h:mm aa"
+                                        minDate={new Date()}
+                                        className="date-picker"
+                                    />
+                                </div>
+                                <label htmlFor="end-date">Reservation end:</label>
+                                <div id="end-date">
+                                    <DatePicker
+                                        placeholderText="Select date and time..."
+                                        selected={reservationEnd}
+                                        onChange={(date) => setReservationEnd(date)}
+                                        showTimeSelect
+                                        timeFormat="h:mm aa"
+                                        timeIntervals={30}
+                                        dateFormat="MMMM d, yyyy h:mm aa"
+                                        minDate={new Date()}
+                                        className="date-picker"
+                                    />
+                                </div>
+                            </div>
+                            <div className="sorting-options">
+                                <label htmlFor="sort-by">Starting:</label>
+                                <select
+                                    id="sort-by"
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    <option value="current_location">Current Location</option>
+                                    <option value="destination">Destination</option>
+                                </select>
+                                <label htmlFor="sort-by">Sort by:</label>
+                                <select
+                                    id="sort-by"
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    <option value="distance">Distance</option>
+                                    <option value="price">Price</option>
+                                </select>
+                            </div>
+                            <div className="lots-list">
+                                <h3>Parking Lots</h3>
+                                {filteredLots.map((lot) => (
+                                    <div key={lot.name} className="lot-item">
+                                        <p><strong>{lot.name}</strong></p>
+                                        <p>{lot.details}</p>
+                                        <p>Price: ${lot.price}</p>
+                                        <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
+                                            Reserve
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
                 <div className="right-panel">
                     <div id="map" className="map-container" />
