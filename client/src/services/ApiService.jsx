@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 
 
 const http = axios.create({
-    baseURL: "http://localhost:8000/api", 
+    baseURL: "http://localhost:8000/api",
 });
 
 export const login = (user) => {
@@ -224,6 +224,17 @@ const fetchProtectedData = async () => {
     }
 };
 
+
+// // mock create payment
+// const createPaymentIntent = async (ticketIds) => {
+//     console.log("Mocking payment intent creation for tickets:", ticketIds);
+//     return new Promise((resolve) => {
+//         setTimeout(() => {
+//             resolve({ clientSecret: "mock_client_secret" });
+//         }, 1000); // Simulate a delay
+//     });
+// };
+
 //create a reservation
 const createReservation = async (userId, parkingLot, startTime, endTime) => {
     try {
@@ -239,16 +250,71 @@ const createReservation = async (userId, parkingLot, startTime, endTime) => {
     }
 };
 
+export const createTicket = async (userId, violationDate, ticketPrice, ticketDetails) => {
+    try {
+        console.log("Creating ticket with:", { userId, violationDate, ticketPrice, ticketDetails });
+        const response = await http.post("/tickets/create", {
+            userId,
+            violationDate,
+            ticketPrice,
+            ticketDetails
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error("Failed to create ticket:", error);
+        throw error.response?.data || { message: "Ticket creation failed" };
+    }
+}
+
+export const getTickets = async (userId) => {
+    try {
+        console.log("Fetching tickets for user ID:", userId);
+        const response = await http.get(`/tickets/user/${userId}`);
+        console.log("Tickets fetched:", response.data); // Log the response data
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch tickets:", error);
+        throw error.response?.data || { message: "Failed to fetch tickets" };
+    }
+};
+
+export const payTickets = async (ticketIds) => {
+    try {
+        const response = await http.post("/tickets/pay", {ticketIds});
+        return response.data;
+    } catch(error) {
+        console.error("Failed to pay tickets:", error);
+        throw error.response?.data || { message: "Failed to pay tickets" };
+    }
+}
+
+export const fetchAllUsers = async () => {
+    try {
+        const response = await http.get("/tickets/users");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch users:", error);
+        throw error.response?.data || { message: "Failed to fetch users" };
+    }
+}
+
+
+
 const ApiService = {
-    registerUser : registerUser,
-    handleLogin : handleLogin,
-    login : login,
-    fetchProtectedData : fetchProtectedData,
-    logout : logout,
-    getSessionUser : getSessionUser,
+    registerUser: registerUser,
+    handleLogin: handleLogin,
+    login: login,
+    fetchProtectedData: fetchProtectedData,
+    logout: logout,
+    getSessionUser: getSessionUser,
     getNotifications: getNotifications,
     getMessages: getMessages,
-    createReservation: createReservation
+    createReservation: createReservation,
+    getTickets: getTickets,
+    createTicket: createTicket,
+    fetchAllUsers: fetchAllUsers,
+    payTickets: payTickets,
 }
 
 export default ApiService;

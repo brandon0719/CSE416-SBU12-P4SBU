@@ -14,6 +14,18 @@ export const searchBuildings = async (req, res) => {
     }
 };
 
+// return all buildings
+export const getBuildings = async (req, res) => {
+    try {
+        const results = await queryAllBuildings();
+        res.status(200).json({
+            buildings: results,
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 // return lots
 export const getLots = async (req, res) => {
     try {
@@ -25,3 +37,4 @@ export const getLots = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+

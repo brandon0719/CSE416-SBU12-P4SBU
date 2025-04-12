@@ -13,7 +13,12 @@ const Login = () => {
         e.preventDefault();
         try {
             await ApiService.handleLogin(email, password);
-            navigate("/HomePage");
+            const user = ApiService.getSessionUser(); // Get the logged-in user from cookies
+            if (user && user.is_admin) {
+                navigate("/users"); // Redirect to /users if the user is an admin
+            } else {
+                navigate("/HomePage"); // Redirect to /HomePage for regular users
+            }
         } catch (err) {
             setError(err.message);
         }
