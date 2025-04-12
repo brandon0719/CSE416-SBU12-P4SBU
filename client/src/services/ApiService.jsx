@@ -186,12 +186,9 @@ export const handleLogin = async (email, password) => {
         Cookies.set("token", token, { expires: 7 }); // Save token to cookie
         console.log("HANDLING User cookie set:", JSON.stringify(user));
 
-        //I don't think we need the below two lines?
-
-        //ApiService.setAuthToken(token); // Attach token to Axios
-        //setUserset(user); // Update user state
     } catch (err) {
         console.error("Error during login:", err.response?.data || err.message);
+        console.log(JSON.stringify(err.response?.data.error));
         throw err;
     }
 };
@@ -300,6 +297,17 @@ export const fetchAllUsers = async () => {
 }
 
 
+const updateProfile = async (profileData) => {
+    try {
+        const response = await http.put("/user/profile", profileData);
+        return response.data;
+    } catch (error) {
+        console.error("API updateProfile error:", error.response || error);
+        throw error.response?.data || error;
+    }
+};
+
+
 
 const ApiService = {
     registerUser: registerUser,
@@ -315,6 +323,7 @@ const ApiService = {
     createTicket: createTicket,
     fetchAllUsers: fetchAllUsers,
     payTickets: payTickets,
+    updateProfile: updateProfile,
 }
 
 export default ApiService;
