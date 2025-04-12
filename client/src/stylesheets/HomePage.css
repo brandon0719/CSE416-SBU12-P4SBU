@@ -173,21 +173,25 @@
 }
 
 .time-selection {
+    display: flex;
+    flex-direction: row;
     width: 100%;
-    margin: 8px;
-    right: auto;
-    margin-left: 20%;
+    margin: 0px;
 }
 
 .date-picker {
-    width: 100%;
-    padding: 8px;
+    width: 90%;
+    padding: 4px;
     margin: 4px;
     background-color: white;
     color: black;
     border: 1px solid #ccc;
     background-color: white;
     border-radius: 5px;
+}
+
+.sorting-options {
+    margin-top: 6px;
 }
 
 .building-search {
@@ -198,4 +202,11 @@
     background-color: white; /* Ensures a white background */
     border-radius: 5px;
     color: black;
+}
+
+#timepick-label {
+    display: block;
+    text-align: center;
+    line-height: 150%;
+    font-weight: 600;
 }
