@@ -300,6 +300,17 @@ export const fetchAllUsers = async () => {
 }
 
 
+const updateProfile = async (profileData) => {
+    try {
+        const response = await http.put("/user/profile", profileData);
+        return response.data;
+    } catch (error) {
+        console.error("API updateProfile error:", error.response || error);
+        throw error.response?.data || error;
+    }
+};
+
+
 
 const ApiService = {
     registerUser: registerUser,
@@ -315,6 +326,7 @@ const ApiService = {
     createTicket: createTicket,
     fetchAllUsers: fetchAllUsers,
     payTickets: payTickets,
+    updateProfile: updateProfile,
 }
 
 export default ApiService;

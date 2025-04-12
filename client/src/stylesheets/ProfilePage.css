@@ -120,3 +120,8 @@
     background-color: #4caf50;
     color: white;
 }
+
+.profile-page-content.toggled-class {
+    display: none;
+    /* Additional styling */
+}
