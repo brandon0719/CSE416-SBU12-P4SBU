@@ -6,7 +6,6 @@ const saltRounds = 10;
 export const getAllUsers = async () => {
     try {
         const { rows } = await pool.query("SELECT * FROM users");
-        console.log("Users fetched successfully", rows);
         return rows;
     } catch (error) {
         console.error("Error fetching users:", error.message); 

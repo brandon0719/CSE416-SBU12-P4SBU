@@ -308,7 +308,50 @@ export const deleteUser = async (userId) => {
     }
 };
 
+// Fetch all parking lots
+export const fetchAllParkingLots = async () => {
+    try {
+        const response = await http.get("/lots/getlots");
+        return response.data;
+    } catch (error) {
+        console.error("Failed to fetch parking lots:", error);
+        throw error.response?.data || { message: "Failed to fetch parking lots" };
+    }
+};
 
+// Add a new parking lot
+export const addParkingLot = async (data) => {
+    try {
+        const response = await http.post("/lots/add", data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to add parking lot:", error);
+        throw error.response?.data || { message: "Failed to add parking lot" };
+    }
+};
+
+// Edit an existing parking lot
+export const editParkingLot = async (id, data) => {
+    try {
+        const response = await http.put(`/lots/edit/${id}`, data);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to edit parking lot:", error);
+        throw error.response?.data || { message: "Failed to edit parking lot" };
+    }
+};
+
+// Delete a parking lot
+export const deleteParkingLot = async (id) => {
+    try {
+        console.log("Deleting parking lot with ID:", id);
+        const response = await http.delete(`/lots/delete/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Failed to delete parking lot:", error);
+        throw error.response?.data || { message: "Failed to delete parking lot" };
+    }
+};
 
 const ApiService = {
     registerUser: registerUser,
@@ -326,6 +369,10 @@ const ApiService = {
     payTickets: payTickets,
     approveUser: approveUser,
     deleteUser: deleteUser,
+    fetchAllParkingLots: fetchAllParkingLots,
+    addParkingLot: addParkingLot,
+    editParkingLot: editParkingLot,
+    deleteParkingLot: deleteParkingLot,
 }
 
 export default ApiService;

@@ -54,9 +54,53 @@ h1 {
     color: #333;
 }
 
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.admin-header h1 {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+}
+
+.admin-header button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-header button:hover {
+    background-color: #0056b3;
+}
+
+/* User list container */
+.user-list-container {
+    height: 65vh; /* Set the height of the scrollable container */
+    overflow-y: auto; /* Enable vertical scrolling */
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+    
 .user-list {
     list-style: none;
     padding: 0;
+    height: 60vh;;
 }
 
 .user-item {
@@ -76,7 +120,7 @@ h1 {
     color: #555;
 }
 
-.user-item button {
+.user-item .approve-button {
     background-color: #28a745;
     color: white;
     border: none;
@@ -87,8 +131,95 @@ h1 {
     transition: background-color 0.3s ease;
 }
 
-.user-item button:hover {
+.user-item .delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    margin-left: 15px;
+}
+
+.user-item .approve-button:hover {
     background-color: #218838;
+}
+
+.user-item .delete-button:hover {
+    background-color: #961010;
+}
+/* Two-column layout for the form */
+.popup-form .form-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 20px; /* Space between columns */
+}
+
+.popup-form label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    color: #333;
+}
+
+.popup-form input,
+.popup-form textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.popup-form textarea {
+    resize: vertical;
+    height: 80px;
+}
+
+.popup-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.popup-actions button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popup-actions button:hover {
+    background-color: #ddd;
+}
+
+.parking-popup label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.parking-popup input,
+.parking-popup textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.parking-popup textarea {
+    resize: vertical;
+    height: 80px;
 }
 
 .popup {
@@ -101,8 +232,8 @@ h1 {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
-    width: 400px;
     max-width: 90%;
+    min-width: 500px;
 }
 
 .popup h2 {
@@ -160,6 +291,9 @@ h1 {
 .popup button:last-child:hover {
     background-color: #218838;
 }
+
+
+
 
 ul {
     list-style: none;

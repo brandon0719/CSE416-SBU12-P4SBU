@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ApiService from "../services/ApiService";
 import "../stylesheets/AdminHome.css";
 
-const UserManagementPopup = ({ type, onClose, refreshUsers }) => {
+const UserManagementPopup = ({ type, user, onClose, refreshUsers }) => {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
-        userId: "",
     });
+
+    useEffect(() => {
+        if (type === "delete" && user) {
+            setFormData({ name: user.name, email: user.email });
+        }
+    }, [type, user]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -20,7 +25,7 @@ const UserManagementPopup = ({ type, onClose, refreshUsers }) => {
             if (type === "add") {
                 await ApiService.registerUser(formData.name, formData.email, formData.password);
             } else if (type === "delete") {
-                await ApiService.deleteUser(formData.userId);
+                await ApiService.deleteUser(user.user_id);
             }
             refreshUsers();
             onClose();
@@ -31,7 +36,7 @@ const UserManagementPopup = ({ type, onClose, refreshUsers }) => {
 
     return (
         <div className="popup">
-            <h2>{type === "add" ? "Add User" : "Delete User"}</h2>
+            <h2>{type === "add" ? "Add User" : `Delete User: ${formData.name}`}</h2>
             {type === "add" ? (
                 <>
                     <input
@@ -57,13 +62,7 @@ const UserManagementPopup = ({ type, onClose, refreshUsers }) => {
                     />
                 </>
             ) : (
-                <input
-                    type="text"
-                    name="userId"
-                    placeholder="User ID"
-                    value={formData.userId}
-                    onChange={handleInputChange}
-                />
+                <p>Are you sure you want to delete this user?</p>
             )}
             <div className="popup-actions">
                 <button onClick={onClose}>Cancel</button>

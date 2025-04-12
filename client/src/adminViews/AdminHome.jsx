@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
-import UserManagementPopup from "../components/UserManagementPopup";
 import ApiService from "../services/ApiService";
+import UserManagementPopup from "../components/UserManagementPopup";
 import "../stylesheets/AdminHome.css";
 
 const AdminHome = () => {
     const [users, setUsers] = useState([]);
     const [popupType, setPopupType] = useState(null); // "add" or "delete"
+    const [selectedUser, setSelectedUser] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
 
     useEffect(() => {
@@ -35,13 +36,25 @@ const AdminHome = () => {
         }
     };
 
-    const openPopup = (type) => {
+    const openPopup = (type, user = null) => {
         setPopupType(type);
+        setSelectedUser(user);
         setShowPopup(true);
     };
 
     const closePopup = () => {
         setShowPopup(false);
+        setPopupType(null);
+        setSelectedUser(null);
+    };
+
+    const refreshUsers = async () => {
+        try {
+            const response = await ApiService.fetchAllUsers();
+            setUsers(response.users);
+        } catch (error) {
+            console.error("Failed to refresh users:", error);
+        }
     };
 
     return (
@@ -49,36 +62,41 @@ const AdminHome = () => {
             <Header />
             <AdminNav />
             <div className="admin-page-content">
-                <div className="admin-actions">
+                <div className="admin-header">
+                    <h1>Users</h1>
                     <button onClick={() => openPopup("add")}>Add</button>
-                    <button onClick={() => openPopup("delete")}>Delete</button>
                 </div>
-                <h1>Users</h1>
-                <ul className="user-list">
-                    {users.map((user) => (
-                        <li key={user.user_id} className="user-item">
-                            <span>{user.name} ({user.email})</span>
-                            <span>
-                                {user.is_approved ? (
-                                    "Approved"
-                                ) : (
-                                    <button onClick={() => handleApprove(user.user_id)}>
-                                        Approve
+                <div className="user-list-container">
+                    <ul className="user-list">
+                        {users.map((user) => (
+                            <li key={user.user_id} className="user-item">
+                                <span>{user.name} ({user.email})</span>
+                                <span>
+                                    {user.is_approved ? (
+                                        "Approved"
+                                    ) : (
+                                        <button className="approve-button" onClick={() => handleApprove(user.user_id)}>
+                                            Approve
+                                        </button>
+                                    )}
+                                    <button
+                                        className="delete-button"
+                                        onClick={() => openPopup("delete", user)}
+                                    >
+                                        Delete
                                     </button>
-                                )}
-                            </span>
-                        </li>
-                    ))}
-                </ul>
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
             {showPopup && (
                 <UserManagementPopup
                     type={popupType}
+                    user={selectedUser}
                     onClose={closePopup}
-                    refreshUsers={() => {
-                        // Re-fetch users after adding/deleting
-                        ApiService.fetchAllUsers().then((response) => setUsers(response.users));
-                    }}
+                    refreshUsers={refreshUsers}
                 />
             )}
         </div>
