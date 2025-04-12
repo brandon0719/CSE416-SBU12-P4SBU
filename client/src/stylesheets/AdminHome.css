@@ -1,28 +1,20 @@
 * {
-    box-sizing: border-box; /* Include padding and borders in width/height calculations */
+    box-sizing: border-box;
 }
 
 .admin-page-container {
     position: relative;
-    background-size: cover;
-    background-position: center;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Ensure it fills the entire viewport height */
-    margin: 0;
-    color: black;
-    width: 100vw; /* Ensure it spans the full width of the viewport */
-    padding: 0; /* Ensure no padding affects width */
-    overflow-x: hidden; /* Prevent child elements from causing horizontal overflow */
+    height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
     background-color: white;
 }
 
 .admin-page-content {
     margin: 30px auto;
-    color: black;
-    width: 1100px; /* Ensure it spans the full width of the viewport */
-    padding: 0; /* Ensure no padding affects width */
-    overflow-x: hidden; /* Prevent child elements from causing horizontal overflow */
+    width: 1100px;
     background-color: white;
 }
 
@@ -58,7 +50,6 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: white;
     padding: 10px 20px;
     border-bottom: 1px solid #ddd;
     position: sticky;
@@ -66,14 +57,8 @@ h1 {
     z-index: 10;
 }
 
-.admin-header h1 {
-    font-size: 24px;
-    color: #333;
-    margin: 0;
-}
-
 .admin-header button {
-    background-color: #007bff;
+    background-color: #28a745;
     color: white;
     border: none;
     border-radius: 4px;
@@ -84,23 +69,21 @@ h1 {
 }
 
 .admin-header button:hover {
-    background-color: #0056b3;
+    background-color: #218838;
 }
 
-/* User list container */
 .user-list-container {
-    height: 65vh; /* Set the height of the scrollable container */
-    overflow-y: auto; /* Enable vertical scrolling */
+    height: 65vh;
+    overflow-y: auto;
     margin-top: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     background-color: #f9f9f9;
 }
-    
+
 .user-list {
     list-style: none;
     padding: 0;
-    height: 60vh;;
 }
 
 .user-item {
@@ -150,77 +133,6 @@ h1 {
 .user-item .delete-button:hover {
     background-color: #961010;
 }
-/* Two-column layout for the form */
-.popup-form .form-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
-    gap: 20px; /* Space between columns */
-}
-
-.popup-form label {
-    display: flex;
-    flex-direction: column;
-    font-weight: bold;
-    color: #333;
-}
-
-.popup-form input,
-.popup-form textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.popup-form textarea {
-    resize: vertical;
-    height: 80px;
-}
-
-.popup-actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.popup-actions button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.popup-actions button:hover {
-    background-color: #ddd;
-}
-
-.parking-popup label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    color: #333;
-}
-
-.parking-popup input,
-.parking-popup textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.parking-popup textarea {
-    resize: vertical;
-    height: 80px;
-}
 
 .popup {
     position: fixed;
@@ -251,8 +163,8 @@ h1 {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
-    background-color: #f0f0f0; /* Light gray background */
-    color: #000; /* Black text */
+    background-color: #f0f0f0;
+    color: #000;
 }
 
 .popup textarea {
@@ -292,9 +204,6 @@ h1 {
     background-color: #218838;
 }
 
-
-
-
 ul {
     list-style: none;
     padding: 0;
@@ -319,7 +228,8 @@ li span {
 }
 
 li button {
-    background-color: #007bff;
+    background-color: #28a745;
+
     color: white;
     border: none;
     border-radius: 4px;

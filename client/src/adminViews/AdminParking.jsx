@@ -53,7 +53,7 @@ const AdminParking = () => {
             <AdminNav />
             <div className="admin-page-content">
                 <div className="admin-header">
-                    <h1>PARKING-LOT PAGE</h1>
+                    <h1>Parking Lots</h1>
                     <button onClick={() => openPopup("add")}>Add Parking Lot</button>
                 </div>
                 <div className="user-list-container">
@@ -62,8 +62,8 @@ const AdminParking = () => {
                             <li key={lot.lotid} className="user-item">
                                 <span>{lot.name} - Capacity: {lot.total_spaces}</span>
                                 <span>
-                                    <button onClick={() => openPopup("edit", lot)}>Edit</button>
-                                    <button onClick={() => handleDelete(lot.lotid)}>Remove</button>
+                                    <button className="approve-button" onClick={() => openPopup("edit", lot)}>Edit Lot</button>
+                                    <button className="delete-button" onClick={() => handleDelete(lot.lotid)}>Remove Lot</button>
                                 </span>
                             </li>
                         ))}
