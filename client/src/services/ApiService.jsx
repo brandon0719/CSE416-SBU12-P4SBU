@@ -186,12 +186,9 @@ export const handleLogin = async (email, password) => {
         Cookies.set("token", token, { expires: 7 }); // Save token to cookie
         console.log("HANDLING User cookie set:", JSON.stringify(user));
 
-        //I don't think we need the below two lines?
-
-        //ApiService.setAuthToken(token); // Attach token to Axios
-        //setUserset(user); // Update user state
     } catch (err) {
         console.error("Error during login:", err.response?.data || err.message);
+        console.log(JSON.stringify(err.response?.data.error));
         throw err;
     }
 };
