@@ -22,7 +22,7 @@ const Login = () => {
                 navigate("/HomePage"); // Redirect to /HomePage for regular users
             }
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data.error);
         }
     };
 
