@@ -68,3 +68,24 @@ export const approve = async (userId) => {
         throw new Error(error.message);
     }
 }
+
+export const updateUserProfile = async (userId, profileData) => {
+    const { userType, permitNumber, carModel, licensePlate } = profileData;
+    try {
+        const { rows } = await pool.query(
+            `UPDATE users
+            SET user_type = $1,
+                permit_number = $2,
+                car_model = $3,
+                license_plate = $4,
+                is_profile_complete = true
+            WHERE user_id = $5
+            RETURNING *;`,
+            [userType, permitNumber, carModel, licensePlate, userId]
+        );
+        return rows[0];
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
