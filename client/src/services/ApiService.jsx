@@ -386,7 +386,7 @@ const updateProfile = async (profileData) => {
 
 const getUserReservations = async (userId) => {
     try {
-        const response = await http.get(`/reservations/user/${userId}`);
+        const response = await http.get(`/reservation/user/${userId}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching reservations:", error.response || error);

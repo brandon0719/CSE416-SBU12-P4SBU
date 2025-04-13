@@ -47,6 +47,7 @@ const ProfilePage = () => {
         // After setting the user, fetch reservations for that user.
         ApiService.getUserReservations(sessionUser.user_id)
             .then((resData) => {
+                console.log("Fetched reservations:", resData);
                 setCurrentReservations(resData.currentReservations);
                 setPastReservations(resData.pastReservations);
             })
@@ -184,6 +185,15 @@ const ProfilePage = () => {
             .join(" ");
     }
 
+    // Format Date and Time
+    const options = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    };
+
     return (
         <div className="profile-page-container">
             <Header />
@@ -299,30 +309,69 @@ const ProfilePage = () => {
             <div className="reservations-section">
                 <h2>Current Reservations</h2>
                 {currentReservations.length > 0 ? (
-                    <ul>
-                        {currentReservations.map((res, index) => (
-                            <li key={res.reservation_id}>
-                                <strong>Lot:</strong> {res.lot_name} |{" "}
-                                <strong>Start:</strong>{" "}
-                                {new Date(res.start_time).toLocaleString()} |{" "}
-                                <strong>End:</strong>{" "}
-                                {new Date(res.end_time).toLocaleString()}
+                    <ul className="reservations-list">
+                        {currentReservations.map((res) => (
+                            <li
+                                key={res.reservation_id}
+                                className="reservation-card">
+                                <div className="reservation-row">
+                                    <span className="label">Lot:</span>
+                                    <span className="value">
+                                        {res.lot_name}
+                                    </span>
+                                </div>
+                                <div className="reservation-row">
+                                    <span className="label">Start:</span>
+                                    <span className="value">
+                                        {new Date(
+                                            res.start_time
+                                        ).toLocaleString("en-US", options)}
+                                    </span>
+                                </div>
+                                <div className="reservation-row">
+                                    <span className="label">End:</span>
+                                    <span className="value">
+                                        {new Date(
+                                            res.end_time
+                                        ).toLocaleString("en-US", options)}
+                                    </span>
+                                </div>
                             </li>
                         ))}
                     </ul>
                 ) : (
                     <p>No current reservations.</p>
                 )}
+
                 <h2>Past Reservations</h2>
                 {pastReservations.length > 0 ? (
-                    <ul>
-                        {pastReservations.map((res, index) => (
-                            <li key={res.reservation_id}>
-                                <strong>Lot:</strong> {res.lot_name} |{" "}
-                                <strong>Start:</strong>{" "}
-                                {new Date(res.start_time).toLocaleString()} |{" "}
-                                <strong>End:</strong>{" "}
-                                {new Date(res.end_time).toLocaleString()}
+                    <ul className="reservations-list">
+                        {pastReservations.map((res) => (
+                            <li
+                                key={res.reservation_id}
+                                className="reservation-card">
+                                <div className="reservation-row">
+                                    <span className="label">Lot:</span>
+                                    <span className="value">
+                                        {res.lot_name}
+                                    </span>
+                                </div>
+                                <div className="reservation-row">
+                                    <span className="label">Start:</span>
+                                    <span className="value">
+                                        {new Date(
+                                            res.start_time
+                                        ).toLocaleString("en-US", options)}
+                                    </span>
+                                </div>
+                                <div className="reservation-row">
+                                    <span className="label">End:</span>
+                                    <span className="value">
+                                        {new Date(
+                                            res.end_time
+                                        ).toLocaleString("en-US", options)}
+                                    </span>
+                                </div>
                             </li>
                         ))}
                     </ul>
