@@ -340,14 +340,6 @@ const HomePage = () => {
                                         Change Selection
                                     </button>
                                 </div>
-                                <div className="search-bar">
-                                    <input
-                                        type="text"
-                                        placeholder="Search parking lots..."
-                                        value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
                                 <div className="time-selection">
                                     <label htmlFor="start-date">Reservation start:</label>
                                     <div id="start-date">
@@ -401,6 +393,14 @@ const HomePage = () => {
                                 </div>
 
                                 <h3 className="lots-title">Parking Lots</h3>
+                                <div className="search-bar">
+                                    <input
+                                        type="text"
+                                        placeholder="Search parking lots..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                </div>
                             </div>
                             <div className="lots-scroll" ref={lotsScrollRef}>
                                 {filteredLots.map((lot) => (
