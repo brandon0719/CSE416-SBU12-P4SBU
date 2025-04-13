@@ -82,7 +82,7 @@ const HomePage = () => {
     useEffect(() => {
         const fetchAndSortLots = async () => {
             try {
-                const response = await fetch("/api/lots");
+                const response = await fetch("/api/lots/getlotdetails");
                 const data = await response.json();
 
                 if (sortCriteria === "distance" && startingPoint === "destination") {
@@ -189,7 +189,7 @@ const HomePage = () => {
 
             // Fetch parking lot data and add them to the map
             try {
-                const response = await fetch("/api/lots");
+                const response = await fetch("/api/lots/getlotdetails");
                 const lotsData = await response.json();
 
                 lotsData.forEach((lot) => {
