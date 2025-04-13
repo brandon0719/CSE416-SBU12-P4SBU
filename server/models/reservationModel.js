@@ -23,3 +23,33 @@ export const getUserReservations = async (userId) => {
         throw new Error(error.message);
     }
 }
+
+// For profilepage (Gets past and active reservations for the user)
+export const getReservationsByUser = async (userId) => {
+    try {
+        // Current reservations: end_time is in the future or now
+        const currentQuery = `
+            SELECT *
+            FROM reservations 
+            WHERE user_id = $1 AND end_time >= NOW()
+            ORDER BY start_time;
+        `;
+        // Past reservations: end_time is in the past
+        const pastQuery = `
+            SELECT *
+            FROM reservations 
+            WHERE user_id = $1 AND end_time < NOW()
+            ORDER BY start_time DESC;
+        `;
+
+        const currentRes = await pool.query(currentQuery, [userId]);
+        const pastRes = await pool.query(pastQuery, [userId]);
+
+        return {
+            currentReservations: currentRes.rows,
+            pastReservations: pastRes.rows,
+        };
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};

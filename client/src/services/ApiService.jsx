@@ -2,14 +2,14 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { Navigate } from "react-router-dom";
 
-
 const http = axios.create({
     baseURL: "http://localhost:8000/api",
 });
 
 export const login = (user) => {
-    Cookies.set("token", user.token, { expires: 7 }); // 30 min
-    Cookies.set("user", JSON.stringify(user), { expires: 7 }); // 30 min
+    const in1Hour = new Date(new Date().getTime() + 60 * 60 * 1000); // 1 hour from now
+    Cookies.set("token", user.token, { expires: in1Hour });
+    Cookies.set("user", JSON.stringify(user), { expires: in1Hour });
     console.log("User cookie set:", JSON.stringify(user));
 };
 
@@ -79,11 +79,19 @@ const getMessages = async () => {
 
         let formattedTime;
         if (diffMinutes < 60) {
-            formattedTime = `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
+            formattedTime = `${diffMinutes} minute${
+                diffMinutes > 1 ? "s" : ""
+            } ago`;
         } else if (diffHours < 24) {
             formattedTime = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
         } else {
-            const options = { month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true };
+            const options = {
+                month: "long",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+            };
             formattedTime = message.time.toLocaleString("en-US", options); // Example: "April 5 at 3:30 PM"
         }
 
@@ -150,11 +158,19 @@ const getNotifications = async () => {
 
         let formattedTime;
         if (diffMinutes < 60) {
-            formattedTime = `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
+            formattedTime = `${diffMinutes} minute${
+                diffMinutes > 1 ? "s" : ""
+            } ago`;
         } else if (diffHours < 24) {
             formattedTime = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
         } else {
-            const options = { month: "long", day: "numeric", hour: "numeric", minute: "numeric", hour12: true };
+            const options = {
+                month: "long",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                hour12: true,
+            };
             formattedTime = notification.time.toLocaleString("en-US", options); // Example: "March 28 at 11:07 AM"
         }
 
@@ -185,7 +201,6 @@ export const handleLogin = async (email, password) => {
         Cookies.set("user", JSON.stringify(user), { expires: 7 }); // Save user to cookie
         Cookies.set("token", token, { expires: 7 }); // Save token to cookie
         console.log("HANDLING User cookie set:", JSON.stringify(user));
-
     } catch (err) {
         console.error("Error during login:", err.response?.data || err.message);
         console.log(JSON.stringify(err.response?.data.error));
@@ -212,15 +227,14 @@ const fetchProtectedData = async () => {
     try {
         const response = await http.get("/auth/protected", {
             headers: {
-                Authorization: `Bearer ${Cookies.get('token')}`
-            }
+                Authorization: `Bearer ${Cookies.get("token")}`,
+            },
         });
         return response.data;
     } catch (error) {
         throw error.response?.data || { message: "Unauthorized access" };
     }
 };
-
 
 //create a reservation
 const createReservation = async (userId, parkingLot, startTime, endTime) => {
@@ -229,7 +243,7 @@ const createReservation = async (userId, parkingLot, startTime, endTime) => {
             userId,
             parkingLot,
             startTime,
-            endTime
+            endTime,
         });
         return response.data;
     } catch (error) {
@@ -238,14 +252,24 @@ const createReservation = async (userId, parkingLot, startTime, endTime) => {
 };
 
 // ticket stuff
-export const createTicket = async (userId, violationDate, ticketPrice, ticketDetails) => {
+export const createTicket = async (
+    userId,
+    violationDate,
+    ticketPrice,
+    ticketDetails
+) => {
     try {
-        console.log("Creating ticket with:", { userId, violationDate, ticketPrice, ticketDetails });
+        console.log("Creating ticket with:", {
+            userId,
+            violationDate,
+            ticketPrice,
+            ticketDetails,
+        });
         const response = await http.post("/tickets/create", {
             userId,
             violationDate,
             ticketPrice,
-            ticketDetails
+            ticketDetails,
         });
 
         return response.data;
@@ -253,7 +277,7 @@ export const createTicket = async (userId, violationDate, ticketPrice, ticketDet
         console.error("Failed to create ticket:", error);
         throw error.response?.data || { message: "Ticket creation failed" };
     }
-}
+};
 
 export const getTickets = async (userId) => {
     try {
@@ -267,13 +291,13 @@ export const getTickets = async (userId) => {
 
 export const payTickets = async (ticketIds) => {
     try {
-        const response = await http.post("/tickets/pay", {ticketIds});
+        const response = await http.post("/tickets/pay", { ticketIds });
         return response.data;
-    } catch(error) {
+    } catch (error) {
         console.error("Failed to pay tickets:", error);
         throw error.response?.data || { message: "Failed to pay tickets" };
     }
-}
+};
 
 
 // user stuff
@@ -285,8 +309,7 @@ export const fetchAllUsers = async () => {
         console.error("Failed to fetch users:", error);
         throw error.response?.data || { message: "Failed to fetch users" };
     }
-}
-
+};
 export const approveUser = async (userId) => {
     try {
         await http.post("/admin/approveUser", { userId });
@@ -361,7 +384,15 @@ const updateProfile = async (profileData) => {
     }
 };
 
-
+const getUserReservations = async (userId) => {
+    try {
+        const response = await http.get(`/reservations/user/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching reservations:", error.response || error);
+        throw error.response?.data || error;
+    }
+};
 
 const ApiService = {
     registerUser: registerUser,
@@ -384,6 +415,7 @@ const ApiService = {
     editParkingLot: editParkingLot,
     deleteParkingLot: deleteParkingLot,
     updateProfile: updateProfile,
-}
+    getUserReservations: getUserReservations
+};
 
 export default ApiService;
