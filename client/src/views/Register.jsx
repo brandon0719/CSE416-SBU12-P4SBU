@@ -23,13 +23,16 @@ export default function Register() {
     return (
         <div className="register-background">
             <div className="register-container">
-                <h1>Register for <br></br><span className="red-text">P4SBU</span></h1>
+                <h1>
+                    Register for <br></br>
+                    <span className="red-text">P4SBU</span>
+                </h1>
                 <form onSubmit={handleRegister}>
                     <label className="form-label">
                         Name:
                         <input
                             type="text"
-                            placeholder="Name"
+                            placeholder="Name (First and Last)"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
@@ -55,7 +58,12 @@ export default function Register() {
                             required
                         />
                     </label>
-                    <button type="submit" className="red-button">Register</button>
+                    <button type="submit" className="red-button">
+                        Register
+                    </button>
+                    <button className="red-button" onClick={() => navigate("/login")}>
+                        Cancel
+                    </button>
                     {error && <p style={{ color: "red" }}>{error}</p>}
                 </form>
             </div>

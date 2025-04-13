@@ -1,4 +1,4 @@
-import { createReservation, getUserReservations } from "../models/reservationModel.js";
+import { createReservation, getUserReservations, getReservationsByUser } from "../models/reservationModel.js";
 
 // Reservation
 export const reserve = async (req, res) => {
@@ -25,6 +25,17 @@ export const getReservations = async (req, res) => {
             message: "Fetched user reservations",
             reservations: reservations,
         });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// ^ Different from getReservations because separates past and current reservations
+export const getSortedReservations = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const reservations = await getReservationsByUser(userId);
+        res.status(200).json(reservations);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
