@@ -167,6 +167,10 @@ h1 {
     color: #000;
 }
 
+.popup p {
+    color: black;
+}
+
 .popup textarea {
     resize: none;
     height: 80px;
@@ -241,4 +245,81 @@ li button {
 
 li button:hover {
     background-color: #0056b3;
+}
+
+/* Popup Form Styling */
+.popup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-columns {
+    display: flex;
+    gap: 20px;
+}
+
+.form-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-column label {
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    color: black; /* Ensure labels are black */
+}
+
+.form-column input,
+.form-column textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    color: #333;
+}
+
+.form-column input:focus,
+.form-column textarea:focus {
+    outline: none;
+    border-color: #4caf50; /* Green border on focus */
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Green glow on focus */
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.popup-actions button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popup-actions button:first-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.popup-actions button:first-child:hover {
+    background-color: #c82333;
+}
+
+.popup-actions button:last-child {
+    background-color: #28a745;
+    color: white;
+}
+
+.popup-actions button:last-child:hover {
+    background-color: #218838;
 }
