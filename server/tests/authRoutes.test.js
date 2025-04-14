@@ -67,5 +67,5 @@ test('Attempt to login with invalid credentials', async () => {
 
 afterAll(async () => {
     await pool.query('DELETE FROM users WHERE email = $1', ['jesttest@jest.com'])
-    await closePool; 
-  });
+    await closePool(); // Cleanup
+});

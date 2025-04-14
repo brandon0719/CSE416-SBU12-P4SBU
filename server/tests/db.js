@@ -15,4 +15,5 @@ export default pool;
 
 export async function closePool() {
     await pool.end();
+    
 }
