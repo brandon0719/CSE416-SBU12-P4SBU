@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleCreateTicket, getTicketsByUserId, markTicketsAsPaid }  from '../controllers/ticketControllers.js';
+import { handleCreateTicket, getTicketsByUserId, markTicketsAsPaid, getPaidTickets }  from '../controllers/ticketControllers.js';
 
 const router = express.Router();
 
@@ -11,4 +11,6 @@ router.post("/pay", markTicketsAsPaid);
 
 // endpoint to get tickets by user id
 router.get("/user/:userId", getTicketsByUserId);
+
+router.get("/user/:userId/paid", getPaidTickets);
 export default router;

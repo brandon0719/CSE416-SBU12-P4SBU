@@ -66,7 +66,6 @@ const HomePage = () => {
     const buildingListRef = useRef(null);
     const lotsScrollRef = useRef(null);
 
-    const [startingPoint, setStartingPoint] = useState("destination");
     const [sortCriteria, setSortCriteria] = useState("distance");
 
     // Filter the parking lots based on the search term
@@ -85,7 +84,7 @@ const HomePage = () => {
                 const response = await fetch("/api/lots/getlotdetails");
                 const data = await response.json();
 
-                if (sortCriteria === "distance" && startingPoint === "destination") {
+                if (sortCriteria === "distance") {
                     // Determine the origin: use selected building's location if available,
                     // otherwise fallback to user location.
                     const origin =
@@ -125,7 +124,7 @@ const HomePage = () => {
         };
 
         fetchAndSortLots();
-    }, [sortCriteria, startingPoint, userLocation, selectedBuilding]);
+    }, [sortCriteria, userLocation, selectedBuilding]);
 
     // Fetch campus buildings for initial building selection
     useEffect(() => {
@@ -179,12 +178,6 @@ const HomePage = () => {
                 if (error.code === error.PERMISSION_DENIED) {
                     map.removeControl(geolocateControl);
                 }
-            });
-
-            geolocateControl.on("geolocate", (position) => {
-                const userLng = position.coords.longitude;
-                const userLat = position.coords.latitude;
-                directions.setOrigin([userLng, userLat]);
             });
 
             // Fetch parking lot data and add them to the map
@@ -283,13 +276,15 @@ const HomePage = () => {
 
     // Handler for the "View" button on a parking lot
     const handleLotView = (lot) => {
-        if (lot.geom) {
+        if (lot.geom && selectedBuilding && directionsRef.current) {
             const centroid = computeCentroid(lot.geom);
-            if (directionsRef.current) {
-                directionsRef.current.setOrigin(centroid);
-            }
+            directionsRef.current.setOrigin(centroid);
+            // Immediately set the destination back to the selected building's coordinates.
+            const [lng, lat] = selectedBuilding.location.coordinates;
+            directionsRef.current.setDestination([lng, lat]);
         }
     };
+
 
     const handleReservation = (lotName) => {
         if (!reservationStart || !reservationEnd) {
@@ -334,16 +329,20 @@ const HomePage = () => {
                     ) : (
                         <>
                             <div className="lot-header">
-                                <div className="selected-building-info">
-                                    <h3>Selected Building: {selectedBuilding.name}</h3>
-                                    <button onClick={() => setSelectedBuilding(null)}>
-                                        Change Selection
-                                    </button>
+                                <div className="selected-building-row">
+                                    <h3 className="selected-building-name">
+                                        Selected Building: {selectedBuilding.name}
+                                    </h3>
+                                    <button onClick={() => setSelectedBuilding(null)}>Change Selection</button>
                                 </div>
-                                <div className="time-selection">
-                                    <label htmlFor="start-date">Reservation start:</label>
-                                    <div id="start-date">
+
+                                {/* Row 2: Reservation Start/End */}
+                                <div className="reservation-row">
+                                    <div className="reservation-field">
+                                        <label htmlFor="start-date">Reservation start:</label>
                                         <DatePicker
+                                            withPortal
+                                            id="start-date"
                                             placeholderText="Select date and time..."
                                             selected={reservationStart}
                                             onChange={(date) => setReservationStart(date)}
@@ -355,9 +354,11 @@ const HomePage = () => {
                                             className="date-picker"
                                         />
                                     </div>
-                                    <label htmlFor="end-date">Reservation end:</label>
-                                    <div id="end-date">
+                                    <div className="reservation-field">
+                                        <label htmlFor="end-date">Reservation end:</label>
                                         <DatePicker
+                                            withPortal
+                                            id="end-date"
                                             placeholderText="Select date and time..."
                                             selected={reservationEnd}
                                             onChange={(date) => setReservationEnd(date)}
@@ -370,29 +371,21 @@ const HomePage = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className="sorting-options">
-                                    <label htmlFor="starting-point">Starting:</label>
-                                    <select
-                                        id="starting-point"
-                                        value={startingPoint}
-                                        onChange={(e) => setStartingPoint(e.target.value)}
-                                    >
-                                        <option value="destination">Destination</option>
-                                        <option value="current_location">Current Location</option>
-                                    </select>
-
-                                    <label htmlFor="sort-criteria">Sort by:</label>
-                                    <select
-                                        id="sort-criteria"
-                                        value={sortCriteria}
-                                        onChange={(e) => setSortCriteria(e.target.value)}
-                                    >
-                                        <option value="distance">Distance</option>
-                                        <option value="price">Price</option>
-                                    </select>
+                                {/* Flex container for the lots header and sorting controls */}
+                                <div className="lots-header-sort">
+                                    <h3 className="lots-title">Parking Lots</h3>
+                                    <div className="sorting-options">
+                                        <label htmlFor="sort-criteria">Sort by:</label>
+                                        <select
+                                            id="sort-criteria"
+                                            value={sortCriteria}
+                                            onChange={(e) => setSortCriteria(e.target.value)}
+                                        >
+                                            <option value="distance">Distance</option>
+                                            <option value="price">Price</option>
+                                        </select>
+                                    </div>
                                 </div>
-
-                                <h3 className="lots-title">Parking Lots</h3>
                                 <div className="search-bar">
                                     <input
                                         type="text"
