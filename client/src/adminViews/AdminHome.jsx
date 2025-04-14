@@ -64,7 +64,9 @@ const AdminHome = () => {
             <div className="admin-page-content">
                 <div className="admin-header">
                     <h1>Users</h1>
-                    <button onClick={() => openPopup("add")}>Add</button>
+                    <button className="approve-button"
+                        onClick={() => openPopup("add")}>Add New User
+                    </button>
                 </div>
                 <div className="user-list-container">
                     <ul className="user-list">
@@ -73,17 +75,17 @@ const AdminHome = () => {
                                 <span>{user.name} ({user.email})</span>
                                 <span>
                                     {user.is_approved ? (
-                                        "Approved"
+                                        "Approved User"
                                     ) : (
                                         <button className="approve-button" onClick={() => handleApprove(user.user_id)}>
-                                            Approve
+                                            Approve User
                                         </button>
                                     )}
                                     <button
                                         className="delete-button"
                                         onClick={() => openPopup("delete", user)}
                                     >
-                                        Delete
+                                        Delete User
                                     </button>
                                 </span>
                             </li>

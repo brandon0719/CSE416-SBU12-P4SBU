@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
+import ApiService from "../services/ApiService";
 import "../stylesheets/ContactUsPage.css";
 
 const ContactUsPage = () => {
     const [formData, setFormData] = useState({
-        name: "",
-        email: "",
         subject: "",
         message: "",
     });
@@ -16,11 +15,22 @@ const ContactUsPage = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        alert("Your message has been submitted. Thank you!");
-        // Add logic to send the form data to the backend or email service
-        setFormData({ name: "", email: "", subject: "", message: "" });
+        try {
+            const user = ApiService.getSessionUser();
+            if (!user) {
+                alert("You must be logged in to submit feedback.");
+                return;
+            }
+
+            await ApiService.createFeedback(user.user_id, formData.subject, formData.message);
+            alert("Your message has been submitted. Thank you!");
+            setFormData({ subject: "", message: "" });
+        } catch (error) {
+            console.error("Failed to submit feedback:", error);
+            alert("Failed to submit feedback. Please try again later.");
+        }
     };
 
     return (
@@ -31,30 +41,6 @@ const ContactUsPage = () => {
                 <h1>Contact Us</h1>
                 <p>We'd love to hear from you! Please fill out the form below to get in touch.</p>
                 <form className="contact-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="name">Name:</label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="Enter your name"
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="email">Email:</label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            placeholder="Enter your email"
-                            required
-                        />
-                    </div>
                     <div className="form-group">
                         <label htmlFor="subject">Subject:</label>
                         <input
