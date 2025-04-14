@@ -8,6 +8,7 @@ import ticketRoutes from "./routes/ticketRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js"
 import userRoutes from "./routes/userRoutes.js";
 import buildingRouter from "./routes/buildings.js";
+import feedbackRoutes from "./routes/feedbackRoutes.js";
 
 
 
@@ -23,6 +24,6 @@ app.use("/api/reservation", reservationRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/buildings", buildingRouter);app.use("/api/user", userRoutes)
-
+app.use("/api/feedback", feedbackRoutes);
 
 export default app;

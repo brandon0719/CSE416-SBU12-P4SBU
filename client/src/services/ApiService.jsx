@@ -289,6 +289,16 @@ export const getTickets = async (userId) => {
     }
 };
 
+export const getPaidTickets = async (UserId) =>{
+    try{
+        const response = await http.get(`/tickets/user/${UserId}/paid`);
+        return response.data;
+    } catch  {
+        console.error("Failed to fetch paid tickets:", error);
+        throw error.response?.data || { message: "Failed to fetch paid tickets" };
+    }
+}
+
 export const payTickets = async (ticketIds) => {
     try {
         const response = await http.post("/tickets/pay", { ticketIds });
@@ -394,6 +404,20 @@ const getUserReservations = async (userId) => {
     }
 };
 
+export const  createFeedback = async (userId, topic, details) => {
+    try {
+        const response = await http.post("/feedback/create", {
+            userId,
+            topic,
+            details,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error creating feedback:", error);
+        throw error.response?.data || { message: "Error creating feedback" };
+    }
+};
+
 const ApiService = {
     registerUser: registerUser,
     handleLogin: handleLogin,
@@ -405,6 +429,7 @@ const ApiService = {
     getMessages: getMessages,
     createReservation: createReservation,
     getTickets: getTickets,
+    getPaidTickets: getPaidTickets,
     createTicket: createTicket,
     fetchAllUsers: fetchAllUsers,
     payTickets: payTickets,
@@ -415,7 +440,8 @@ const ApiService = {
     editParkingLot: editParkingLot,
     deleteParkingLot: deleteParkingLot,
     updateProfile: updateProfile,
-    getUserReservations: getUserReservations
+    getUserReservations: getUserReservations,
+    createFeedback: createFeedback,
 };
 
 export default ApiService;
