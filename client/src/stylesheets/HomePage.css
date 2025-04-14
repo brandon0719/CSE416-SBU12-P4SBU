@@ -1,3 +1,5 @@
+
+
 /* Reset box-sizing for all element */
 * {
     box-sizing: border-box;
@@ -177,7 +179,7 @@
 }
 
 .lots-list {
-    margin-top: 10px;
+    margin-top: 100px;
 }
 
 .lot-item {
@@ -204,18 +206,14 @@
 .sorting-options select {
     padding: 5px;
     border-radius: 3px;
+    margin-top: 5px;
     border: 1px solid #ccc;
-    margin: 0 6px 0 6px;
     background-color: white;
     color: gray;
 }
 
 .sorting-options {
     margin-bottom: 0;
-}
-
-.lots-list {
-    margin-top: 0;
 }
 
 .lots-list h3 {
@@ -243,14 +241,17 @@
 }
 
 .date-picker {
-    width: 90%;
+    width: 100%;
     padding: 4px;
-    margin: 4px;
     background-color: white;
     color: black;
     border: 1px solid #ccc;
     background-color: white;
     border-radius: 5px;
+}
+
+.react-datepicker-popper {
+    z-index: 10000 !important;
 }
 
 .sorting-options {
@@ -262,4 +263,47 @@
     text-align: center;
     line-height: 150%;
     font-weight: 600;
+}
+
+.selected-building-row {
+    display: flex;
+    justify-content: start;
+    /* Building label on left, button on right */
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.reservation-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.reservation-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+.lots-header-sort {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.lots-title {
+    margin: 0;
+}
+
+.sorting-options {
+    /* You can adjust padding, font-size etc. as needed */
+    display: flex;
+    align-items: center;
+}
+
+.sorting-options label {
+    margin-right: 5px;
 }
