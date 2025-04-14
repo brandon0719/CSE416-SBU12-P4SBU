@@ -35,7 +35,7 @@
 /* Update left-panel */
 /* Ensure the left panel remains scrollable */
 .left-panel {
-    width: 30%;
+    width: 40%;
     background-color: #f0f0f0;
     padding: 20px;
     overflow-y: auto;
@@ -110,7 +110,7 @@
 
 /* Right panel for the map */
 .right-panel {
-    width: 70%;
+    width: 60%;
     position: relative;
 }
 
@@ -238,7 +238,7 @@
 .time-selection {
     display: flex;
     flex-direction: row;
-    width: 100%;
+    width: 90%;
     margin: 0px;
 }
 

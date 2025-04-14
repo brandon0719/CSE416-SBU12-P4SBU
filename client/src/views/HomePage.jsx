@@ -411,7 +411,7 @@ const HomePage = () => {
                                         <p>{lot.details}</p>
                                         <p>Price: ${lot.price}</p>
                                         <div style={{ display: "flex", gap: "10px" }}>
-                                            <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
+                                            <button onClick={() => handleReservation(lot.name)}>
                                                 Reserve
                                             </button>
                                             {lot.geom && (
