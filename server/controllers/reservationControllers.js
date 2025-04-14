@@ -21,7 +21,7 @@ export const getReservations = async (req, res) => {
 
     try {
         const reservations = await getUserReservations(u);
-        res.status(201).json({
+        res.status(200).json({
             message: "Fetched user reservations",
             reservations: reservations,
         });
