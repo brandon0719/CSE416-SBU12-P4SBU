@@ -39,3 +39,17 @@ export const markTicketsPaid = async (ticketIds) => {
 
     }
 }
+
+export const getPaidTicketsByUserId = async (userId) => {
+    try {
+        console.log("Fetching paid tickets for user:", userId);
+        const { rows } = await pool.query(
+            "SELECT * FROM tickets WHERE user_id=$1 AND paid=true ORDER BY creation_date ASC",
+            [userId]
+        );
+        return rows;
+    } catch (error) {
+        console.error("Error fetching paid tickets:", error.message); 
+        throw new Error(error.message);
+    }
+}

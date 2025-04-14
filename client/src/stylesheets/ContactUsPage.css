@@ -64,6 +64,7 @@
     border-radius: 4px;
     background-color: #f5f5f5; /* Light gray background */
     font-size: 16px;
+    color: black;
 }
 
 .form-group input:focus,
