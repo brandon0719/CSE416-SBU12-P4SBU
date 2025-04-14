@@ -11,6 +11,30 @@ export const getAllLots = async () => {
     }
 };
 
+export const getLotDetails = async () => {
+    try {
+        const { rows } = await pool.query(
+            `SELECT 
+                lotid,
+                campus,
+                name,
+                total_spaces,
+                faculty_staff_spots,
+                commuter_premium_spots,
+                metered_spots,
+                commuter_spots,
+                resident_spots,
+                details,
+                rate,
+                ST_AsGeoJSON(geom)::json AS geom
+             FROM lots`
+        );
+        return rows;
+    } catch (error) {
+        throw new Error("Error fetching parking lots: " + error.message);
+    }
+};
+
 export const addLot = async (lotData) => {
     const {
         campus,

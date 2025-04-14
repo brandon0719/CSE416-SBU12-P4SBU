@@ -6,6 +6,8 @@ import lotsRoutes from "./routes/lotsRoutes.js";
 import reservationRoutes from "./routes/reservationRoutes.js"
 import ticketRoutes from "./routes/ticketRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js"
+import userRoutes from "./routes/userRoutes.js";
+import buildingRouter from "./routes/buildings.js";
 
 
 
@@ -20,6 +22,7 @@ app.use("/api/lots", lotsRoutes);
 app.use("/api/reservation", reservationRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/buildings", buildingRouter);app.use("/api/user", userRoutes)
 
 
 export default app;

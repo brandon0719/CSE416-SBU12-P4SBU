@@ -4,6 +4,7 @@ import {
   addLotController,
   editLotController,
   removeLotController,
+  getLotDetailsController,
 } from "../controllers/lotControllers.js";
 
 
@@ -11,6 +12,9 @@ const router = express.Router();
 
 // Fetch all parking lots
 router.get("/getlots", getAllLotsController);
+
+// Fetch details of all parking lots
+router.get("/getlotdetails", getLotDetailsController);
 
 // Add a new parking lot
 router.post("/add", addLotController);

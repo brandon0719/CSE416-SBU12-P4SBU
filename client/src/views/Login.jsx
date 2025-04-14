@@ -16,11 +16,15 @@ const Login = () => {
             const user = ApiService.getSessionUser(); // Get the logged-in user from cookies
             if (user && user.is_admin) {
                 navigate("/users"); // Redirect to /users if the user is an admin
+            } else if (user && user.is_approved && !user.is_admin) {
+                navigate("/profilepage"); // Redirect to /HomePage if the user is approved
+            } else if (user && !user.is_profile_complete && !user.is_admin) {
+                navigate("/profilepage"); // Redirect to /profilepage if the user is approved
             } else {
                 navigate("/HomePage"); // Redirect to /HomePage for regular users
             }
         } catch (err) {
-            setError(err.message);
+            setError(err.response?.data.error);
         }
     };
 

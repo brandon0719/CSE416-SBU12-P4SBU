@@ -120,3 +120,113 @@
     background-color: #4caf50;
     color: white;
 }
+
+.profile-page-content.toggled-class {
+    display: none;
+    /* Additional styling */
+}
+
+.user-info {
+    text-align: center;
+    margin: 20px auto;
+    padding: 10px;
+    max-width: 600px; /* Adjust as needed */
+    border: 1px solid #ccc; /* optional, for visual separation */
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.user-info h2 {
+    margin: 0 0 10px;
+    font-size: 1.8rem;
+}
+
+.user-info p {
+    margin: 5px 0;
+    font-size: 1.1rem;
+}
+
+/* Style for the error message */
+.error-message {
+    background-color: #ffcccc; /* Light red background */
+    color: #cc0000; /* Red text */
+    padding: 8px 12px;
+    margin: 10px auto;
+    border: 1px solid #cc0000;
+    border-radius: 4px;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* Center the edit-information button */
+.edit-information-btn {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+/* Reservations */
+
+.reservations-section {
+    max-width: 900px;
+    margin: 40px auto; /* Center the section */
+    padding: 0 20px;
+}
+
+.reservations-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+/* Main container for the reservations list */
+.reservations-list {
+    list-style: none; /* Remove bullet points */
+    margin: 0;
+    padding: 0;
+}
+
+/* Each reservation item as a 'card' */
+.reservation-card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Layout rows inside the card */
+.reservation-row {
+    display: flex;
+    justify-content: space-between; /* Label on left, value on right */
+    margin: 4px 0;
+}
+
+.reservation-row .label {
+    font-weight: 600; /* Slightly bolder than normal text */
+    margin-right: 8px;
+    color: #555;
+}
+
+.reservation-row .value {
+    color: #333;
+}
+
+.reservation-card {
+    font-size: 1.1rem;
+}
+
+@media (max-width: 600px) {
+    .reservation-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .reservation-row .label {
+        margin-bottom: 4px;
+    }
+}

@@ -1,4 +1,4 @@
-import {getAllLots, addLot, editLot, removeLot} from "../models/lotModel.js";
+import {getAllLots, getLotDetails, addLot, editLot, removeLot} from "../models/lotModel.js";
 
 
 // Fetch all parking lots
@@ -11,6 +11,17 @@ export const getAllLotsController = async (req, res) => {
         res.status(500).json({ error: "Failed to fetch parking lots" });
     }
 };
+
+export const getLotDetailsController = async (req, res) => {
+    try {
+        const lots = await getLotDetails();
+        res.status(200).json(lots);
+    } catch (error) {
+        console.error("Error fetching lot details:", error.message);
+        res.status(500).json({ error: "Failed to fetch lot details" });
+    }
+};
+
 
 // Add a new parking lot
 export const addLotController = async (req, res) => {
