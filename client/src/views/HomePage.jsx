@@ -300,11 +300,19 @@ const HomePage = () => {
         }
     }
 
-    const handleReservation = (formData) => {
+    const handleReservation = async (formData) => {
+
         console.log(formData)
-        ApiService.createReservation(ApiService.getSessionUser().user_id, selectedLot, reservationStart, reservationEnd, formData.numSpots, formData.explanation);
-        alert("Reservation created.");
-        setIsModalOpen(false);
+        ApiService.createReservation(ApiService.getSessionUser().user_id, selectedLot, reservationStart, reservationEnd, formData.numSpots, formData.explanation)
+            .then(() => {
+                alert("Reservation created.");
+                setIsModalOpen(false);
+            })
+            .catch(error => {
+                alert(error)
+                return;
+            })
+
     }
 
     return (

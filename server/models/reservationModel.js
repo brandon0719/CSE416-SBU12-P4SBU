@@ -2,11 +2,21 @@ import pool from "../config/db.js";
 
 export const createReservation = async (userId, parkingLot, startTime, endTime, numSpots, explanation) => {
     try {
-        const { rows } = await pool.query(
-            "INSERT INTO reservations (user_id, lot_name, start_time, end_time, num_spots, explanation) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            [userId, parkingLot, startTime, endTime, numSpots, explanation]
-        );
-        return rows[0];
+        const overlappingReservations = await getOverlappingReservations(parkingLot, startTime, endTime);
+        console.log(overlappingReservations);
+        const lotCapacity = await getLotCapacity(parkingLot);
+        console.log(overlappingReservations.length + numSpots);
+        console.log(lotCapacity);
+        if (overlappingReservations.length + numSpots > lotCapacity) {
+            throw new Error("Not enough spaces in parking lot for reservation");
+        } else {
+            const { rows } = await pool.query(
+                "INSERT INTO reservations (user_id, lot_name, start_time, end_time, num_spots, explanation) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+                [userId, parkingLot, startTime, endTime, numSpots, explanation]
+            );
+            return rows[0];
+        }
+
     } catch (error) {
         throw new Error(error.message);
     }
@@ -18,7 +28,7 @@ export const getUserReservations = async (userId) => {
             "SELECT * FROM reservations WHERE user_id=$1",
             [userId]
         );
-        return rows[0];
+        return rows;
     } catch (error) {
         throw new Error(error.message);
     }
@@ -53,3 +63,39 @@ export const getReservationsByUser = async (userId) => {
         throw new Error(error.message);
     }
 };
+
+export const getLotReservations = async (lot) => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT * FROM reservations WHERE lot_name=$1",
+            [lot]
+        );
+        return rows;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+export const getOverlappingReservations = async (lot, startTime, endTime) => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT * FROM reservations WHERE lot_name=$1 AND (start_time < ($3) AND end_time > ($2))",
+            [lot, startTime, endTime]
+        );
+        return rows;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
+export const getLotCapacity = async (lot) => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT COUNT(*) as total_spaces FROM lots WHERE name = $1",
+            [lot]
+        );
+        return rows[0].total_spaces;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}

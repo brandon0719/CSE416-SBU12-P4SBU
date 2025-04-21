@@ -1,4 +1,4 @@
-import { createReservation, getUserReservations, getReservationsByUser } from "../models/reservationModel.js";
+import { createReservation, getUserReservations, getReservationsByUser, getLotReservations } from "../models/reservationModel.js";
 
 // Reservation
 export const reserve = async (req, res) => {
@@ -11,7 +11,12 @@ export const reserve = async (req, res) => {
             user: newReservation,
         });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        if (error.message == "Not enough spaces in parking lot for reservation") {
+            res.status(409).json({error: error.message})
+        } else {
+            res.status(500).json({ error: error.message });
+        }
+
     }
 };
 
@@ -35,6 +40,26 @@ export const getSortedReservations = async (req, res) => {
     const { userId } = req.params;
     try {
         const reservations = await getReservationsByUser(userId);
+        res.status(200).json(reservations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getReservationsByLot = async (req, res) => {
+    const { lot } = req.query;
+    try {
+        const reservations = await getLotReservations(lot);
+        res.status(200).json(reservations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getReservationsByLotAndTime = async (req, res) => {
+    const { lot, startTime, endTime } = req.query;
+    try {
+        const reservations = await getLotReservations(lot);
         res.status(200).json(reservations);
     } catch (error) {
         res.status(500).json({ error: error.message });

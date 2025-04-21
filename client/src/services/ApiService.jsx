@@ -249,9 +249,18 @@ const createReservation = async (userId, parkingLot, startTime, endTime, numSpot
         });
         return response.data;
     } catch (error) {
-        throw error.response?.data || { message: "Reservation failed" };
-    }
-};
+        console.log("ass")
+        if (error.response) {
+            // Server responded with error status
+            switch (error.response.status) {
+                case 409:
+                    throw 'Conflict: Not enough spaces in parking lot for reservation';
+                default: 
+                    throw error.response?.data || { message: "Reservation failed" };
+            }
+        }
+    };
+}
 
 // ticket stuff
 export const createTicket = async (
