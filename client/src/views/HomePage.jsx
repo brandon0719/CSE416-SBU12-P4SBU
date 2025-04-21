@@ -4,6 +4,7 @@ import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-direct
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
 import DatePicker from "react-datepicker";
+import ReservationModal from "../components/ReservationModal";
 import "react-datepicker/dist/react-datepicker.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
@@ -52,11 +53,13 @@ const HomePage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [reservationStart, setReservationStart] = useState("");
     const [reservationEnd, setReservationEnd] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // New states for campus buildings & building selection/search
     const [buildings, setBuildings] = useState([]);
     const [buildingSearchTerm, setBuildingSearchTerm] = useState("");
     const [selectedBuilding, setSelectedBuilding] = useState(null);
+    const [selectedLot, setSelectedLot] = useState("");
 
     // Ref to store the Mapbox Directions control
     const directionsRef = useRef(null);
@@ -77,6 +80,7 @@ const HomePage = () => {
     const filteredBuildings = buildings.filter((building) =>
         building.name.toLowerCase().includes(buildingSearchTerm.toLowerCase())
     );
+
 
     useEffect(() => {
         const fetchAndSortLots = async () => {
@@ -285,15 +289,22 @@ const HomePage = () => {
         }
     };
 
-
-    const handleReservation = (lotName) => {
-        if (!reservationStart || !reservationEnd) {
+    const handleReserveClicked = (lotName) => {
+        setSelectedLot(lotName);
+        if (reservationEnd < reservationStart) {
+            alert("Reservation end cannot be before start")
+        } else if (!reservationStart || !reservationEnd) {
             alert("Please enter reservation time.");
         } else {
-            ApiService.createReservation(ApiService.getSessionUser().user_id, lotName, reservationStart, reservationEnd);
-            alert("Reservation created.");
+            setIsModalOpen(true)
         }
+    }
 
+    const handleReservation = (formData) => {
+        console.log(formData)
+        ApiService.createReservation(ApiService.getSessionUser().user_id, selectedLot, reservationStart, reservationEnd, formData.numSpots, formData.explanation);
+        alert("Reservation created.");
+        setIsModalOpen(false);
     }
 
     return (
@@ -404,7 +415,7 @@ const HomePage = () => {
                                         <p>{lot.details}</p>
                                         <p>Price: ${lot.price}</p>
                                         <div style={{ display: "flex", gap: "10px" }}>
-                                            <button onClick={() => handleReservation(lot.name)}>
+                                            <button onClick={() => handleReserveClicked(lot.name)}>
                                                 Reserve
                                             </button>
                                             {lot.geom && (
@@ -422,6 +433,14 @@ const HomePage = () => {
                     <div id="map" className="map-container" />
                 </div>
             </div>
+            <ReservationModal
+                reservationStart={reservationStart}
+                reservationEnd={reservationEnd}
+                lotName={selectedLot}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleReservation}
+            />
         </div>
     );
 };

@@ -2,10 +2,10 @@ import { createReservation, getUserReservations, getReservationsByUser } from ".
 
 // Reservation
 export const reserve = async (req, res) => {
-    const { userId, parkingLot, startTime, endTime } = req.body;
+    const { userId, parkingLot, startTime, endTime, numSpots, explanation } = req.body;
 
     try {
-        const newReservation = await createReservation(userId, parkingLot, startTime, endTime);
+        const newReservation = await createReservation(userId, parkingLot, startTime, endTime, numSpots, explanation);
         res.status(201).json({
             message: "Reservation created successfully",
             user: newReservation,

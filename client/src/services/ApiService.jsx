@@ -237,13 +237,15 @@ const fetchProtectedData = async () => {
 };
 
 //create a reservation
-const createReservation = async (userId, parkingLot, startTime, endTime) => {
+const createReservation = async (userId, parkingLot, startTime, endTime, numSpots, explanation) => {
     try {
         const response = await http.post("/reservation/create", {
             userId,
             parkingLot,
             startTime,
             endTime,
+            numSpots,
+            explanation
         });
         return response.data;
     } catch (error) {

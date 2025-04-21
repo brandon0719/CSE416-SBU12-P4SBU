@@ -1,10 +1,10 @@
 import pool from "../config/db.js";
 
-export const createReservation = async (userId, parkingLot, startTime, endTime) => {
+export const createReservation = async (userId, parkingLot, startTime, endTime, numSpots, explanation) => {
     try {
         const { rows } = await pool.query(
-            "INSERT INTO reservations (user_id, lot_name, start_time, end_time) VALUES ($1, $2, $3, $4) RETURNING *",
-            [userId, parkingLot, startTime, endTime]
+            "INSERT INTO reservations (user_id, lot_name, start_time, end_time, num_spots, explanation) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            [userId, parkingLot, startTime, endTime, numSpots, explanation]
         );
         return rows[0];
     } catch (error) {
