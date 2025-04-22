@@ -1,14 +1,9 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { SharedArray } from 'k6/data';
 
 export const options = {
-
-    stages: [
-        { duration: '10s', target:  100}, 
-        // { duration: '1m', target: 50 },   
-        // { duration: '30s', target: 0 },   
-    ],
+    vus: 50,
+    duration: '10s'
 };
 
 export default function () {
@@ -26,10 +21,8 @@ export default function () {
         'is status 201': (r) => r.status === 201,
     });
     check(res, {
-        'expected conflict': (r) => r.status === 409,
-    })
-
-
+        'expected conflict 409': (r) => r.status === 409,
+    });
 
     sleep(1)
 }

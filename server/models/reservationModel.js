@@ -91,7 +91,7 @@ export const getOverlappingReservations = async (lot, startTime, endTime) => {
 export const getLotCapacity = async (lot) => {
     try {
         const { rows } = await pool.query(
-            "SELECT COUNT(*) as total_spaces FROM lots WHERE name = $1",
+            "SELECT total_spaces FROM lots WHERE name = $1",
             [lot]
         );
         return rows[0].total_spaces;
