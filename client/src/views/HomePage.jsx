@@ -60,6 +60,7 @@ const HomePage = () => {
     const [buildingSearchTerm, setBuildingSearchTerm] = useState("");
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [selectedLot, setSelectedLot] = useState("");
+    const [permitType, setPermitType] = useState(null);
 
     // Ref to store the Mapbox Directions control
     const directionsRef = useRef(null);
@@ -142,6 +143,11 @@ const HomePage = () => {
             }
         };
         fetchBuildings();
+    }, []);
+
+    useEffect(() => {
+        const user = ApiService.getSessionUser();
+        setPermitType(user?.user_type || "visitor");
     }, []);
 
     // Initialize the Mapbox map, Directions control and parking lots display
@@ -315,6 +321,33 @@ const HomePage = () => {
 
     }
 
+    function isLotVisibleForPermit(lot, permit) {
+        const {
+            metered_spots,
+            faculty_staff_spots,
+            commuter_spots,
+            commuter_premium_spots,
+            resident_spots
+        } = lot;
+
+        switch (permit) {
+            case "visitor":
+                return metered_spots > 0;
+            case "faculty":
+                return metered_spots > 0 || faculty_staff_spots > 0;
+            case "commuter":
+                return (
+                    metered_spots > 0 ||
+                    commuter_spots > 0 ||
+                    commuter_premium_spots > 0
+                );
+            case "resident":
+                return metered_spots > 0 || resident_spots > 0;
+            default:
+                return false;
+        }
+    }
+
     return (
         <div className="homepage-container">
             <Header />
@@ -415,23 +448,24 @@ const HomePage = () => {
                                 </div>
                             </div>
                             <div className="lots-scroll" ref={lotsScrollRef}>
-                                {filteredLots.map((lot) => (
-                                    <div key={lot.name} className="lot-item">
-                                        <p>
-                                            <strong>{lot.name}</strong>
-                                        </p>
-                                        <p>{lot.details}</p>
-                                        <p>Price: ${lot.price}</p>
-                                        <div style={{ display: "flex", gap: "10px" }}>
-                                            <button onClick={() => handleReserveClicked(lot.name)}>
-                                                Reserve
-                                            </button>
-                                            {lot.geom && (
-                                                <button onClick={() => handleLotView(lot)}>View</button>
-                                            )}
+                                {filteredLots
+                                    .filter(lot => isLotVisibleForPermit(lot, permitType))
+                                    .map((lot) => (
+                                        <div key={lot.name} className="lot-item">
+                                            <p><strong>{lot.name}</strong></p>
+                                            <p>{lot.details}</p>
+                                            <p>Price: ${lot.price}</p>
+                                            <div style={{ display: "flex", gap: "10px" }}>
+                                                <button onClick={() => handleReserveClicked(lot.name)}>
+                                                    Reserve
+                                                </button>
+                                                {lot.geom && (
+                                                    <button onClick={() => handleLotView(lot)}>View</button>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                }
                             </div>
                         </>
                     )}
