@@ -2,8 +2,11 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { Navigate } from "react-router-dom";
 
+const baseURL = process.env.NODE_ENV === "production"
+    ? "/api"
+    : "http://localhost:8000/api";      // for local‐dev 
 const http = axios.create({
-    baseURL: "http://localhost:8000/api",
+    baseURL
 });
 
 export const login = (user) => {
