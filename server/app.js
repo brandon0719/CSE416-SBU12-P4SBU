@@ -28,19 +28,13 @@ app.use("/api/feedback", feedbackRoutes);
 
 // Heroku 
 import path from "path";
-import { fileURLToPath } from "url";
+// 1. Serve static assets from client/dist
+const __dirname = path.resolve();  
+app.use(express.static(path.join(__dirname, "client", "dist")));
 
-// Support __dirname with ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Serve static files from client build
-if (process.env.NODE_ENV === "production") {
-    app.use(express.static(path.join(__dirname, "../client/build")));
-
-    app.get("*", (req, res) => {
-        res.sendFile(path.join(__dirname, "../client/build/index.html"));
-    });
-}
+// 2. Any other GET, send back index.html so React Router can handle it
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 export default app;
