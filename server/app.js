@@ -26,4 +26,21 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/buildings", buildingRouter);app.use("/api/user", userRoutes)
 app.use("/api/feedback", feedbackRoutes);
 
+// Heroku 
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Support __dirname with ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files from client build
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "../client/build")));
+
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "../client/build/index.html"));
+    });
+}
+
 export default app;

@@ -10,5 +10,26 @@
   "dependencies": {
     "@stripe/react-stripe-js": "^3.6.0",
     "@stripe/stripe-js": "^7.0.0"
-  }
+  },
+  "name": "cse416-sbu12-p4sbu",
+  "version": "1.0.0",
+  "description": "This is the repository for the source code for our P4SBU project.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/index.js",
+    "heroku-postbuild": "cd client && npm install && npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZhenShiDaoMei/CSE416-SBU12-P4SBU.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ZhenShiDaoMei/CSE416-SBU12-P4SBU/issues"
+  },
+  "homepage": "https://github.com/ZhenShiDaoMei/CSE416-SBU12-P4SBU#readme"
 }
