@@ -61,6 +61,7 @@ const HomePage = () => {
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [selectedLot, setSelectedLot] = useState("");
     const [availableSpots, setAvailableSpots] = useState(null)
+    const [permitType, setPermitType] = useState(null);
 
     // Ref to store the Mapbox Directions control
     const directionsRef = useRef(null);
@@ -89,7 +90,7 @@ const HomePage = () => {
                 const response = await fetch("/api/lots/getlotdetails");
                 const data = await response.json();
 
-                if (sortCriteria === "distance") {
+                if (sortCriteria === "distance" || sortCriteria === "distance-non-metered") {
                     // Determine the origin: use selected building's location if available,
                     // otherwise fallback to user location.
                     const origin =
@@ -145,8 +146,15 @@ const HomePage = () => {
         fetchBuildings();
     }, []);
 
+    useEffect(() => {
+        const user = ApiService.getSessionUser();
+        setPermitType(user?.user_type || "visitor");
+    }, []);
+
     // Initialize the Mapbox map, Directions control and parking lots display
     useEffect(() => {
+        if (!permitType) return;
+
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
         const initialCenter = [-73.12246, 40.91671];
         const initialZoom = 14;
@@ -190,74 +198,83 @@ const HomePage = () => {
                 const response = await fetch("/api/lots/getlotdetails");
                 const lotsData = await response.json();
 
-                lotsData.forEach((lot) => {
-                    const sourceId = `lot-${lot.name.replace(/\s+/g, "-")}`;
-                    map.addSource(sourceId, {
-                        type: "geojson",
-                        data: lot.geom,
-                    });
+                lotsData
+                    .filter(lot => isLotVisibleForPermit(lot, permitType))
+                    .forEach((lot) => {
+                        const sourceId = `lot-${lot.name.replace(/\s+/g, "-")}`;
+                        map.addSource(sourceId, {
+                            type: "geojson",
+                            data: lot.geom,
+                        });
 
-                    map.addLayer({
-                        id: `${sourceId}-fill`,
-                        type: "fill",
-                        source: sourceId,
-                        paint: {
-                            "fill-color": "#808080",
-                            "fill-opacity": 0.5,
-                            "fill-outline-color": "#000",
-                        },
-                    });
+                        const fillColor =
+                            lot.metered_spots > 0
+                                ? "#002244"   // metered
+                                : "#6B000D";  // all other lots
 
-                    map.addLayer({
-                        id: `${sourceId}-label`,
-                        type: "symbol",
-                        source: sourceId,
-                        layout: {
-                            "text-field": lot.name,
-                            "text-size": 10,
-                            "text-offset": [0, 0],
-                            "text-anchor": "center",
-                        },
-                        paint: {
-                            "text-color": "#000",
-                        },
-                    });
+                        map.addLayer({
+                            id: `${sourceId}-fill`,
+                            type: "fill",
+                            source: sourceId,
+                            paint: {
+                                "fill-color": fillColor,
+                                "fill-opacity": 0.5,
+                                "fill-outline-color": "#000",
+                            },
+                        });
 
-                    // Add interactivity for each lot (popups on hover)
-                    (() => {
-                        let lotPopup;
-                        map.on("mouseenter", `${sourceId}-fill`, () => {
-                            const center = computeCentroid(lot.geom);
-                            lotPopup = new mapboxgl.Popup({
-                                closeButton: false,
-                                offset: 25,
-                            })
-                                .setLngLat(center)
-                                .setHTML(`
+                        map.addLayer({
+                            id: `${sourceId}-label`,
+                            type: "symbol",
+                            source: sourceId,
+                            layout: {
+                                "text-field": lot.name,
+                                "text-size": 11,
+                                "text-offset": [0, 0],
+                                "text-anchor": "center",
+                            },
+                            paint: {
+                                "text-color": "#000000",
+                                "text-halo-color": "#ffffff",
+                                "text-halo-width": 1,
+                            },
+                        });
+
+                        // Add interactivity for each lot (popups on hover)
+                        (() => {
+                            let lotPopup;
+                            map.on("mouseenter", `${sourceId}-fill`, () => {
+                                const center = computeCentroid(lot.geom);
+                                lotPopup = new mapboxgl.Popup({
+                                    closeButton: false,
+                                    offset: 25,
+                                })
+                                    .setLngLat(center)
+                                    .setHTML(`
                   <div style="text-align: center;">
                     <h3>${lot.name}</h3>
                     <p>${lot.details || "No additional information available."}</p>
                   </div>
                 `)
-                                .addTo(map);
-                            map.getCanvas().style.cursor = "pointer";
-                        });
-                        map.on("mouseleave", `${sourceId}-fill`, () => {
-                            if (lotPopup) {
-                                lotPopup.remove();
-                                lotPopup = null;
-                            }
-                            map.getCanvas().style.cursor = "";
-                        });
-                    })();
-                });
+                                    .addTo(map);
+                                map.getCanvas().style.cursor = "pointer";
+                            });
+                            map.on("mouseleave", `${sourceId}-fill`, () => {
+                                if (lotPopup) {
+                                    lotPopup.remove();
+                                    lotPopup = null;
+                                }
+                                map.getCanvas().style.cursor = "";
+                            });
+                        })();
+                    });
             } catch (error) {
                 console.error("Error fetching lots data:", error);
             }
         });
 
         return () => map.remove();
-    }, []);
+    }, [permitType]);
 
     useEffect(() => {
         if (!selectedBuilding && buildingListRef.current) {
@@ -327,18 +344,31 @@ const HomePage = () => {
 
     }
 
-    const getNumAvailableSpots = async (lot) => {
-        console.log("here");
-        ApiService.getNumAvailableSpotsAtTime(lot.name, reservationStart, reservationEnd)
-            .then((res) => {
-                console.log(res)
-                numAvailable = lot.capacity - res.data.length
-                return numAvailable
-            })
-            .catch(error => {
-                alert(error)
-                return;
-            })
+    function isLotVisibleForPermit(lot, permit) {
+        const {
+            metered_spots,
+            faculty_staff_spots,
+            commuter_spots,
+            commuter_premium_spots,
+            resident_spots
+        } = lot;
+
+        switch (permit) {
+            case "Visitor":
+                return metered_spots > 0;
+            case "Faculty":
+                return metered_spots > 0 || faculty_staff_spots > 0;
+            case "Commuter":
+                return (
+                    metered_spots > 0 ||
+                    commuter_spots > 0 ||
+                    commuter_premium_spots > 0
+                );
+            case "Resident":
+                return metered_spots > 0 || resident_spots > 0;
+            default:
+                return false;
+        }
     }
 
     return (
@@ -428,6 +458,12 @@ const HomePage = () => {
                                         >
                                             <option value="distance">Distance</option>
                                             <option value="price">Price</option>
+                                            {permitType !== "visitor" && (
+                                                <option value="distance-non-metered">
+                                                    Distance – Non-metered
+                                                </option>
+                                            )}
+
                                         </select>
                                     </div>
                                 </div>
@@ -441,23 +477,30 @@ const HomePage = () => {
                                 </div>
                             </div>
                             <div className="lots-scroll" ref={lotsScrollRef}>
-                                {filteredLots.map((lot) => (
-                                    <div key={lot.name} className="lot-item">
-                                        <p>
-                                            <strong>{lot.name}</strong>
-                                        </p>
-                                        <p>{lot.details}</p>
-                                        <p>Price: ${lot.price}</p>
-                                        <div style={{ display: "flex", gap: "10px" }}>
-                                            <button onClick={() => handleReserveClicked(lot.name)}>
-                                                Reserve
-                                            </button>
-                                            {lot.geom && (
-                                                <button onClick={() => handleLotView(lot)}>View</button>
-                                            )}
+                                {filteredLots
+                                    .filter(lot => isLotVisibleForPermit(lot, permitType))
+                                    // if “non-metered” chosen, exclude any lot with metered_spots > 0
+                                    .filter(lot =>
+                                        sortCriteria === "distance-non-metered"
+                                            ? lot.metered_spots === 0
+                                            : true
+                                    )
+                                    .map((lot) => (
+                                        <div key={lot.name} className="lot-item">
+                                            <p><strong>{lot.name}</strong></p>
+                                            <p>{lot.details}</p>
+                                            <p>Price: ${lot.price}</p>
+                                            <div style={{ display: "flex", gap: "10px" }}>
+                                                <button onClick={() => handleReserveClicked(lot.name)}>
+                                                    Reserve
+                                                </button>
+                                                {lot.geom && (
+                                                    <button onClick={() => handleLotView(lot)}>View</button>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                }
                             </div>
                         </>
                     )}
