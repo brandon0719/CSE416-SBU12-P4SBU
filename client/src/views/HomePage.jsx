@@ -60,6 +60,7 @@ const HomePage = () => {
     const [buildingSearchTerm, setBuildingSearchTerm] = useState("");
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [selectedLot, setSelectedLot] = useState("");
+    const [availableSpots, setAvailableSpots] = useState(null)
 
     // Ref to store the Mapbox Directions control
     const directionsRef = useRef(null);
@@ -266,6 +267,17 @@ const HomePage = () => {
         }
     }, [selectedBuilding, buildingSearchTerm, searchTerm]);
 
+    useEffect(() => {
+        if (!reservationStart || !reservationEnd || !selectedLot) return;
+        ApiService.getNumAvailableSpotsAtTime(selectedLot, reservationStart, reservationEnd)
+            .then((res) => {
+                setAvailableSpots(res);
+            })
+            .catch((error) => {
+                console.error(`Failed to fetch spots for ${selectedLot}:`, error);
+                setAvailableSpots(null);
+            });
+    }, [reservationStart, reservationEnd, selectedLot]); 
 
     // Handler when a building is selected
     const handleBuildingSelect = (building) => {
@@ -309,10 +321,24 @@ const HomePage = () => {
                 setIsModalOpen(false);
             })
             .catch(error => {
-                alert(error)
+                alert(error.message)
                 return;
             })
 
+    }
+
+    const getNumAvailableSpots = async (lot) => {
+        console.log("here");
+        ApiService.getNumAvailableSpotsAtTime(lot.name, reservationStart, reservationEnd)
+            .then((res) => {
+                console.log(res)
+                numAvailable = lot.capacity - res.data.length
+                return numAvailable
+            })
+            .catch(error => {
+                alert(error)
+                return;
+            })
     }
 
     return (
@@ -446,8 +472,10 @@ const HomePage = () => {
                 reservationEnd={reservationEnd}
                 lotName={selectedLot}
                 isOpen={isModalOpen}
+                numAvailableSpots={availableSpots}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleReservation}
+
             />
         </div>
     );

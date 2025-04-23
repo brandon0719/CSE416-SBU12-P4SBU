@@ -1,4 +1,4 @@
-import { createReservation, getUserReservations, getReservationsByUser, getLotReservations } from "../models/reservationModel.js";
+import { createReservation, getUserReservations, getReservationsByUser, getLotReservations, getOverlappingReservations, getNumAvailableSpotsAtTime } from "../models/reservationModel.js";
 
 // Reservation
 export const reserve = async (req, res) => {
@@ -57,10 +57,21 @@ export const getReservationsByLot = async (req, res) => {
 };
 
 export const getReservationsByLotAndTime = async (req, res) => {
-    const { lot, startTime, endTime } = req.query;
+    const { parkingLot, startTime, endTime } = req.query;
     try {
-        const reservations = await getLotReservations(lot);
+        const reservations = await getOverlappingReservations(parkingLot, startTime, endTime);
         res.status(200).json(reservations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getNumAvailableAtTime = async (req, res) => {
+    const { parkingLot, startTime, endTime } = req.query;
+    console.log(req.query)
+    try {
+        const num = await getNumAvailableSpotsAtTime(parkingLot, startTime, endTime);
+        res.status(200).json(num);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

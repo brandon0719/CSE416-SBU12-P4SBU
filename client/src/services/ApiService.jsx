@@ -418,6 +418,21 @@ const getUserReservations = async (userId) => {
     }
 };
 
+const getNumAvailableSpotsAtTime = async (lot, reservationStart, reservationEnd) => {
+    console.log(lot + reservationStart.toLocaleString() + reservationEnd.toLocaleString())
+    try {
+        const response = await http.get(`/reservation/lot/num?parkingLot=${lot}&startTime=${reservationStart.toLocaleString()}&endTime=${reservationEnd.toLocaleString()}`, {
+            lot,
+            reservationStart,
+            reservationEnd
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching reservations:", error.response || error);
+        throw error.response?.data || error;
+    }
+}
+
 export const  createFeedback = async (userId, topic, details) => {
     try {
         const response = await http.post("/feedback/create", {
@@ -456,6 +471,7 @@ const ApiService = {
     updateProfile: updateProfile,
     getUserReservations: getUserReservations,
     createFeedback: createFeedback,
+    getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime
 };
 
 export default ApiService;

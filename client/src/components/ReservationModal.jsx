@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Modal from 'react-modal';
 import ApiService from "../services/ApiService";
+import "../stylesheets/HomePage.css";
 
 const sessionUser = ApiService.getSessionUser()
 
-const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, onClose, onSubmit }) => {
+const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, numAvailableSpots, onClose, onSubmit }) => {
     const [formData, setFormData] = useState({
         name: sessionUser.name,
         email: sessionUser.email,
@@ -50,6 +51,7 @@ const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, o
                         <h3>Name: {formData.name}</h3>
                         <h3>Email: {formData.email}</h3>
                         <h3>Parking Lot: {formData.lot}</h3>
+                        <h3>Number of Available Spots: {numAvailableSpots}</h3>
                         <h3>Reservation Start: {reservationStart.toLocaleString('en-US', {
                             month: 'long',
                             day: 'numeric',
