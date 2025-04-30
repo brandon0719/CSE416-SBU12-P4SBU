@@ -336,6 +336,7 @@ const HomePage = () => {
             .then(() => {
                 alert("Reservation created.");
                 setIsModalOpen(false);
+                setAvailableSpots(availableSpots - formData.numSpots)
             })
             .catch(error => {
                 alert(error.message)

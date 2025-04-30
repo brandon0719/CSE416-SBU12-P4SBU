@@ -91,6 +91,9 @@ export const getLotCapacity = async (lot) => {
             "SELECT total_spaces FROM lots WHERE name = $1",
             [lot]
         );
+        if (rows.length == 0) {
+            throw new Error("Cannot find parking lot with name " + lot)
+        }
         return rows[0].total_spaces;
     } catch (error) {
         throw new Error(error.message);
@@ -100,8 +103,10 @@ export const getLotCapacity = async (lot) => {
 export const getNumAvailableSpotsAtTime = async (parkingLot, startTime, endTime) => {
     try {
         const overlappingReservations = await getOverlappingReservations(parkingLot, startTime, endTime);
+        var numSpotsTaken = 0
+        overlappingReservations.forEach(r => {numSpotsTaken += r.num_spots})
         const lotCapacity = await getLotCapacity(parkingLot);
-        return lotCapacity - overlappingReservations.length;
+        return lotCapacity - numSpotsTaken;
     } catch (error) {
         throw new Error(error.message)
     }

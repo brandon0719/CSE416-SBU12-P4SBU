@@ -68,7 +68,6 @@ export const getReservationsByLotAndTime = async (req, res) => {
 
 export const getNumAvailableAtTime = async (req, res) => {
     const { parkingLot, startTime, endTime } = req.query;
-    console.log(req.query)
     try {
         const num = await getNumAvailableSpotsAtTime(parkingLot, startTime, endTime);
         res.status(200).json(num);
