@@ -1,5 +1,6 @@
 * {
     box-sizing: border-box;
+    color: black;
 }
 
 .admin-page-container {
@@ -322,4 +323,52 @@ li button:hover {
 
 .popup-actions button:last-child:hover {
     background-color: #218838;
+}
+
+.tabs {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+}
+
+.tabs button {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+.tabs button.active-tab {
+    color: #961010;
+    border-bottom: 2px solid #961010;
+}
+
+.tabs button:hover {
+    color: #dc3545;
+}
+
+.tab-content {
+    margin-top: 20px;
+}
+
+.feedback-list {
+    list-style: none;
+    padding: 0;
+}
+
+.feedback-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}
+
+.feedback-item p {
+    margin: 5px 0;
 }
