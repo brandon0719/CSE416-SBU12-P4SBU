@@ -2,7 +2,7 @@ import Header from "../components/Header";
 import NavBar from "../components/NavBar";
 import "../stylesheets/AboutUsPage.css";
 import malikPic from "../images/malikPic.png";
-import weirdUnderline from "../images/line4.svg";
+import weirdUnderline from "../images/Line4.svg";
 
 const AboutUsPage = () => {
     return (

@@ -1,2 +1,4 @@
 .env
 node_modules
+update_lot.sql
+server/node_modules

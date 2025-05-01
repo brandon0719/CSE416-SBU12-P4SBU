@@ -26,4 +26,15 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/buildings", buildingRouter);app.use("/api/user", userRoutes)
 app.use("/api/feedback", feedbackRoutes);
 
+// Heroku 
+import path from "path";
+// 1. Serve static assets from client/dist
+const __dirname = path.resolve();  
+app.use(express.static(path.join(__dirname, "client", "dist")));
+
+// 2. Any other GET, send back index.html so React Router can handle it
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
+
 export default app;

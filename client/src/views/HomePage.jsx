@@ -4,6 +4,7 @@ import MapboxDirections from "@mapbox/mapbox-gl-directions/dist/mapbox-gl-direct
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
 import DatePicker from "react-datepicker";
+import ReservationModal from "../components/ReservationModal";
 import "react-datepicker/dist/react-datepicker.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
@@ -52,11 +53,15 @@ const HomePage = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [reservationStart, setReservationStart] = useState("");
     const [reservationEnd, setReservationEnd] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // New states for campus buildings & building selection/search
     const [buildings, setBuildings] = useState([]);
     const [buildingSearchTerm, setBuildingSearchTerm] = useState("");
     const [selectedBuilding, setSelectedBuilding] = useState(null);
+    const [selectedLot, setSelectedLot] = useState("");
+    const [availableSpots, setAvailableSpots] = useState(null)
+    const [permitType, setPermitType] = useState(null);
 
     // Ref to store the Mapbox Directions control
     const directionsRef = useRef(null);
@@ -66,7 +71,6 @@ const HomePage = () => {
     const buildingListRef = useRef(null);
     const lotsScrollRef = useRef(null);
 
-    const [startingPoint, setStartingPoint] = useState("destination");
     const [sortCriteria, setSortCriteria] = useState("distance");
 
     // Filter the parking lots based on the search term
@@ -79,13 +83,14 @@ const HomePage = () => {
         building.name.toLowerCase().includes(buildingSearchTerm.toLowerCase())
     );
 
+
     useEffect(() => {
         const fetchAndSortLots = async () => {
             try {
                 const response = await fetch("/api/lots/getlotdetails");
                 const data = await response.json();
 
-                if (sortCriteria === "distance" && startingPoint === "destination") {
+                if (sortCriteria === "distance" || sortCriteria === "distance-non-metered") {
                     // Determine the origin: use selected building's location if available,
                     // otherwise fallback to user location.
                     const origin =
@@ -125,7 +130,7 @@ const HomePage = () => {
         };
 
         fetchAndSortLots();
-    }, [sortCriteria, startingPoint, userLocation, selectedBuilding]);
+    }, [sortCriteria, userLocation, selectedBuilding]);
 
     // Fetch campus buildings for initial building selection
     useEffect(() => {
@@ -141,8 +146,15 @@ const HomePage = () => {
         fetchBuildings();
     }, []);
 
+    useEffect(() => {
+        const user = ApiService.getSessionUser();
+        setPermitType(user?.user_type || "visitor");
+    }, []);
+
     // Initialize the Mapbox map, Directions control and parking lots display
     useEffect(() => {
+        if (!permitType) return;
+
         mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_KEY;
         const initialCenter = [-73.12246, 40.91671];
         const initialZoom = 14;
@@ -181,85 +193,88 @@ const HomePage = () => {
                 }
             });
 
-            geolocateControl.on("geolocate", (position) => {
-                const userLng = position.coords.longitude;
-                const userLat = position.coords.latitude;
-                directions.setOrigin([userLng, userLat]);
-            });
-
             // Fetch parking lot data and add them to the map
             try {
                 const response = await fetch("/api/lots/getlotdetails");
                 const lotsData = await response.json();
 
-                lotsData.forEach((lot) => {
-                    const sourceId = `lot-${lot.name.replace(/\s+/g, "-")}`;
-                    map.addSource(sourceId, {
-                        type: "geojson",
-                        data: lot.geom,
-                    });
+                lotsData
+                    .filter(lot => isLotVisibleForPermit(lot, permitType))
+                    .forEach((lot) => {
+                        const sourceId = `lot-${lot.name.replace(/\s+/g, "-")}`;
+                        map.addSource(sourceId, {
+                            type: "geojson",
+                            data: lot.geom,
+                        });
 
-                    map.addLayer({
-                        id: `${sourceId}-fill`,
-                        type: "fill",
-                        source: sourceId,
-                        paint: {
-                            "fill-color": "#808080",
-                            "fill-opacity": 0.5,
-                            "fill-outline-color": "#000",
-                        },
-                    });
+                        const fillColor =
+                            lot.metered_spots > 0
+                                ? "#002244"   // metered
+                                : "#6B000D";  // all other lots
 
-                    map.addLayer({
-                        id: `${sourceId}-label`,
-                        type: "symbol",
-                        source: sourceId,
-                        layout: {
-                            "text-field": lot.name,
-                            "text-size": 10,
-                            "text-offset": [0, 0],
-                            "text-anchor": "center",
-                        },
-                        paint: {
-                            "text-color": "#000",
-                        },
-                    });
+                        map.addLayer({
+                            id: `${sourceId}-fill`,
+                            type: "fill",
+                            source: sourceId,
+                            paint: {
+                                "fill-color": fillColor,
+                                "fill-opacity": 0.5,
+                                "fill-outline-color": "#000",
+                            },
+                        });
 
-                    // Add interactivity for each lot (popups on hover)
-                    (() => {
-                        let lotPopup;
-                        map.on("mouseenter", `${sourceId}-fill`, () => {
-                            const center = computeCentroid(lot.geom);
-                            lotPopup = new mapboxgl.Popup({
-                                closeButton: false,
-                                offset: 25,
-                            })
-                                .setLngLat(center)
-                                .setHTML(`
+                        map.addLayer({
+                            id: `${sourceId}-label`,
+                            type: "symbol",
+                            source: sourceId,
+                            layout: {
+                                "text-field": lot.name,
+                                "text-size": 11,
+                                "text-offset": [0, 0],
+                                "text-anchor": "center",
+                            },
+                            paint: {
+                                "text-color": "#000000",
+                                "text-halo-color": "#ffffff",
+                                "text-halo-width": 1,
+                            },
+                        });
+
+                        // Add interactivity for each lot (popups on hover)
+                        (() => {
+                            let lotPopup;
+                            map.on("mouseenter", `${sourceId}-fill`, () => {
+                                const center = computeCentroid(lot.geom);
+                                lotPopup = new mapboxgl.Popup({
+                                    closeButton: false,
+                                    offset: 25,
+                                })
+                                    .setLngLat(center)
+                                    .setHTML(`
                   <div style="text-align: center;">
                     <h3>${lot.name}</h3>
                     <p>${lot.details || "No additional information available."}</p>
                   </div>
                 `)
-                                .addTo(map);
-                            map.getCanvas().style.cursor = "pointer";
-                        });
-                        map.on("mouseleave", `${sourceId}-fill`, () => {
-                            if (lotPopup) {
-                                lotPopup.remove();
-                                lotPopup = null;
-                            }
-                            map.getCanvas().style.cursor = "";
-                        });
-                    })();
-                });
+                                    .addTo(map);
+                                map.getCanvas().style.cursor = "pointer";
+                            });
+                            map.on("mouseleave", `${sourceId}-fill`, () => {
+                                if (lotPopup) {
+                                    lotPopup.remove();
+                                    lotPopup = null;
+                                }
+                                map.getCanvas().style.cursor = "";
+                            });
+                        })();
+                    });
             } catch (error) {
                 console.error("Error fetching lots data:", error);
             }
         });
 
         return () => map.remove();
-    }, []);
+    }, [permitType]);
 
     useEffect(() => {
         if (!selectedBuilding && buildingListRef.current) {
@@ -269,6 +284,17 @@ const HomePage = () => {
         }
     }, [selectedBuilding, buildingSearchTerm, searchTerm]);
 
+    useEffect(() => {
+        if (!reservationStart || !reservationEnd || !selectedLot) return;
+        ApiService.getNumAvailableSpotsAtTime(selectedLot, reservationStart, reservationEnd)
+            .then((res) => {
+                setAvailableSpots(res);
+            })
+            .catch((error) => {
+                console.error(`Failed to fetch spots for ${selectedLot}:`, error);
+                setAvailableSpots(null);
+            });
+    }, [reservationStart, reservationEnd, selectedLot]); 
 
     // Handler when a building is selected
     const handleBuildingSelect = (building) => {
@@ -283,22 +309,67 @@ const HomePage = () => {
 
     // Handler for the "View" button on a parking lot
     const handleLotView = (lot) => {
-        if (lot.geom) {
+        if (lot.geom && selectedBuilding && directionsRef.current) {
             const centroid = computeCentroid(lot.geom);
-            if (directionsRef.current) {
-                directionsRef.current.setOrigin(centroid);
-            }
+            directionsRef.current.setOrigin(centroid);
+            // Immediately set the destination back to the selected building's coordinates.
+            const [lng, lat] = selectedBuilding.location.coordinates;
+            directionsRef.current.setDestination([lng, lat]);
         }
     };
 
-    const handleReservation = (lotName) => {
-        if (!reservationStart || !reservationEnd) {
+    const handleReserveClicked = (lotName) => {
+        setSelectedLot(lotName);
+        if (reservationEnd < reservationStart) {
+            alert("Reservation end cannot be before start")
+        } else if (!reservationStart || !reservationEnd) {
             alert("Please enter reservation time.");
         } else {
-            ApiService.createReservation(ApiService.getSessionUser().user_id, lotName, reservationStart, reservationEnd);
-            alert("Reservation created.");
+            setIsModalOpen(true)
         }
+    }
 
+    const handleReservation = async (formData) => {
+
+        console.log(formData)
+        ApiService.createReservation(ApiService.getSessionUser().user_id, selectedLot, reservationStart, reservationEnd, formData.numSpots, formData.explanation)
+            .then(() => {
+                alert("Reservation created.");
+                setIsModalOpen(false);
+                setAvailableSpots(availableSpots - formData.numSpots)
+            })
+            .catch(error => {
+                alert(error.message)
+                return;
+            })
+
+    }
+
+    function isLotVisibleForPermit(lot, permit) {
+        const {
+            metered_spots,
+            faculty_staff_spots,
+            commuter_spots,
+            commuter_premium_spots,
+            resident_spots
+        } = lot;
+
+        switch (permit) {
+            case "Visitor":
+                return metered_spots > 0;
+            case "Faculty":
+                return metered_spots > 0 || faculty_staff_spots > 0;
+            case "Commuter":
+                return (
+                    metered_spots > 0 ||
+                    commuter_spots > 0 ||
+                    commuter_premium_spots > 0
+                );
+            case "Resident":
+                return metered_spots > 0 || resident_spots > 0;
+            default:
+                return false;
+        }
     }
 
     return (
@@ -334,16 +405,20 @@ const HomePage = () => {
                     ) : (
                         <>
                             <div className="lot-header">
-                                <div className="selected-building-info">
-                                    <h3>Selected Building: {selectedBuilding.name}</h3>
-                                    <button onClick={() => setSelectedBuilding(null)}>
-                                        Change Selection
-                                    </button>
+                                <div className="selected-building-row">
+                                    <h3 className="selected-building-name">
+                                        Selected Building: {selectedBuilding.name}
+                                    </h3>
+                                    <button onClick={() => setSelectedBuilding(null)}>Change Selection</button>
                                 </div>
-                                <div className="time-selection">
-                                    <label htmlFor="start-date">Reservation start:</label>
-                                    <div id="start-date">
+
+                                {/* Row 2: Reservation Start/End */}
+                                <div className="reservation-row">
+                                    <div className="reservation-field">
+                                        <label htmlFor="start-date">Reservation start:</label>
                                         <DatePicker
+                                            withPortal
+                                            id="start-date"
                                             placeholderText="Select date and time..."
                                             selected={reservationStart}
                                             onChange={(date) => setReservationStart(date)}
@@ -355,9 +430,11 @@ const HomePage = () => {
                                             className="date-picker"
                                         />
                                     </div>
-                                    <label htmlFor="end-date">Reservation end:</label>
-                                    <div id="end-date">
+                                    <div className="reservation-field">
+                                        <label htmlFor="end-date">Reservation end:</label>
                                         <DatePicker
+                                            withPortal
+                                            id="end-date"
                                             placeholderText="Select date and time..."
                                             selected={reservationEnd}
                                             onChange={(date) => setReservationEnd(date)}
@@ -370,29 +447,27 @@ const HomePage = () => {
                                         />
                                     </div>
                                 </div>
-                                <div className="sorting-options">
-                                    <label htmlFor="starting-point">Starting:</label>
-                                    <select
-                                        id="starting-point"
-                                        value={startingPoint}
-                                        onChange={(e) => setStartingPoint(e.target.value)}
-                                    >
-                                        <option value="destination">Destination</option>
-                                        <option value="current_location">Current Location</option>
-                                    </select>
+                                {/* Flex container for the lots header and sorting controls */}
+                                <div className="lots-header-sort">
+                                    <h3 className="lots-title">Parking Lots</h3>
+                                    <div className="sorting-options">
+                                        <label htmlFor="sort-criteria">Sort by:</label>
+                                        <select
+                                            id="sort-criteria"
+                                            value={sortCriteria}
+                                            onChange={(e) => setSortCriteria(e.target.value)}
+                                        >
+                                            <option value="distance">Distance</option>
+                                            <option value="price">Price</option>
+                                            {permitType !== "visitor" && (
+                                                <option value="distance-non-metered">
+                                                    Distance – Non-metered
+                                                </option>
+                                            )}
 
-                                    <label htmlFor="sort-criteria">Sort by:</label>
-                                    <select
-                                        id="sort-criteria"
-                                        value={sortCriteria}
-                                        onChange={(e) => setSortCriteria(e.target.value)}
-                                    >
-                                        <option value="distance">Distance</option>
-                                        <option value="price">Price</option>
-                                    </select>
+                                        </select>
+                                    </div>
                                 </div>
-
-                                <h3 className="lots-title">Parking Lots</h3>
                                 <div className="search-bar">
                                     <input
                                         type="text"
@@ -403,23 +478,30 @@ const HomePage = () => {
                                 </div>
                             </div>
                             <div className="lots-scroll" ref={lotsScrollRef}>
-                                {filteredLots.map((lot) => (
-                                    <div key={lot.name} className="lot-item">
-                                        <p>
-                                            <strong>{lot.name}</strong>
-                                        </p>
-                                        <p>{lot.details}</p>
-                                        <p>Price: ${lot.price}</p>
-                                        <div style={{ display: "flex", gap: "10px" }}>
-                                            <button onClick={() => alert(`Reserving lot: ${lot.name}`)}>
-                                                Reserve
-                                            </button>
-                                            {lot.geom && (
-                                                <button onClick={() => handleLotView(lot)}>View</button>
-                                            )}
+                                {filteredLots
+                                    .filter(lot => isLotVisibleForPermit(lot, permitType))
+                                    // if “non-metered” chosen, exclude any lot with metered_spots > 0
+                                    .filter(lot =>
+                                        sortCriteria === "distance-non-metered"
+                                            ? lot.metered_spots === 0
+                                            : true
+                                    )
+                                    .map((lot) => (
+                                        <div key={lot.name} className="lot-item">
+                                            <p><strong>{lot.name}</strong></p>
+                                            <p>{lot.details}</p>
+                                            <p>Price: ${lot.price}</p>
+                                            <div style={{ display: "flex", gap: "10px" }}>
+                                                <button onClick={() => handleReserveClicked(lot.name)}>
+                                                    Reserve
+                                                </button>
+                                                {lot.geom && (
+                                                    <button onClick={() => handleLotView(lot)}>View</button>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                }
                             </div>
                         </>
                     )}
@@ -429,6 +511,16 @@ const HomePage = () => {
                     <div id="map" className="map-container" />
                 </div>
             </div>
+            <ReservationModal
+                reservationStart={reservationStart}
+                reservationEnd={reservationEnd}
+                lotName={selectedLot}
+                isOpen={isModalOpen}
+                numAvailableSpots={availableSpots}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleReservation}
+
+            />
         </div>
     );
 };

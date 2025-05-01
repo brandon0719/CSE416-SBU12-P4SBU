@@ -2,8 +2,11 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { Navigate } from "react-router-dom";
 
+const baseURL = process.env.NODE_ENV === "production"
+    ? "/api"
+    : "http://localhost:8000/api";      // for local‐dev 
 const http = axios.create({
-    baseURL: "http://localhost:8000/api",
+    baseURL
 });
 
 export const login = (user) => {
@@ -237,19 +240,30 @@ const fetchProtectedData = async () => {
 };
 
 //create a reservation
-const createReservation = async (userId, parkingLot, startTime, endTime) => {
+const createReservation = async (userId, parkingLot, startTime, endTime, numSpots, explanation) => {
     try {
         const response = await http.post("/reservation/create", {
             userId,
             parkingLot,
             startTime,
             endTime,
+            numSpots,
+            explanation
         });
         return response.data;
     } catch (error) {
-        throw error.response?.data || { message: "Reservation failed" };
-    }
-};
+        console.log("ass")
+        if (error.response) {
+            // Server responded with error status
+            switch (error.response.status) {
+                case 409:
+                    throw 'Conflict: Not enough spaces in parking lot for reservation';
+                default: 
+                    throw error.response?.data || { message: "Reservation failed" };
+            }
+        }
+    };
+}
 
 // ticket stuff
 export const createTicket = async (
@@ -404,6 +418,21 @@ const getUserReservations = async (userId) => {
     }
 };
 
+const getNumAvailableSpotsAtTime = async (lot, reservationStart, reservationEnd) => {
+    console.log(lot + reservationStart.toLocaleString() + reservationEnd.toLocaleString())
+    try {
+        const response = await http.get(`/reservation/lot/num?parkingLot=${lot}&startTime=${reservationStart.toLocaleString()}&endTime=${reservationEnd.toLocaleString()}`, {
+            lot,
+            reservationStart,
+            reservationEnd
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching reservations:", error.response || error);
+        throw error.response?.data || error;
+    }
+}
+
 export const  createFeedback = async (userId, topic, details) => {
     try {
         const response = await http.post("/feedback/create", {
@@ -442,6 +471,7 @@ const ApiService = {
     updateProfile: updateProfile,
     getUserReservations: getUserReservations,
     createFeedback: createFeedback,
+    getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime
 };
 
 export default ApiService;
