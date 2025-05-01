@@ -315,4 +315,19 @@ h3 {
 .reservation-modal {
     color: black;
     font-size: large;
+
+}
+
+.popup {
+    display: flex;
+    flex-direction: row;
+}
+.popup p {
+    color: black;
+    font-size: large;
+}
+.chart {
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-right:1%;
 }

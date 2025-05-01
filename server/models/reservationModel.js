@@ -2,9 +2,8 @@ import pool from "../config/db.js";
 
 export const createReservation = async (userId, parkingLot, startTime, endTime, numSpots, explanation) => {
     try {
-        const overlappingReservations = await getOverlappingReservations(parkingLot, startTime, endTime);
-        const lotCapacity = await getLotCapacity(parkingLot);
-        if (overlappingReservations.length + numSpots > lotCapacity) { //this logic needs fixing - needs to add up the total number of spots taken by reservations since they can be greater than 1
+        const availableSpots = await getNumAvailableSpotsAtTime(parkingLot, startTime, endTime);
+        if (numSpots > availableSpots) { //this logic needs fixing - needs to add up the total number of spots taken by reservations since they can be greater than 1
             throw new Error("Not enough spaces in parking lot for reservation");
         } else {
             const { rows } = await pool.query(

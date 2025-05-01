@@ -252,12 +252,11 @@ const createReservation = async (userId, parkingLot, startTime, endTime, numSpot
         });
         return response.data;
     } catch (error) {
-        console.log("ass")
         if (error.response) {
             // Server responded with error status
             switch (error.response.status) {
                 case 409:
-                    throw 'Conflict: Not enough spaces in parking lot for reservation';
+                    throw {message: 'Conflict: Not enough spaces in parking lot for reservation'};
                 default: 
                     throw error.response?.data || { message: "Reservation failed" };
             }
@@ -447,6 +446,16 @@ export const  createFeedback = async (userId, topic, details) => {
     }
 };
 
+export const getPopularHours = async (lot, day) => {
+    try {
+        const response = await http.get(`/reservation/lot/hourly?lot=${lot}&day=${day}`)
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching reservations:", error.response || error);
+        throw error.response?.data || error;
+    }
+}
+
 const ApiService = {
     registerUser: registerUser,
     handleLogin: handleLogin,
@@ -459,6 +468,7 @@ const ApiService = {
     createReservation: createReservation,
     getTickets: getTickets,
     getPaidTickets: getPaidTickets,
+    getPopularHours: getPopularHours,
     createTicket: createTicket,
     fetchAllUsers: fetchAllUsers,
     payTickets: payTickets,
