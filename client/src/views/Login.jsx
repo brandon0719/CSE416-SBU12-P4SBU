@@ -14,6 +14,12 @@ const Login = () => {
         try {
             await ApiService.handleLogin(email, password);
             const user = ApiService.getSessionUser(); // Get the logged-in user from cookies
+
+            if (!user.is_approved) {
+                setError("Account has not been approved yet.");
+                return;
+            }
+
             if (user && user.is_admin) {
                 navigate("/users"); // Redirect to /users if the user is an admin
             } else if (user && !user.is_profile_complete) {
@@ -65,7 +71,7 @@ const Login = () => {
                     <p>Hours of Operation: Monday-Friday 8:30am-4:00pm</p>
                 </div>
             </div>
-        </div>
+        </div>  
     );
 }
 
