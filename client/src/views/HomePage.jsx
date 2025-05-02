@@ -602,7 +602,7 @@ const HomePage = () => {
                 reservationStart={reservationStart}
                 reservationEnd={reservationEnd}
                 lotName={selectedLot}
-                price={lots.find((l) => l.name === selectedLot)?.price || 0} // ← here
+                price={lots.find((l) => l.name === selectedLot)?.rate || 0} // ← here
                 isOpen={isModalOpen}
                 numAvailableSpots={availableSpots}
                 onClose={() => setIsModalOpen(false)}

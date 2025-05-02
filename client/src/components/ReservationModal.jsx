@@ -92,9 +92,10 @@ const ReservationModal = ({
                                     hour: "numeric",
                                     minute: "2-digit",
                                     hour12: true,
-                                })} <br />
+                                })}{" "}
+                                <br />
                                 <strong>Price per spot:</strong>$
-                                {price.toFixed(2)} <br />
+                                {parseFloat(price).toFixed(2)} <br />
                                 <strong>Total Cost: </strong> ${totalCost}{" "}
                                 <br />
                             </p>
