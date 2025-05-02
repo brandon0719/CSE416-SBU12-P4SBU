@@ -10,6 +10,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 import "../stylesheets/HomePage.css";
 import ApiService from "../services/ApiService";
+import CheckoutForm from "../components/CheckoutForm";
 
 function computeCentroid(geom) {
     let coords = [];
@@ -20,7 +21,8 @@ function computeCentroid(geom) {
     } else {
         return [-73.12246, 40.91671];
     }
-    let sumLng = 0, sumLat = 0;
+    let sumLng = 0,
+        sumLat = 0;
     coords.forEach(([lng, lat]) => {
         sumLng += lng;
         sumLat += lat;
@@ -49,7 +51,10 @@ const HomePage = () => {
     // Existing states for parking lots and reservation details
     const [lots, setLots] = useState([]);
     const [sortBy, setSortBy] = useState("distance");
-    const [userLocation, setUserLocation] = useState({ lng: -73.12246, lat: 40.91671 });
+    const [userLocation, setUserLocation] = useState({
+        lng: -73.12246,
+        lat: 40.91671,
+    });
     const [searchTerm, setSearchTerm] = useState("");
     const [reservationStart, setReservationStart] = useState("");
     const [reservationEnd, setReservationEnd] = useState("");
@@ -60,7 +65,7 @@ const HomePage = () => {
     const [buildingSearchTerm, setBuildingSearchTerm] = useState("");
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [selectedLot, setSelectedLot] = useState("");
-    const [availableSpots, setAvailableSpots] = useState(null)
+    const [availableSpots, setAvailableSpots] = useState(null);
     const [permitType, setPermitType] = useState(null);
 
     // Ref to store the Mapbox Directions control
@@ -73,6 +78,10 @@ const HomePage = () => {
 
     const [sortCriteria, setSortCriteria] = useState("distance");
 
+    // Stripe
+    const [clientSecret, setClientSecret] = useState(null);
+    const [pendingReservation, setPendingReservation] = useState(null);
+
     // Filter the parking lots based on the search term
     const filteredLots = lots.filter((lot) =>
         lot.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -83,18 +92,22 @@ const HomePage = () => {
         building.name.toLowerCase().includes(buildingSearchTerm.toLowerCase())
     );
 
-
     useEffect(() => {
         const fetchAndSortLots = async () => {
             try {
                 const response = await fetch("/api/lots/getlotdetails");
                 const data = await response.json();
 
-                if (sortCriteria === "distance" || sortCriteria === "distance-non-metered") {
+                if (
+                    sortCriteria === "distance" ||
+                    sortCriteria === "distance-non-metered"
+                ) {
                     // Determine the origin: use selected building's location if available,
                     // otherwise fallback to user location.
                     const origin =
-                        selectedBuilding && selectedBuilding.location && selectedBuilding.location.coordinates
+                        selectedBuilding &&
+                        selectedBuilding.location &&
+                        selectedBuilding.location.coordinates
                             ? selectedBuilding.location.coordinates
                             : [userLocation.lng, userLocation.lat];
 
@@ -102,9 +115,16 @@ const HomePage = () => {
                     // a valid geometry, assign Infinity so it sorts last.
                     const lotsWithDistance = await Promise.all(
                         data.map(async (lot) => {
-                            if (lot.geom && lot.geom.coordinates && lot.geom.coordinates.length > 0) {
+                            if (
+                                lot.geom &&
+                                lot.geom.coordinates &&
+                                lot.geom.coordinates.length > 0
+                            ) {
                                 const centroid = computeCentroid(lot.geom);
-                                const distance = await getWalkingDistance(origin, centroid);
+                                const distance = await getWalkingDistance(
+                                    origin,
+                                    centroid
+                                );
                                 return { ...lot, walkingDistance: distance };
                             } else {
                                 // If lot location is not set, assign a high distance value.
@@ -114,7 +134,9 @@ const HomePage = () => {
                     );
 
                     // Sort the lots so that those with a finite (computed) walking distance come first.
-                    lotsWithDistance.sort((a, b) => a.walkingDistance - b.walkingDistance);
+                    lotsWithDistance.sort(
+                        (a, b) => a.walkingDistance - b.walkingDistance
+                    );
                     setLots(lotsWithDistance);
                 } else if (sortCriteria === "price") {
                     // Sorting by price – simply sort based on the price field.
@@ -199,7 +221,7 @@ const HomePage = () => {
                 const lotsData = await response.json();
 
                 lotsData
-                    .filter(lot => isLotVisibleForPermit(lot, permitType))
+                    .filter((lot) => isLotVisibleForPermit(lot, permitType))
                     .forEach((lot) => {
                         const sourceId = `lot-${lot.name.replace(/\s+/g, "-")}`;
                         map.addSource(sourceId, {
@@ -209,8 +231,8 @@ const HomePage = () => {
 
                         const fillColor =
                             lot.metered_spots > 0
-                                ? "#002244"   // metered
-                                : "#6B000D";  // all other lots
+                                ? "#002244" // metered
+                                : "#6B000D"; // all other lots
 
                         map.addLayer({
                             id: `${sourceId}-fill`,
@@ -250,12 +272,16 @@ const HomePage = () => {
                                     offset: 25,
                                 })
                                     .setLngLat(center)
-                                    .setHTML(`
+                                    .setHTML(
+                                        `
                   <div style="text-align: center;">
                     <h3>${lot.name}</h3>
-                    <p>${lot.details || "No additional information available."}</p>
+                    <p>${
+                        lot.details || "No additional information available."
+                    }</p>
                   </div>
-                `)
+                `
+                                    )
                                     .addTo(map);
                                 map.getCanvas().style.cursor = "pointer";
                             });
@@ -286,15 +312,22 @@ const HomePage = () => {
 
     useEffect(() => {
         if (!reservationStart || !reservationEnd || !selectedLot) return;
-        ApiService.getNumAvailableSpotsAtTime(selectedLot, reservationStart, reservationEnd)
+        ApiService.getNumAvailableSpotsAtTime(
+            selectedLot,
+            reservationStart,
+            reservationEnd
+        )
             .then((res) => {
                 setAvailableSpots(res);
             })
             .catch((error) => {
-                console.error(`Failed to fetch spots for ${selectedLot}:`, error);
+                console.error(
+                    `Failed to fetch spots for ${selectedLot}:`,
+                    error
+                );
                 setAvailableSpots(null);
             });
-    }, [reservationStart, reservationEnd, selectedLot]); 
+    }, [reservationStart, reservationEnd, selectedLot]);
 
     // Handler when a building is selected
     const handleBuildingSelect = (building) => {
@@ -321,29 +354,36 @@ const HomePage = () => {
     const handleReserveClicked = (lotName) => {
         setSelectedLot(lotName);
         if (reservationEnd < reservationStart) {
-            alert("Reservation end cannot be before start")
+            alert("Reservation end cannot be before start");
         } else if (!reservationStart || !reservationEnd) {
             alert("Please enter reservation time.");
         } else {
-            setIsModalOpen(true)
+            setIsModalOpen(true);
         }
-    }
+    };
+
+    // 2) Helper to call your backend and get a Stripe PaymentIntent:
+    const fetchPaymentIntent = async (amountCents) => {
+        const clientSecret = await ApiService.createPaymentIntent(amountCents);
+        setClientSecret(clientSecret);
+    };
 
     const handleReservation = async (formData) => {
+        // 1) find the lot object to get its price
+        const lotObj = lots.find((lot) => lot.name === selectedLot);
+        if (!lotObj) {
+            return alert("Error: selected lot not found.");
+        }
+        // 2) compute cost in cents
+        const amountCents = formData.numSpots * 2.5 * 100; // currently 2.5 hardcode because lot.price is fixed yet
 
-        console.log(formData)
-        ApiService.createReservation(ApiService.getSessionUser().user_id, selectedLot, reservationStart, reservationEnd, formData.numSpots, formData.explanation)
-            .then(() => {
-                alert("Reservation created.");
-                setIsModalOpen(false);
-                setAvailableSpots(availableSpots - formData.numSpots)
-            })
-            .catch(error => {
-                alert(error.message)
-                return;
-            })
+        // 3) stash the form data for after payment succeeds
+        setPendingReservation(formData);
 
-    }
+        // 4) kick off Stripe
+        await fetchPaymentIntent(amountCents);
+        console.log(formData);
+    };
 
     function isLotVisibleForPermit(lot, permit) {
         const {
@@ -351,7 +391,7 @@ const HomePage = () => {
             faculty_staff_spots,
             commuter_spots,
             commuter_premium_spots,
-            resident_spots
+            resident_spots,
         } = lot;
 
         switch (permit) {
@@ -386,17 +426,22 @@ const HomePage = () => {
                                     type="text"
                                     placeholder="Search Buildings..."
                                     value={buildingSearchTerm}
-                                    onChange={(e) => setBuildingSearchTerm(e.target.value)}
+                                    onChange={(e) =>
+                                        setBuildingSearchTerm(e.target.value)
+                                    }
                                     className="building-search"
                                 />
                             </div>
-                            <div className="buildings-list" ref={buildingListRef}>
+                            <div
+                                className="buildings-list"
+                                ref={buildingListRef}>
                                 {filteredBuildings.map((building) => (
                                     <div
                                         key={building.id}
                                         className="building-item"
-                                        onClick={() => handleBuildingSelect(building)}
-                                    >
+                                        onClick={() =>
+                                            handleBuildingSelect(building)
+                                        }>
                                         <p>{building.name}</p>
                                     </div>
                                 ))}
@@ -407,21 +452,31 @@ const HomePage = () => {
                             <div className="lot-header">
                                 <div className="selected-building-row">
                                     <h3 className="selected-building-name">
-                                        Selected Building: {selectedBuilding.name}
+                                        Selected Building:{" "}
+                                        {selectedBuilding.name}
                                     </h3>
-                                    <button onClick={() => setSelectedBuilding(null)}>Change Selection</button>
+                                    <button
+                                        onClick={() =>
+                                            setSelectedBuilding(null)
+                                        }>
+                                        Change Selection
+                                    </button>
                                 </div>
 
                                 {/* Row 2: Reservation Start/End */}
                                 <div className="reservation-row">
                                     <div className="reservation-field">
-                                        <label htmlFor="start-date">Reservation start:</label>
+                                        <label htmlFor="start-date">
+                                            Reservation start:
+                                        </label>
                                         <DatePicker
                                             withPortal
                                             id="start-date"
                                             placeholderText="Select date and time..."
                                             selected={reservationStart}
-                                            onChange={(date) => setReservationStart(date)}
+                                            onChange={(date) =>
+                                                setReservationStart(date)
+                                            }
                                             showTimeSelect
                                             timeFormat="h:mm aa"
                                             timeIntervals={30}
@@ -431,13 +486,17 @@ const HomePage = () => {
                                         />
                                     </div>
                                     <div className="reservation-field">
-                                        <label htmlFor="end-date">Reservation end:</label>
+                                        <label htmlFor="end-date">
+                                            Reservation end:
+                                        </label>
                                         <DatePicker
                                             withPortal
                                             id="end-date"
                                             placeholderText="Select date and time..."
                                             selected={reservationEnd}
-                                            onChange={(date) => setReservationEnd(date)}
+                                            onChange={(date) =>
+                                                setReservationEnd(date)
+                                            }
                                             showTimeSelect
                                             timeFormat="h:mm aa"
                                             timeIntervals={30}
@@ -451,20 +510,24 @@ const HomePage = () => {
                                 <div className="lots-header-sort">
                                     <h3 className="lots-title">Parking Lots</h3>
                                     <div className="sorting-options">
-                                        <label htmlFor="sort-criteria">Sort by:</label>
+                                        <label htmlFor="sort-criteria">
+                                            Sort by:
+                                        </label>
                                         <select
                                             id="sort-criteria"
                                             value={sortCriteria}
-                                            onChange={(e) => setSortCriteria(e.target.value)}
-                                        >
-                                            <option value="distance">Distance</option>
+                                            onChange={(e) =>
+                                                setSortCriteria(e.target.value)
+                                            }>
+                                            <option value="distance">
+                                                Distance
+                                            </option>
                                             <option value="price">Price</option>
                                             {permitType !== "visitor" && (
                                                 <option value="distance-non-metered">
                                                     Distance – Non-metered
                                                 </option>
                                             )}
-
                                         </select>
                                     </div>
                                 </div>
@@ -473,35 +536,56 @@ const HomePage = () => {
                                         type="text"
                                         placeholder="Search parking lots..."
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) =>
+                                            setSearchTerm(e.target.value)
+                                        }
                                     />
                                 </div>
                             </div>
                             <div className="lots-scroll" ref={lotsScrollRef}>
                                 {filteredLots
-                                    .filter(lot => isLotVisibleForPermit(lot, permitType))
+                                    .filter((lot) =>
+                                        isLotVisibleForPermit(lot, permitType)
+                                    )
                                     // if “non-metered” chosen, exclude any lot with metered_spots > 0
-                                    .filter(lot =>
+                                    .filter((lot) =>
                                         sortCriteria === "distance-non-metered"
                                             ? lot.metered_spots === 0
                                             : true
                                     )
                                     .map((lot) => (
-                                        <div key={lot.name} className="lot-item">
-                                            <p><strong>{lot.name}</strong></p>
+                                        <div
+                                            key={lot.name}
+                                            className="lot-item">
+                                            <p>
+                                                <strong>{lot.name}</strong>
+                                            </p>
                                             <p>{lot.details}</p>
                                             <p>Price: ${lot.price}</p>
-                                            <div style={{ display: "flex", gap: "10px" }}>
-                                                <button onClick={() => handleReserveClicked(lot.name)}>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    gap: "10px",
+                                                }}>
+                                                <button
+                                                    onClick={() =>
+                                                        handleReserveClicked(
+                                                            lot.name
+                                                        )
+                                                    }>
                                                     Reserve
                                                 </button>
                                                 {lot.geom && (
-                                                    <button onClick={() => handleLotView(lot)}>View</button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleLotView(lot)
+                                                        }>
+                                                        View
+                                                    </button>
                                                 )}
                                             </div>
                                         </div>
-                                    ))
-                                }
+                                    ))}
                             </div>
                         </>
                     )}
@@ -519,8 +603,41 @@ const HomePage = () => {
                 numAvailableSpots={availableSpots}
                 onClose={() => setIsModalOpen(false)}
                 onSubmit={handleReservation}
-
             />
+            {clientSecret && pendingReservation && (
+                <>
+                    <div className="modal-overlay" />
+                    <div className="checkout-container">
+                        <h4>Complete Payment</h4>
+                        <CheckoutForm
+                            clientSecret={clientSecret}
+                            onSuccessfulPayment={async () => {
+                                const d = pendingReservation;
+                                await ApiService.createReservation(
+                                    ApiService.getSessionUser().user_id,
+                                    selectedLot,
+                                    reservationStart,
+                                    reservationEnd,
+                                    d.numSpots,
+                                    d.explanation
+                                );
+                                alert(
+                                    "✅ Reservation confirmed and payment complete!"
+                                );
+                                setClientSecret(null);
+                                setPendingReservation(null);
+                                setIsModalOpen(false);
+                                setAvailableSpots(availableSpots - d.numSpots);
+                            }
+                            }
+                            onCancel={() => {
+                                setClientSecret(null);
+                                setPendingReservation(null);
+                            }}
+                        />
+                    </div>
+                </>
+            )}
         </div>
     );
 };
