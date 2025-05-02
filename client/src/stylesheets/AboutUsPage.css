@@ -30,7 +30,7 @@
     display: flex;
     text-align: center;
     justify-content: center;
-    background-image: url('..\images\sbu-prism-background.jpg'); /* Replace with the actual path to your image */
+    background-image: url('/images/sbu-prism-background.jpg'); /* Replace with the actual path to your image */
     background-size: cover;
     background-position: center;
     width: 100%; /* Adjust width as needed */
