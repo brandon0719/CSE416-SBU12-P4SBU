@@ -94,10 +94,13 @@ const ReservationModal = ({
                                     hour12: true,
                                 })}{" "}
                                 <br />
-                                <strong>Price per spot:</strong>$
-                                {parseFloat(price).toFixed(2)} <br />
-                                <strong>Total Cost: </strong> ${totalCost}{" "}
                                 <br />
+                                <strong>Price per spot: </strong>$
+                                {parseFloat(price).toFixed(2)} <br />
+                                <strong style={{ color: "Green" }}>
+                                    Total Cost: ${totalCost}{" "}
+                                </strong>
+                                <br /> <br />
                             </p>
                             <div className="form-row">
                                 <div className="form-group">

@@ -561,10 +561,15 @@ const HomePage = () => {
                                                 <strong>{lot.name}</strong>
                                             </p>
                                             <p>{lot.details}</p>
-                                            <p>  Rate:{" "}
+                                            <p>
+                                                {" "}
+                                                Rate:{" "}
                                                 {lot.rate != null
-                                                    ? `$${parseFloat(lot.rate).toFixed(2)}/hr`
-                                                    : "N/A"}</p>
+                                                    ? `$${parseFloat(
+                                                          lot.rate
+                                                      ).toFixed(2)}/hr`
+                                                    : "N/A"}
+                                            </p>
                                             <div
                                                 style={{
                                                     display: "flex",
@@ -612,7 +617,9 @@ const HomePage = () => {
                 <>
                     <div className="modal-overlay" />
                     <div className="checkout-container">
-                        <h4>Complete Payment</h4>
+                        <h4>
+                            Complete Payment
+                        </h4>
                         <CheckoutForm
                             clientSecret={clientSecret}
                             onSuccessfulPayment={async () => {
