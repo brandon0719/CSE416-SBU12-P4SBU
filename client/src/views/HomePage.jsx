@@ -458,7 +458,8 @@ const HomePage = () => {
                                     <button
                                         onClick={() =>
                                             setSelectedBuilding(null)
-                                        }>
+                                        }
+                                        className="change-building-btn">
                                         Change Selection
                                     </button>
                                 </div>

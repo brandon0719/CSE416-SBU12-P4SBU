@@ -302,8 +302,8 @@ const ProfilePage = () => {
                     <div className="error-message">{errorMessage}</div>
                 )}
                 <div className="action-buttons">
-                    <button onClick={handleCancel}>Cancel</button>
-                    <button onClick={handleSave}>Save</button>
+                    <button onClick={handleCancel} disabled={user && !user.is_profile_complete} className="cancel-btn">Cancel</button>
+                    <button onClick={handleSave} className="save-btn">Save</button>
                 </div>
             </div>
             {/* Reservations Section */}
