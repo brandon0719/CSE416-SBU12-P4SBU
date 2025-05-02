@@ -84,21 +84,14 @@ export const getPopularHours = async (req, res) => {
         const hourlyCounts = Array(24).fill(0);
         
         reservations.forEach(reservation => {
-            console.log(reservation)
             const start = new Date(reservation.start_time);
             const end = new Date(reservation.end_time);
         
-            // Only process reservations for  target date
             if (start.getDay() == day || end.getDay() == day || (day > start.getDay() && day < end.getDay())) {
-            
-                // Get the hour range this reservation covers on the particular day
 
                 const startHour = start.getHours();
-                console.log(startHour)
                 const endHour = end.getHours();
-                console.log(endHour)
             
-                // Increment count for each hour the reservation spans
                 for (let hour = startHour; hour <= endHour; hour++) {
                     if (hour >= 0 && hour < 24) {
                         hourlyCounts[hour]+=reservation.num_spots;

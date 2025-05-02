@@ -38,7 +38,6 @@ const PopularHoursChart = ({lot, date}) => {
     const ampm = hour < 12 ? 'AM' : 'PM';
     return {
       hour: `${hour12}${ampm}`, // Formats like "9:00 AM"
-      hourRaw: hour, // Keep original for sorting if needed
       count
     };
   });
