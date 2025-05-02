@@ -7,7 +7,7 @@ const ProtectedRoute = ({ children }) => {
     const user = getSessionUser();
 
     // If no user is found in the cookies, redirect to login
-    if (!user) {
+    if (!user || !user.is_approved) {
         return <Navigate to="/login" replace />;
     }
 

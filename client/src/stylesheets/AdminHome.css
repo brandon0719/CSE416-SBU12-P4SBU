@@ -1,9 +1,9 @@
 * {
     box-sizing: border-box;
-    color: black;
 }
 
 .admin-page-container {
+    color: black;
     position: relative;
     justify-content: center;
     align-items: center;
@@ -14,7 +14,7 @@
 }
 
 .admin-page-content {
-    margin: 30px auto;
+    margin: 10px auto 50px auto;
     width: 1100px;
     background-color: white;
 }
@@ -23,6 +23,22 @@
     display: flex;
     justify-content: flex-end;
     margin-bottom: 20px;
+}
+
+.admin-header-actions {
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between; /* Space between items */
+    align-items: center; /* Align items vertically */
+    gap: 20px; /* Add consistent spacing between items */
+}
+
+.admin-header-actions label,
+.admin-header-actions select,
+.admin-header-actions button {
+    display: inline-block; /* Ensure all elements are inline */
+    vertical-align: middle; /* Align elements to the middle of the y-axis */
+    margin: 0; /* Remove any default margins */
 }
 
 .admin-actions button {
@@ -328,7 +344,7 @@ li button:hover {
 .tabs {
     display: flex;
     justify-content: flex-start;
-    margin-bottom: 20px;
+    margin: 30px 0 20px 0;
     border-bottom: 2px solid #ddd;
 }
 
@@ -345,7 +361,12 @@ li button:hover {
 
 .tabs button.active-tab {
     color: #961010;
-    border-bottom: 2px solid #961010;
+    border: 2px solid #961010;
+    border-bottom: none;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .tabs button:hover {
@@ -371,4 +392,24 @@ li button:hover {
 
 .feedback-item p {
     margin: 5px 0;
+}
+
+.sorting-options {
+    display: flex;
+    align-items: center;
+}
+
+.sorting-options label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.sorting-options select {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    color: #333;
+    cursor: pointer;
 }
