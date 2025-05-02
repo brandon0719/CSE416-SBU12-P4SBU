@@ -25,97 +25,106 @@ import AdminData from "./adminViews/AdminData";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute"; 
 
+// Stripe components
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
 function App() {
     return (
-        <Routes>
-            {/* When someone visits '/', redirect them to '/login' */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            
-            <Route
-                path="/homepage"
-                element={
-                    <ProtectedRoute>
-                        <HomePage />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/ticketpage"
-                element={
-                    <ProtectedRoute>
-                        <TicketPage />
-                    </ProtectedRoute>
-                }
-            />
-            <Route
-                path="/aboutuspage"
-                element={
-                    <ProtectedRoute>
-                        <AboutUsPage />
-                    </ProtectedRoute>
-                }
-            />
-            <Route path="/profilepage"
-                element={
-                    <ProtectedRoute>
-                        <ProfilePage />
-                    </ProtectedRoute>
-                }
-            />
-            <Route path="/messagepage"
-                element={
-                    <ProtectedRoute>
-                        <MessagePage />
-                    </ProtectedRoute>
+        <Elements stripe={stripePromise}>
+            <Routes>
+                {/* When someone visits '/', redirect them to '/login' */}
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                {/* Public Routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-                }
-            />
-            <Route path="/contactuspage"
-                element={<ProtectedRoute>
-                    <ContactUsPage />
-                </ProtectedRoute>
-                }
-            />
+                <Route
+                    path="/homepage"
+                    element={
+                        <ProtectedRoute>
+                            <HomePage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/ticketpage"
+                    element={
+                        <ProtectedRoute>
+                            <TicketPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/aboutuspage"
+                    element={
+                        <ProtectedRoute>
+                            <AboutUsPage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/profilepage"
+                    element={
+                        <ProtectedRoute>
+                            <ProfilePage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/messagepage"
+                    element={
+                        <ProtectedRoute>
+                            <MessagePage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/contactuspage"
+                    element={
+                        <ProtectedRoute>
+                            <ContactUsPage />
+                        </ProtectedRoute>
+                    }
+                />
 
-            {/* split between user and admin navigation */}
+                {/* split between user and admin navigation */}
 
-            <Route
-                path="/users"
-                element={
-                    <ProtectedAdminRoute>
-                        <AdminHome />
-                    </ProtectedAdminRoute>
-                }
-            />
-            <Route
-                path="/tickets"
-                element={
-                    <ProtectedAdminRoute>
-                        <AdminTickets />
-                    </ProtectedAdminRoute>
-                }
-            />
-            <Route
-                path="/parking"
-                element={
-                    <ProtectedAdminRoute>
-                        <AdminParking />
-                    </ProtectedAdminRoute>
-                }
-            />
-            <Route
-                path="/data-analysis"
-                element={
-                    <ProtectedAdminRoute>
-                        <AdminData />
-                    </ProtectedAdminRoute>
-                }
-            />
-
-        </Routes>
+                <Route
+                    path="/users"
+                    element={
+                        <ProtectedAdminRoute>
+                            <AdminHome />
+                        </ProtectedAdminRoute>
+                    }
+                />
+                <Route
+                    path="/tickets"
+                    element={
+                        <ProtectedAdminRoute>
+                            <AdminTickets />
+                        </ProtectedAdminRoute>
+                    }
+                />
+                <Route
+                    path="/parking"
+                    element={
+                        <ProtectedAdminRoute>
+                            <AdminParking />
+                        </ProtectedAdminRoute>
+                    }
+                />
+                <Route
+                    path="/data-analysis"
+                    element={
+                        <ProtectedAdminRoute>
+                            <AdminData />
+                        </ProtectedAdminRoute>
+                    }
+                />
+            </Routes>
+        </Elements>
     );
 }
 

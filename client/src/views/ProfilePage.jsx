@@ -42,6 +42,9 @@ const ProfilePage = () => {
             setReservations(sessionUser.reservations || []);
             setCarModel(sessionUser.car_model || "");
             setLicensePlate(sessionUser.license_plate || "");
+            setIsToggled(
+                sessionUser.is_profile_complete === true
+            ); // Set toggle based on profile completion
         }
 
         // After setting the user, fetch reservations for that user.
@@ -56,8 +59,6 @@ const ProfilePage = () => {
 
     // Compute effective toggle:
     // If profile isn't complete (is_profile_complete is false), we never apply the toggle (i.e. always visible)
-    const effectiveToggle =
-        user && user.is_profile_complete ? isToggled : false;
 
     const handleToggleClass = () => {
         setIsToggled((prev) => !prev);
@@ -221,7 +222,7 @@ const ProfilePage = () => {
             {/* Profile Edit Section */}
             <div
                 className={`profile-page-content ${
-                    effectiveToggle ? "toggled-class" : ""
+                    isToggled ? "toggled-class" : ""
                 }`}>
                 <h1>Profile Page</h1>
                 <div className="profile-section profile-picture-section">
