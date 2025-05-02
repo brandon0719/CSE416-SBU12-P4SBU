@@ -508,7 +508,9 @@ const ApiService = {
     updateProfile: updateProfile,
     getUserReservations: getUserReservations,
     createFeedback: createFeedback,
-    getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime
+    fetchFeedback: fetchFeedback,
+    getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime,
+    createPaymentIntent: createPaymentIntent,
 };
 
 export default ApiService;
