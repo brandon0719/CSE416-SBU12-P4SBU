@@ -9,6 +9,7 @@ import adminRoutes from "./routes/adminRoutes.js"
 import userRoutes from "./routes/userRoutes.js";
 import buildingRouter from "./routes/buildings.js";
 import feedbackRoutes from "./routes/feedbackRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 
 
@@ -25,6 +26,7 @@ app.use("/api/tickets", ticketRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/buildings", buildingRouter);app.use("/api/user", userRoutes)
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/payments", paymentRoutes)
 
 // Heroku 
 import path from "path";

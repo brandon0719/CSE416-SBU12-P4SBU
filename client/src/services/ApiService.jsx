@@ -466,6 +466,23 @@ export const fetchFeedback = async () => {
     }
 }
 
+// Stripe
+export const createPaymentIntent = async (amount) => {
+    try {
+        const { data } = await http.post("/payments/create-payment-intent", {
+            amount,
+        });
+        return data.clientSecret;
+    } catch (err) {
+        console.error(
+            "Error creating PaymentIntent:",
+            err.response?.data || err.message
+        );
+        throw err;
+    }
+};
+
+
 const ApiService = {
     registerUser: registerUser,
     handleLogin: handleLogin,
@@ -492,7 +509,8 @@ const ApiService = {
     getUserReservations: getUserReservations,
     createFeedback: createFeedback,
     fetchFeedback: fetchFeedback,
-    getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime
+    getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime,
+    createPaymentIntent: createPaymentIntent,
 };
 
 export default ApiService;
