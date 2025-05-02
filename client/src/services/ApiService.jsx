@@ -456,6 +456,16 @@ export const getPopularHours = async (lot, day) => {
     }
 }
 
+export const fetchFeedback = async () => {
+    try {
+        const response = await http.get("/feedback/all");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching feedback:", error);
+        throw error.response?.data || { message: "Error fetching feedback" };
+    }
+}
+
 // Stripe
 export const createPaymentIntent = async (amount) => {
     try {
@@ -498,8 +508,7 @@ const ApiService = {
     updateProfile: updateProfile,
     getUserReservations: getUserReservations,
     createFeedback: createFeedback,
-    getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime,
-    createPaymentIntent: createPaymentIntent,
+    getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime
 };
 
 export default ApiService;

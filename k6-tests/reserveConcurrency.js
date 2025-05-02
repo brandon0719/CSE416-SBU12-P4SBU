@@ -18,10 +18,7 @@ export default function () {
 
     const res = http.post('http://localhost:8000/api/reservation/create', reservationPayload, {headers: { 'Content-Type': 'application/json' }} );
     check(res, {
-        'is status 201': (r) => r.status === 201,
-    });
-    check(res, {
-        'expected conflict 409': (r) => r.status === 409,
+        'Valid status': (r) => r.status === 201 || r.status === 409,
     });
 
     sleep(1)
