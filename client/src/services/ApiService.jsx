@@ -482,6 +482,41 @@ export const createPaymentIntent = async (amount) => {
     }
 };
 
+export const approveReservation = async (reservationId) => {
+    try {
+        const resp = await http.post("/admin/approveReservation", {
+            reservationId,
+        });
+        return resp.data;
+    } catch (err) {
+        console.error(
+            "Failed to approve reservation:",
+            err.response?.data || err
+        );
+        throw err.response?.data || err;
+    }
+};
+
+export const fetchPendingReservations = async () => {
+    try {
+        const response = await http.get("/reservation/pending");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching pending reservations:", error);
+        throw error.response?.data || { message: "Error fetching pending reservations" };
+    }
+}
+
+export const fetchCompletedReservations = async () => {
+    try {
+        const response = await http.get("/reservation/approved");
+        return response.data
+    } catch (error) {
+        console.error("Error fetching approved reservations:", error);
+        throw error.response?.data || { message: "Error fetching approved reservations" };
+    }
+}
+
 
 const ApiService = {
     registerUser: registerUser,
@@ -511,6 +546,9 @@ const ApiService = {
     fetchFeedback: fetchFeedback,
     getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime,
     createPaymentIntent: createPaymentIntent,
+    approveReservation: approveReservation,
+    fetchPendingReservations: fetchPendingReservations,
+    fetchCompletedReservations: fetchCompletedReservations,
 };
 
 export default ApiService;
