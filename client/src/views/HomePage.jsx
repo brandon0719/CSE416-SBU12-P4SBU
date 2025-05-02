@@ -106,8 +106,8 @@ const HomePage = () => {
                     // otherwise fallback to user location.
                     const origin =
                         selectedBuilding &&
-                        selectedBuilding.location &&
-                        selectedBuilding.location.coordinates
+                            selectedBuilding.location &&
+                            selectedBuilding.location.coordinates
                             ? selectedBuilding.location.coordinates
                             : [userLocation.lng, userLocation.lat];
 
@@ -139,8 +139,8 @@ const HomePage = () => {
                     );
                     setLots(lotsWithDistance);
                 } else if (sortCriteria === "price") {
-                    // Sorting by price – simply sort based on the price field.
-                    data.sort((a, b) => a.price - b.price);
+                    // Sorting by price – simply sort based on the rate field.
+                    data.sort((a, b) => a.rate - b.rate);
                     setLots(data);
                 } else {
                     // If no specific sorting criteria applied, set the fetched data as is.
@@ -276,9 +276,8 @@ const HomePage = () => {
                                         `
                   <div style="text-align: center;">
                     <h3>${lot.name}</h3>
-                    <p>${
-                        lot.details || "No additional information available."
-                    }</p>
+                    <p>${lot.details || "No additional information available."
+                                        }</p>
                   </div>
                 `
                                     )
@@ -375,7 +374,7 @@ const HomePage = () => {
             return alert("Error: selected lot not found.");
         }
         // 2) compute cost in cents
-        const amountCents = formData.numSpots * 2.5 * 100; // currently 2.5 hardcode because lot.price is fixed yet
+        const amountCents = formData.numSpots * lotObj.rate * 100; 
 
         // 3) stash the form data for after payment succeeds
         setPendingReservation(formData);
@@ -562,7 +561,10 @@ const HomePage = () => {
                                                 <strong>{lot.name}</strong>
                                             </p>
                                             <p>{lot.details}</p>
-                                            <p>Price: ${lot.price}</p>
+                                            <p>  Rate:{" "}
+                                                {lot.rate != null
+                                                    ? `$${parseFloat(lot.rate).toFixed(2)}/hr`
+                                                    : "N/A"}</p>
                                             <div
                                                 style={{
                                                     display: "flex",
