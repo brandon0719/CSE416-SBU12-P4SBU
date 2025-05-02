@@ -77,117 +77,121 @@ const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
             <h2>{type === "add" ? "Add Parking Lot" : "Edit Parking Lot"}</h2>
             <form className="popup-form">
                 <div className="form-columns">
-                    <label>
-                        Campus (Required):
-                        <input
-                            type="text"
-                            name="campus"
-                            placeholder="Campus"
-                            value={formData.campus}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </label>
-                    <label>
-                        Name (Required):
-                        <input
-                            type="text"
-                            name="name"
-                            placeholder="Name"
-                            value={formData.name}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </label>
-                    <label>
-                        Total Spaces (Required):
-                        <input
-                            type="number"
-                            name="total_spaces"
-                            placeholder="Total Spaces"
-                            value={formData.total_spaces}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    </label>
-                    <label>
-                        Faculty/Staff Spots:
-                        <input
-                            type="number"
-                            name="faculty_staff_spots"
-                            placeholder="Faculty/Staff Spots"
-                            value={formData.faculty_staff_spots}
-                            onChange={handleInputChange}
-                        />
-                    </label>
-                    <label>
-                        Commuter Premium Spots:
-                        <input
-                            type="number"
-                            name="commuter_premium_spots"
-                            placeholder="Commuter Premium Spots"
-                            value={formData.commuter_premium_spots}
-                            onChange={handleInputChange}
-                        />
-                    </label>
-                    <label>
-                        Metered Spots:
-                        <input
-                            type="number"
-                            name="metered_spots"
-                            placeholder="Metered Spots"
-                            value={formData.metered_spots}
-                            onChange={handleInputChange}
-                        />
-                    </label>
-                    <label>
-                        Commuter Spots:
-                        <input
-                            type="number"
-                            name="commuter_spots"
-                            placeholder="Commuter Spots"
-                            value={formData.commuter_spots}
-                            onChange={handleInputChange}
-                        />
-                    </label>
-                    <label>
-                        Resident Spots:
-                        <input
-                            type="number"
-                            name="resident_spots"
-                            placeholder="Resident Spots"
-                            value={formData.resident_spots}
-                            onChange={handleInputChange}
-                        />
-                    </label>
-                    <label>
-                        Geometry (GeoJSON):
-                        <textarea
-                            name="geom"
-                            placeholder="Geometry (GeoJSON)"
-                            value={formData.geom}
-                            onChange={handleInputChange}
-                        />
-                    </label>
-                    <label>
-                        Details:
-                        <textarea
-                            name="details"
-                            placeholder="Details"
-                            value={formData.details}
-                            onChange={handleInputChange}
-                        />
-                    </label>
-                    <label>
-                        Rate ($/hr):
-                        <input
-                            type="number"
-                            name="rate"
-                            placeholder="Rate ($/hr)"
-                            value={formData.rate}
-                            onChange={handleInputChange}
-                        />
-                    </label>
+                    <div className="form-column">
+                        <label>
+                            Campus (Required):
+                            <input
+                                type="text"
+                                name="campus"
+                                placeholder="Campus"
+                                value={formData.campus}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Name (Required):
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Name"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Total Spaces (Required):
+                            <input
+                                type="number"
+                                name="total_spaces"
+                                placeholder="Total Spaces"
+                                value={formData.total_spaces}
+                                onChange={handleInputChange}
+                                required
+                            />
+                        </label>
+                        <label>
+                            Faculty/Staff Spots:
+                            <input
+                                type="number"
+                                name="faculty_staff_spots"
+                                placeholder="Faculty/Staff Spots"
+                                value={formData.faculty_staff_spots}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                            Commuter Premium Spots:
+                            <input
+                                type="number"
+                                name="commuter_premium_spots"
+                                placeholder="Commuter Premium Spots"
+                                value={formData.commuter_premium_spots}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                    </div>
+                    <div className="form-column">
+                        <label>
+                            Metered Spots:
+                            <input
+                                type="number"
+                                name="metered_spots"
+                                placeholder="Metered Spots"
+                                value={formData.metered_spots}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                            Commuter Spots:
+                            <input
+                                type="number"
+                                name="commuter_spots"
+                                placeholder="Commuter Spots"
+                                value={formData.commuter_spots}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                            Resident Spots:
+                            <input
+                                type="number"
+                                name="resident_spots"
+                                placeholder="Resident Spots"
+                                value={formData.resident_spots}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                            Geometry (GeoJSON):
+                            <textarea
+                                name="geom"
+                                placeholder="Geometry (GeoJSON)"
+                                value={formData.geom}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                            Details:
+                            <textarea
+                                name="details"
+                                placeholder="Details"
+                                value={formData.details}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                            Rate ($/hr):
+                            <input
+                                type="number"
+                                name="rate"
+                                placeholder="Rate ($/hr)"
+                                value={formData.rate}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                    </div>
                 </div>
                 <div className="popup-actions">
                     <button type="button" onClick={onClose}>

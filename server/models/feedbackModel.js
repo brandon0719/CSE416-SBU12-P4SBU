@@ -12,3 +12,13 @@ export const createFeedback = async (userId, topic, details) =>{
         throw new Error("Error creating feedback: " + error.message);
     }
 }
+
+export const getAllFeedback = async () => {
+    try {
+        const { rows } = await pool.query("SELECT * FROM feedback ORDER BY creation_date DESC");
+        return rows;
+    } catch (error) {
+        console.error("Error fetching feedback:", error);
+        throw new Error("Error fetching feedback: " + error.message);
+    }
+}

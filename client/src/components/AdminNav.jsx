@@ -8,7 +8,7 @@ function NavBar() {
                 <a href="/users">Users</a>
                 <a href="/tickets">Tickets</a>
                 <a href="/parking">Parking</a>
-                <a href="/data-analysis">Data Analysis</a>
+                <a href="/data-analysis">Data</a>
             </div>
             <div className="navbar-text">
                 Administrator

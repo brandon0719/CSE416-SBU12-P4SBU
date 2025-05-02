@@ -58,13 +58,16 @@ export default function Register() {
                             required
                         />
                     </label>
-                    <button type="submit" className="red-button">
-                        Register
-                    </button>
-                    <button className="red-button" onClick={() => navigate("/login")}>
-                        Cancel
-                    </button>
-                    {error && <p style={{ color: "red" }}>{error}</p>}
+                    <div className="button-group">
+                        <button type="submit" className="red-button">
+                            Register
+                        </button>
+                        <button className="red-button" onClick={() => navigate("/login")}>
+                            Cancel
+                        </button>
+                        {error && <p style={{ color: "red" }}>{error}</p>}
+                    </div>
+
                 </form>
             </div>
         </div>

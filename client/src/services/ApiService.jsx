@@ -456,6 +456,16 @@ export const getPopularHours = async (lot, day) => {
     }
 }
 
+export const fetchFeedback = async () => {
+    try {
+        const response = await http.get("/feedback/all");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching feedback:", error);
+        throw error.response?.data || { message: "Error fetching feedback" };
+    }
+}
+
 const ApiService = {
     registerUser: registerUser,
     handleLogin: handleLogin,
@@ -481,6 +491,7 @@ const ApiService = {
     updateProfile: updateProfile,
     getUserReservations: getUserReservations,
     createFeedback: createFeedback,
+    fetchFeedback: fetchFeedback,
     getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime
 };
 
