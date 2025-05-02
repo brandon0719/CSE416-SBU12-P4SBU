@@ -1,6 +1,6 @@
 .login-page-background { 
     position: relative;
-    background-image: url('..\images\SBU_background.png');
+    background-image: url('\images\SBU_background.png');
     background-size: cover;
     background-position: center;
     display: flex;
