@@ -75,3 +75,34 @@ export const getNumAvailableAtTime = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const getPopularHours = async (req, res) => {
+    try {
+        const { lot, day } = req.query
+        const reservations = await getLotReservations(lot);
+
+        const hourlyCounts = Array(24).fill(0);
+        
+        reservations.forEach(reservation => {
+            const start = new Date(reservation.start_time);
+            const end = new Date(reservation.end_time);
+        
+            if (start.getDay() == day || end.getDay() == day || (day > start.getDay() && day < end.getDay())) {
+
+                const startHour = start.getHours();
+                const endHour = end.getHours();
+            
+                for (let hour = startHour; hour <= endHour; hour++) {
+                    if (hour >= 0 && hour < 24) {
+                        hourlyCounts[hour]+=reservation.num_spots;
+                    }
+                }
+            }
+        });   
+        res.status(200).json(hourlyCounts);
+
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+  
+}
