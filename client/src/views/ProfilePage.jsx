@@ -1,3 +1,5 @@
+// client/src/views/ProfilePage.jsx
+
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import NavBar from "../components/NavBar";
@@ -5,10 +7,10 @@ import ApiService from "../services/ApiService";
 import "../stylesheets/ProfilePage.css";
 import profileIcon from "../images/default-profile.png";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie"; // Ensure this import is available
+import Cookies from "js-cookie";
 
 const ProfilePage = () => {
-    // Existing state variables
+    // Profile fields & edit toggle
     const [user, setUser] = useState(null);
     const [name, setName] = useState("");
     const [sbuId, setSbuId] = useState("");
@@ -17,128 +19,87 @@ const ProfilePage = () => {
     const [permitNumber, setPermitNumber] = useState("");
     const [carModel, setCarModel] = useState("");
     const [licensePlate, setLicensePlate] = useState("");
+    const [isToggled, setIsToggled] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
-    // State for Reservation data
-    const [reservations, setReservations] = useState([]);
+    // Reservation data: pending, current (approved), past
+    const [pendingReservations, setPendingReservations] = useState([]);
     const [currentReservations, setCurrentReservations] = useState([]);
     const [pastReservations, setPastReservations] = useState([]);
 
-    // New state for toggling editing content
-    const [isToggled, setIsToggled] = useState(false);
-    // New state for error messages
-    const [errorMessage, setErrorMessage] = useState("");
-
     const navigate = useNavigate();
+    const dateOptions = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+    };
 
     useEffect(() => {
         const sessionUser = ApiService.getSessionUser();
-        if (sessionUser) {
-            setUser(sessionUser);
-            setName(sessionUser.name || "");
-            setSbuId(sessionUser.sbu_id || "");
-            setAddress(sessionUser.address || "");
-            setUserType(sessionUser.user_type || "");
-            setPermitNumber(sessionUser.permit_number || "");
-            setReservations(sessionUser.reservations || []);
-            setCarModel(sessionUser.car_model || "");
-            setLicensePlate(sessionUser.license_plate || "");
-            setIsToggled(
-                sessionUser.is_profile_complete === true
-            ); // Set toggle based on profile completion
-        }
+        if (!sessionUser) return;
 
-        // After setting the user, fetch reservations for that user.
-        ApiService.getUserReservations(sessionUser.user_id)
-            .then((resData) => {
-                console.log("Fetched reservations:", resData);
-                setCurrentReservations(resData.currentReservations);
-                setPastReservations(resData.pastReservations);
+        setUser(sessionUser);
+        setName(sessionUser.name || "");
+        setSbuId(sessionUser.sbu_id || "");
+        setAddress(sessionUser.address || "");
+        setUserType(sessionUser.user_type || "");
+        setPermitNumber(sessionUser.permit_number || "");
+        setCarModel(sessionUser.car_model || "");
+        setLicensePlate(sessionUser.license_plate || "");
+        // Show form if profile not complete
+        setIsToggled(!sessionUser.is_profile_complete);
+
+        // 1) Fetch pending first
+        ApiService.fetchPendingReservations()
+            .then(({ reservations: pending }) => {
+                // keep pending in state
+                setPendingReservations(pending);
+
+                // build a Set of pending IDs for fast lookup
+                const pendingIds = new Set(
+                    pending.map((r) => r.reservation_id)
+                );
+
+                // 2) Now fetch current & past
+                return ApiService.getUserReservations(sessionUser.user_id).then(
+                    ({ currentReservations, pastReservations }) => {
+                        // filter out any current that is still pending
+                        const filteredCurrent = currentReservations.filter(
+                            (r) => !pendingIds.has(r.reservation_id)
+                        );
+                        setCurrentReservations(filteredCurrent);
+                        setPastReservations(pastReservations);
+                    }
+                );
             })
             .catch((err) => console.error(err));
     }, []);
-
-    // Compute effective toggle:
-    // If profile isn't complete (is_profile_complete is false), we never apply the toggle (i.e. always visible)
 
     const handleToggleClass = () => {
         setIsToggled((prev) => !prev);
     };
 
-    // Utility function to show error message and then clear it after 3 seconds
     const showError = (msg) => {
         setErrorMessage(msg);
-        setTimeout(() => {
-            setErrorMessage("");
-        }, 3000); // 3000 ms = 3 seconds
+        setTimeout(() => setErrorMessage(""), 3000);
     };
 
     const handleSave = async () => {
-        // Client-side validations
-        if (!name.trim()) {
-            showError("Name is required.");
-            return;
-        }
-        if (!sbuId.trim()) {
-            showError("SBU ID is required.");
-            return;
-        }
-        if (!address.trim()) {
-            showError("Address is required.");
-            return;
-        }
-        if (!userType) {
-            showError("User type is required.");
-            return;
-        }
-        if (!permitNumber.trim()) {
-            showError("Permit number is required.");
-            return;
-        }
-        if (!carModel.trim()) {
-            showError("Car model is required.");
-            return;
-        }
-        if (!licensePlate.trim()) {
-            showError("License plate is required.");
-            return;
-        }
-        // Regex validations (example patterns)
-        const nameRegex = /^[A-Za-z\s.'-]{2,40}$/;
-        if (!nameRegex.test(name)) {
-            showError(
-                "Please enter a valid name (2-40 letters, spaces and .'- allowed)."
-            );
-            return;
-        }
-        const addressRegex = /^[A-Za-z0-9\s,.'\-#]{5,100}$/;
-        if (!addressRegex.test(address)) {
-            showError(
-                "Please enter a valid address (5-100 characters, allow numbers, letters, spaces and ,.'-#)."
-            );
-            return;
-        }
+        if (!name.trim()) return showError("Name is required.");
+        if (!/^[0-9]{9}$/.test(sbuId))
+            return showError("SBU ID must be 9 numbers.");
+        if (!address.trim()) return showError("Address is required.");
+        if (!userType) return showError("User type is required.");
+        if (!permitNumber.trim())
+            return showError("Permit number is required.");
+        if (!carModel.trim()) return showError("Car model is required.");
+        if (!/^[A-Z0-9\\-]{1,10}$/.test(licensePlate))
+            return showError("Invalid license plate.");
 
-        const licensePlateRegex = /^[A-Z0-9\-]{1,10}$/;
-        if (!licensePlateRegex.test(licensePlate)) {
-            showError(
-                "License plate must be uppercase and may contain digits and hyphens (max 10 characters)."
-            );
-            return;
-        }
-
-        const sbuIdRegex = /^[0-9]{9}$/;
-        if (!sbuIdRegex.test(sbuId)) {
-            showError(
-                "SBU ID must be 9 numbers."
-            );
-            return;
-        }
-        // Additional regex validations for SBU ID or license plate can be added here, as needed
-
-        // New profile data to send to API
-        const userId = user.user_id;
         const profileData = {
-            userId,
+            userId: user.user_id,
             name,
             sbuId,
             address,
@@ -152,47 +113,26 @@ const ProfilePage = () => {
         try {
             const updatedResponse = await ApiService.updateProfile(profileData);
             const updatedUser = updatedResponse.user;
-
-            // Update cookie with new user data
             Cookies.set("user", JSON.stringify(updatedUser), { expires: 7 });
-
-            navigate("/homepage");
             alert("Profile updated successfully!");
-        } catch (error) {
-            console.error(error);
-            showError("Failed to update profile: " + (error.message || ""));
+            setIsToggled(false);
+            navigate("/homepage");
+        } catch (err) {
+            showError("Failed to update profile: " + (err.message || ""));
         }
     };
 
     const handleCancel = () => {
-        // Reset fields to original values
-        if (user) {
-            setName(user.name || "");
-            setSbuId(user.sbu_id || "");
-            setAddress(user.address || "");
-            setUserType(user.user_type || "");
-            setPermitNumber(user.permit_number || "");
-            setReservations(user.reservations || []);
-            setCarModel(user.car_model || "");
-            setLicensePlate(user.license_plate || "");
-        }
-        setIsToggled(true);
-    };
-
-    function capitalizeWords(str) {
-        return str
-            .split(" ")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ");
-    }
-
-    // Format Date and Time
-    const options = {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
+        if (!user) return;
+        setName(user.name);
+        setSbuId(user.sbu_id);
+        setAddress(user.address);
+        setUserType(user.user_type);
+        setPermitNumber(user.permit_number);
+        setCarModel(user.car_model);
+        setLicensePlate(user.license_plate);
+        setIsToggled(false);
+        setErrorMessage("");
     };
 
     return (
@@ -200,9 +140,9 @@ const ProfilePage = () => {
             <Header />
             <NavBar />
 
-            {/* User Information Section */}
+            {/* User Info */}
             <div className="user-info">
-                <h2>{user ? capitalizeWords(user.name) : "N/A"}</h2>
+                <h2>{user ? user.name : "N/A"}</h2>
                 <p>
                     <strong>SBU ID:</strong> {user ? user.sbu_id : "N/A"}
                 </p>
@@ -211,35 +151,32 @@ const ProfilePage = () => {
                 </p>
             </div>
 
-            {/* Toggle Edit Button */}
+            {/* Edit Toggle */}
             <button
                 onClick={handleToggleClass}
-                disabled={user && !user.is_profile_complete}
                 className="edit-information-btn">
-                {isToggled ? "Edit Information" : "Hide Information"}
+                {isToggled ? "Cancel Edit" : "Edit Information"}
             </button>
 
             {/* Profile Edit Section */}
             <div
                 className={`profile-page-content ${
-                    isToggled ? "toggled-class" : ""
+                    isToggled ? "" : "toggled-class"
                 }`}>
                 <h1>Profile Page</h1>
                 <div className="profile-section profile-picture-section">
                     <div className="current-profile-picture">
                         <img
-                            src={profileIcon} // Default image if none is set
-                            alt="Default Profile"
+                            src={profileIcon}
+                            alt="Profile"
                             className="profile-picture"
                         />
-                        <h2>{user ? capitalizeWords(user.name) : "N/A"}</h2>
+                        <h2>{user ? user.name : "N/A"}</h2>
                     </div>
                 </div>
-                {/* Additional Fields */}
                 <div className="profile-section">
                     <label>Name:</label>
                     <input
-                        type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
@@ -247,7 +184,6 @@ const ProfilePage = () => {
                 <div className="profile-section">
                     <label>SBU ID:</label>
                     <input
-                        type="text"
                         value={sbuId}
                         onChange={(e) => setSbuId(e.target.value)}
                     />
@@ -255,12 +191,10 @@ const ProfilePage = () => {
                 <div className="profile-section">
                     <label>Address:</label>
                     <input
-                        type="text"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                     />
                 </div>
-                {/* Existing Profile Fields */}
                 <div className="profile-section">
                     <label>User Type:</label>
                     <select
@@ -276,7 +210,6 @@ const ProfilePage = () => {
                 <div className="profile-section">
                     <label>Permit Number:</label>
                     <input
-                        type="text"
                         value={permitNumber}
                         onChange={(e) => setPermitNumber(e.target.value)}
                     />
@@ -284,7 +217,6 @@ const ProfilePage = () => {
                 <div className="profile-section">
                     <label>Car Model:</label>
                     <input
-                        type="text"
                         value={carModel}
                         onChange={(e) => setCarModel(e.target.value)}
                     />
@@ -292,22 +224,64 @@ const ProfilePage = () => {
                 <div className="profile-section">
                     <label>License Plate:</label>
                     <input
-                        type="text"
                         value={licensePlate}
                         onChange={(e) => setLicensePlate(e.target.value)}
                     />
                 </div>
-                {/* Display error message if exists */}
                 {errorMessage && (
                     <div className="error-message">{errorMessage}</div>
                 )}
                 <div className="action-buttons">
-                    <button onClick={handleCancel}>Cancel</button>
-                    <button onClick={handleSave}>Save</button>
+                    <button onClick={handleCancel} className="cancel-btn">
+                        Cancel
+                    </button>
+                    <button onClick={handleSave} className="save-btn">
+                        Save
+                    </button>
                 </div>
             </div>
+
             {/* Reservations Section */}
             <div className="reservations-section">
+                {/* Pending */}
+                <h2>Pending Reservations</h2>
+                {pendingReservations.length > 0 ? (
+                    <ul className="reservations-list">
+                        {pendingReservations.map((res) => (
+                            <li
+                                key={res.reservation_id}
+                                className="reservation-card">
+                                <div className="reservation-row">
+                                    <span className="label">Lot:</span>
+                                    <span className="value">
+                                        {res.lot_name}
+                                    </span>
+                                </div>
+                                <div className="reservation-row">
+                                    <span className="label">Start:</span>
+                                    <span className="value">
+                                        {new Date(
+                                            res.start_time
+                                        ).toLocaleString("en-US", dateOptions)}
+                                    </span>
+                                </div>
+                                <div className="reservation-row">
+                                    <span className="label">End:</span>
+                                    <span className="value">
+                                        {new Date(res.end_time).toLocaleString(
+                                            "en-US",
+                                            dateOptions
+                                        )}
+                                    </span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p>No pending reservations.</p>
+                )}
+
+                {/* Current */}
                 <h2>Current Reservations</h2>
                 {currentReservations.length > 0 ? (
                     <ul className="reservations-list">
@@ -326,15 +300,16 @@ const ProfilePage = () => {
                                     <span className="value">
                                         {new Date(
                                             res.start_time
-                                        ).toLocaleString("en-US", options)}
+                                        ).toLocaleString("en-US", dateOptions)}
                                     </span>
                                 </div>
                                 <div className="reservation-row">
                                     <span className="label">End:</span>
                                     <span className="value">
-                                        {new Date(
-                                            res.end_time
-                                        ).toLocaleString("en-US", options)}
+                                        {new Date(res.end_time).toLocaleString(
+                                            "en-US",
+                                            dateOptions
+                                        )}
                                     </span>
                                 </div>
                             </li>
@@ -344,6 +319,7 @@ const ProfilePage = () => {
                     <p>No current reservations.</p>
                 )}
 
+                {/* Past */}
                 <h2>Past Reservations</h2>
                 {pastReservations.length > 0 ? (
                     <ul className="reservations-list">
@@ -362,15 +338,16 @@ const ProfilePage = () => {
                                     <span className="value">
                                         {new Date(
                                             res.start_time
-                                        ).toLocaleString("en-US", options)}
+                                        ).toLocaleString("en-US", dateOptions)}
                                     </span>
                                 </div>
                                 <div className="reservation-row">
                                     <span className="label">End:</span>
                                     <span className="value">
-                                        {new Date(
-                                            res.end_time
-                                        ).toLocaleString("en-US", options)}
+                                        {new Date(res.end_time).toLocaleString(
+                                            "en-US",
+                                            dateOptions
+                                        )}
                                     </span>
                                 </div>
                             </li>

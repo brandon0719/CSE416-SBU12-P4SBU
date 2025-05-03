@@ -1,18 +1,29 @@
 import pool from "../config/db.js";
 
-export const createReservation = async (userId, parkingLot, startTime, endTime, numSpots, explanation) => {
+export const createReservation = async (
+    userId,
+    parkingLot,
+    startTime,
+    endTime,
+    numSpots,
+    explanation
+) => {
     try {
-        const availableSpots = await getNumAvailableSpotsAtTime(parkingLot, startTime, endTime);
-        if (numSpots > availableSpots) { //this logic needs fixing - needs to add up the total number of spots taken by reservations since they can be greater than 1
+        const availableSpots = await getNumAvailableSpotsAtTime(
+            parkingLot,
+            startTime,
+            endTime
+        );
+        if (numSpots > availableSpots) {
+            //this logic needs fixing - needs to add up the total number of spots taken by reservations since they can be greater than 1
             throw new Error("Not enough spaces in parking lot for reservation");
         } else {
             const { rows } = await pool.query(
-                "INSERT INTO reservations (user_id, lot_name, start_time, end_time, num_spots, explanation) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+                "INSERT INTO reservations (user_id, lot_name, start_time, end_time, num_spots, explanation, status) VALUES ($1, $2, $3, $4, $5, $6, 'pending') RETURNING *",
                 [userId, parkingLot, startTime, endTime, numSpots, explanation]
             );
             return rows[0];
         }
-
     } catch (error) {
         throw new Error(error.message);
     }
@@ -28,7 +39,7 @@ export const getUserReservations = async (userId) => {
     } catch (error) {
         throw new Error(error.message);
     }
-}
+};
 
 // For profilepage (Gets past and active reservations for the user)
 export const getReservationsByUser = async (userId) => {
@@ -70,7 +81,7 @@ export const getLotReservations = async (lot) => {
     } catch (error) {
         throw new Error(error.message);
     }
-}
+};
 
 export const getOverlappingReservations = async (lot, startTime, endTime) => {
     try {
@@ -82,7 +93,7 @@ export const getOverlappingReservations = async (lot, startTime, endTime) => {
     } catch (error) {
         throw new Error(error.message);
     }
-}
+};
 
 export const getLotCapacity = async (lot) => {
     try {
@@ -91,22 +102,84 @@ export const getLotCapacity = async (lot) => {
             [lot]
         );
         if (rows.length == 0) {
-            throw new Error("Cannot find parking lot with name " + lot)
+            throw new Error("Cannot find parking lot with name " + lot);
         }
         return rows[0].total_spaces;
     } catch (error) {
         throw new Error(error.message);
     }
-}
+};
 
-export const getNumAvailableSpotsAtTime = async (parkingLot, startTime, endTime) => {
+export const getNumAvailableSpotsAtTime = async (
+    parkingLot,
+    startTime,
+    endTime
+) => {
     try {
-        const overlappingReservations = await getOverlappingReservations(parkingLot, startTime, endTime);
-        var numSpotsTaken = 0
-        overlappingReservations.forEach(r => {numSpotsTaken += r.num_spots})
+        const overlappingReservations = await getOverlappingReservations(
+            parkingLot,
+            startTime,
+            endTime
+        );
+        var numSpotsTaken = 0;
+        overlappingReservations.forEach((r) => {
+            numSpotsTaken += r.num_spots;
+        });
         const lotCapacity = await getLotCapacity(parkingLot);
         return lotCapacity - numSpotsTaken;
     } catch (error) {
-        throw new Error(error.message)
+        throw new Error(error.message);
     }
-}
+};
+
+export const getPendingReservations = async () => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT * FROM reservations WHERE status = 'pending' ORDER BY start_time"
+        );
+        return rows;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+export const approveResmodel = async (reservationId) => {
+    try {
+        const { rows } = await pool.query(
+            "UPDATE reservations SET status = 'approved' WHERE reservation_id = $1 RETURNING *",
+            [reservationId]
+        );
+        if (!rows.length) {
+            throw new Error("Reservation not found");
+        }
+        return rows[0];
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+export const getApprovedReservations = async () => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT * FROM reservations WHERE status = 'approved' ORDER BY start_time"
+        );
+        return rows;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+
+// export const rejectReservation = async (reservationId) => {
+//     try {
+//         const { rows } = await pool.query(
+//             "UPDATE reservations SET status = 'rejected' WHERE reservation_id = $1 RETURNING *",
+//             [reservationId]
+//         );
+//         if (!rows.length) {
+//             throw new Error("Reservation not found");
+//         }
+//         return rows[0];
+//     } catch (error) {
+//         throw new Error(error.message);
+//     }
+// };

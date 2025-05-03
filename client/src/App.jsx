@@ -20,6 +20,7 @@ import AdminHome from "./adminViews/AdminHome";
 import AdminTickets from "./adminViews/AdminTickets";
 import AdminParking from "./adminViews/AdminParking";
 import AdminData from "./adminViews/AdminData";
+import AdminReservations from "./adminViews/AdminReservations";
 
 // Route protection components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -120,6 +121,14 @@ function App() {
                     element={
                         <ProtectedAdminRoute>
                             <AdminData />
+                        </ProtectedAdminRoute>
+                    }
+                />
+                <Route
+                    path="/reservations"
+                    element={
+                        <ProtectedAdminRoute>
+                            <AdminReservations />
                         </ProtectedAdminRoute>
                     }
                 />
