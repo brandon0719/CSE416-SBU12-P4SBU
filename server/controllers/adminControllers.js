@@ -13,7 +13,6 @@ export const getUsers = async (req, res) => {
 
 export const getUserById = async (req, res) => {
     const { id } = req.params;
-    console.log("we using this userid to find user:", id);
     try {
         const user = await findUserById(id);
         if (!user) {

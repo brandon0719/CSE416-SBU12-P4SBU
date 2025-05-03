@@ -25,8 +25,6 @@
     margin-bottom: 20px;
 }
 
-
-
 .admin-actions button {
     background-color: #007bff;
     color: white;
@@ -51,20 +49,20 @@ h1 {
 
 .admin-header-actions {
     display: flex;
-    justify-content: space-between; /* Space between items */
-    align-items: center; /* Align items vertically */
-    gap: 20px; /* Add consistent spacing between items */
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
 
 .admin-header-actions label,
 .admin-header-actions select,
 .admin-header-actions button {
-    display: inline-block; /* Ensure all elements are inline */
-    vertical-align: middle; /* Align elements to the middle of the y-axis */
-    margin: 0; /* Remove any default margins */
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0;
 }
 
-.admin-header { 
+.admin-header {
     justify-content: space-between;
     align-items: center;
     padding: 10px 20px;
@@ -120,31 +118,29 @@ h1 {
     color: #555;
 }
 
-.user-item .approve-button {
-    background-color: #28a745;
-    color: white;
+.user-item .approve-button,
+.user-item .delete-button {
     border: none;
     border-radius: 4px;
     padding: 5px 10px;
     cursor: pointer;
     font-size: 14px;
     transition: background-color 0.3s ease;
+}
+
+.user-item .approve-button {
+    background-color: #28a745;
+    color: white;
+}
+
+.user-item .approve-button:hover {
+    background-color: #218838;
 }
 
 .user-item .delete-button {
     background-color: red;
     color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
     margin-left: 15px;
-}
-
-.user-item .approve-button:hover {
-    background-color: #218838;
 }
 
 .user-item .delete-button:hover {
@@ -182,10 +178,6 @@ h1 {
     font-size: 14px;
     background-color: #f0f0f0;
     color: #000;
-}
-
-.popup p {
-    color: black;
 }
 
 .popup textarea {
@@ -250,7 +242,6 @@ li span {
 
 li button {
     background-color: #28a745;
-
     color: white;
     border: none;
     border-radius: 4px;
@@ -262,83 +253,6 @@ li button {
 
 li button:hover {
     background-color: #0056b3;
-}
-
-/* Popup Form Styling */
-.popup-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.form-columns {
-    display: flex;
-    gap: 20px;
-}
-
-.form-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.form-column label {
-    display: flex;
-    flex-direction: column;
-    font-weight: bold;
-    color: black; /* Ensure labels are black */
-}
-
-.form-column input,
-.form-column textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: #f9f9f9;
-    color: #333;
-}
-
-.form-column input:focus,
-.form-column textarea:focus {
-    outline: none;
-    border-color: #4caf50; /* Green border on focus */
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Green glow on focus */
-}
-
-.popup-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
-
-.popup-actions button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.popup-actions button:first-child {
-    background-color: #dc3545;
-    color: white;
-}
-
-.popup-actions button:first-child:hover {
-    background-color: #c82333;
-}
-
-.popup-actions button:last-child {
-    background-color: #28a745;
-    color: white;
-}
-
-.popup-actions button:last-child:hover {
-    background-color: #218838;
 }
 
 .tabs {
@@ -390,47 +304,6 @@ li button:hover {
     background-color: #f9f9f9;
 }
 
-.feedback-item p {
-    margin: 5px 0;
-}
-
-.sorting-options {
-    display: flex;
-    align-items: center;
-}
-
-.sorting-options label {
-    margin-right: 10px;
-    font-weight: bold;
-    color: #333;
-}
-
-.sorting-options select {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    background-color: #f9f9f9;
-    color: #333;
-    cursor: pointer;
-}
-
-/* Feedback List Styling */
-.feedback-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.feedback-item {
-    display: flex;
-    flex-direction: column;
-    padding: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 10px;
-    background-color: #f9f9f9;
-}
-
 .feedback-row {
     display: grid;
     grid-template-columns: 225px 305px 205px 135px 105px;
@@ -457,7 +330,6 @@ li button:hover {
     background-color: #0056b3;
 }
 
-/* Modal Styling */
 .feedback-modal {
     color: black;
     width: 500px;
@@ -516,4 +388,57 @@ li button:hover {
 
 .modal-actions button:last-child:hover {
     background-color: #c82333;
+}
+
+.analysis-tab h3 {
+    margin-top: 20px;
+    color: #333;
+}
+
+.analysis-tab ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.analysis-tab li {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #555;
+}
+
+.analysis-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 100px 0 100px;
+}
+
+.analysis-text {
+    width: 50%;
+}
+
+.analysis-chart {
+    width: 45%;
+    margin-top: 20px;
+    height: 250px; /* Set a fixed height for the chart container */
+    text-align: center;
+    align-items: center;
+    position: relative; /* Ensure proper positioning for the chart */
+}
+
+.toggle-chart-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-chart-button:hover {
+    background-color: #0056b3;
 }

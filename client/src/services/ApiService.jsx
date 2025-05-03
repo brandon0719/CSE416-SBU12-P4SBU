@@ -555,6 +555,35 @@ export const fetchCompletedReservations = async () => {
     }
 }
 
+export const fetchCapacityAnalysis = async () => {
+    try {
+        const response = await http.get("/analysis/capacity");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching capacity analysis:", error);
+        throw error.response?.data || { message: "Error fetching capacity analysis" };
+    }
+}
+
+export const fetchRevenueAnalysis = async () => {
+    try {
+        const response = await http.get("/analysis/revenue");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching revenue analysis:", error);
+        throw error.response?.data || { message: "Error fetching revenue analysis" };
+    }
+}
+
+export const fetchUserAnalysis = async () => { 
+    try {
+        const response = await http.get("/analysis/user");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user analysis:", error);
+        throw error.response?.data || { message: "Error fetching user analysis" };
+    }
+}
 
 const ApiService = {
     registerUser: registerUser,
@@ -590,6 +619,9 @@ const ApiService = {
     approveReservation: approveReservation,
     fetchPendingReservations: fetchPendingReservations,
     fetchCompletedReservations: fetchCompletedReservations,
+    fetchCapacityAnalysis: fetchCapacityAnalysis,
+    fetchRevenueAnalysis: fetchRevenueAnalysis,
+    fetchUserAnalysis: fetchUserAnalysis,  
 };
 
 export default ApiService;
