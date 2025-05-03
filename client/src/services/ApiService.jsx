@@ -82,9 +82,8 @@ const getMessages = async () => {
 
         let formattedTime;
         if (diffMinutes < 60) {
-            formattedTime = `${diffMinutes} minute${
-                diffMinutes > 1 ? "s" : ""
-            } ago`;
+            formattedTime = `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""
+                } ago`;
         } else if (diffHours < 24) {
             formattedTime = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
         } else {
@@ -161,9 +160,8 @@ const getNotifications = async () => {
 
         let formattedTime;
         if (diffMinutes < 60) {
-            formattedTime = `${diffMinutes} minute${
-                diffMinutes > 1 ? "s" : ""
-            } ago`;
+            formattedTime = `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""
+                } ago`;
         } else if (diffHours < 24) {
             formattedTime = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
         } else {
@@ -256,8 +254,8 @@ const createReservation = async (userId, parkingLot, startTime, endTime, numSpot
             // Server responded with error status
             switch (error.response.status) {
                 case 409:
-                    throw {message: 'Conflict: Not enough spaces in parking lot for reservation'};
-                default: 
+                    throw { message: 'Conflict: Not enough spaces in parking lot for reservation' };
+                default:
                     throw error.response?.data || { message: "Reservation failed" };
             }
         }
@@ -302,11 +300,11 @@ export const getTickets = async (userId) => {
     }
 };
 
-export const getPaidTickets = async (UserId) =>{
-    try{
+export const getPaidTickets = async (UserId) => {
+    try {
         const response = await http.get(`/tickets/user/${UserId}/paid`);
         return response.data;
-    } catch  {
+    } catch {
         console.error("Failed to fetch paid tickets:", error);
         throw error.response?.data || { message: "Failed to fetch paid tickets" };
     }
@@ -432,7 +430,7 @@ const getNumAvailableSpotsAtTime = async (lot, reservationStart, reservationEnd)
     }
 }
 
-export const  createFeedback = async (userId, topic, details) => {
+export const createFeedback = async (userId, topic, details) => {
     try {
         const response = await http.post("/feedback/create", {
             userId,
@@ -517,6 +515,10 @@ export const fetchCompletedReservations = async () => {
     }
 }
 
+const getLotUsage = async () => {
+    const { data } = await http.get("/reservation/usage");
+    return data; // array of { lot_name, permit_type, spots_taken }
+};
 
 const ApiService = {
     registerUser: registerUser,
@@ -549,6 +551,7 @@ const ApiService = {
     approveReservation: approveReservation,
     fetchPendingReservations: fetchPendingReservations,
     fetchCompletedReservations: fetchCompletedReservations,
+    getLotUsage: getLotUsage,
 };
 
 export default ApiService;
