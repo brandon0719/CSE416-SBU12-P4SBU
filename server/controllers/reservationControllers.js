@@ -7,7 +7,8 @@ import {
     getNumAvailableSpotsAtTime,
     getPendingReservations,
     approveResmodel,
-    getApprovedReservations
+    getApprovedReservations,
+    getCurrentLotUsage,
 } from "../models/reservationModel.js";
 
 // Reservation
@@ -177,5 +178,14 @@ export const approveReservation = async (req, res) => {
         } else {
             res.status(500).json({ error: error.message });
         }
+    }
+};
+
+export const getCurrentUsage = async (req, res) => {
+    try {
+        const usage = await getCurrentLotUsage();
+        res.status(200).json(usage);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 };

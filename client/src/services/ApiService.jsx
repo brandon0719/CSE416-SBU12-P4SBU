@@ -556,6 +556,11 @@ export const fetchCompletedReservations = async () => {
     }
 }
 
+const getLotUsage = async () => {
+    const { data } = await http.get("/reservation/usage");
+    return data; // array of { lot_name, permit_type, spots_taken }
+};
+
 export const fetchCapacityAnalysis = async () => {
     try {
         const response = await http.get("/analysis/capacity");
@@ -620,6 +625,7 @@ const ApiService = {
     approveReservation: approveReservation,
     fetchPendingReservations: fetchPendingReservations,
     fetchCompletedReservations: fetchCompletedReservations,
+    getLotUsage: getLotUsage,
     fetchCapacityAnalysis: fetchCapacityAnalysis,
     fetchRevenueAnalysis: fetchRevenueAnalysis,
     fetchUserAnalysis: fetchUserAnalysis,  
