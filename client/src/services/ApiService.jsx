@@ -410,6 +410,7 @@ export const deleteParkingLot = async (id) => {
 };
 
 const updateProfile = async (profileData) => {
+    console.log("Updating profile with data:", profileData);
     try {
         const response = await http.put("/user/profile", profileData);
         return response.data;
