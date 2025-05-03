@@ -25,7 +25,8 @@ app.use("/api/lots", lotsRoutes);
 app.use("/api/reservation", reservationRoutes);
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/admin", adminRoutes);
-app.use("/api/buildings", buildingRouter);app.use("/api/user", userRoutes)
+app.use("/api/buildings", buildingRouter);
+app.use("/api/user", userRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/payments", paymentRoutes)
 app.use("/api/analysis", analysisRoutes);

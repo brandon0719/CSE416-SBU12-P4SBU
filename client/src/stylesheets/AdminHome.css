@@ -109,16 +109,22 @@ h1 {
     border-bottom: 1px solid #ddd;
 }
 
-.user-item:last-child {
-    border-bottom: none;
-}
-
 .user-item span {
+    flex: 1;
     font-size: 16px;
     color: #555;
 }
 
+.user-item .actions {
+    display: flex;
+    justify-content: flex-end; /* Align buttons to the left */
+    align-items: center;
+    gap: 5px; /* Reduce spacing between buttons */
+    flex: 1;
+}
+
 .user-item .approve-button,
+.user-item .view-button,
 .user-item .delete-button {
     border: none;
     border-radius: 4px;
@@ -137,10 +143,18 @@ h1 {
     background-color: #218838;
 }
 
+.user-item .view-button {
+    background-color: #007bff;
+    color: white;
+}
+
+.user-item .view-button:hover {
+    background-color: #0056b3;
+}
+
 .user-item .delete-button {
     background-color: red;
     color: white;
-    margin-left: 15px;
 }
 
 .user-item .delete-button:hover {
@@ -441,4 +455,8 @@ li button:hover {
 
 .toggle-chart-button:hover {
     background-color: #0056b3;
+}
+
+.profile-section{
+    margin-bottom: 0;
 }
