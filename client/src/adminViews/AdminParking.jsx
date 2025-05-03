@@ -70,7 +70,6 @@ const AdminParking = () => {
             <AdminNav />
             <div className="admin-page-content">
                 <div className="admin-header">
-                    <h1>Parking Lots</h1>
                     <div className="admin-header-actions">
                         <div className="sorting-options">
                             <label htmlFor="sort-criteria">Sort by:</label>

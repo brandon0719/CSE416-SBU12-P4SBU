@@ -74,8 +74,8 @@ const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
 
     return (
         <div className="parking-popup popup">
-            <h2>{type === "add" ? "Add Parking Lot" : "Edit Parking Lot"}</h2>
             <form className="popup-form">
+                <h2>{type === "add" ? "Add Parking Lot" : "Edit Parking Lot"}</h2>
                 <div className="form-columns">
                     <div className="form-column">
                         <label>

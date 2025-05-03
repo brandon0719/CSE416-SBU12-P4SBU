@@ -64,7 +64,6 @@ const AdminTickets = () => {
             <AdminNav />
             <div className="admin-page-content">
                 <div className="admin-header">
-                    <h1>Tickets</h1>
                     <div className="sorting-options">
                         <label htmlFor="sort-criteria">Sort by:</label>
                         <select
