@@ -34,6 +34,18 @@ export const findUserByEmail = async (email) => {
     }
 };
 
+export const findUserById = async (userId) => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT * FROM users WHERE user_id=$1",
+            [userId]
+        );
+        return rows[0];
+    } catch (error) {
+        throw new Error(error.message);
+    }
+}
+
 export const createUser = async (name, email, password) => {
     try {
         const hashedPassword = await bcrypt.hash(password, saltRounds);

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
-import NavBar from "../components/NavBar";
+import AdminNav from "../components/AdminNav";
 import ApiService from "../services/ApiService";
 import "../stylesheets/AdminReservations.css";
 
@@ -61,7 +61,7 @@ const AdminReservations = () => {
     return (
         <div className="admin-reservations-container">
             <Header />
-            <NavBar />
+            <AdminNav />
 
             <div className="admin-reservations-content">
                 <h1>Pending Reservations</h1>

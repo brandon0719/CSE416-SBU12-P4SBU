@@ -1,4 +1,4 @@
-import { getAllUsers, getUnapproved, removeUser, approve } from "../models/userModel.js";
+import { getAllUsers, getUnapproved, removeUser, approve, findUserById } from "../models/userModel.js";
 
 export const getUsers = async (req, res) => {
     try {
@@ -10,6 +10,21 @@ export const getUsers = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+export const getUserById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await findUserById(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json({
+            user: user,
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+}
 
 export const getUnapprovedUsers = async (req, res) => {
     try {

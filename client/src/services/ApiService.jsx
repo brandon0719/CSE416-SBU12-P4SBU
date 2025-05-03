@@ -26,7 +26,7 @@ export const logout = () => {
 export const getSessionUser = () => {
     try {
         const userCookie = Cookies.get("user");
-        console.log("Raw user cookie:", userCookie);
+        // console.log("Raw user cookie:", userCookie);
 
         if (!userCookie) {
             console.warn("No user cookie found.");
@@ -34,7 +34,7 @@ export const getSessionUser = () => {
         }
 
         const user = JSON.parse(userCookie);
-        console.log("Parsed session user:", user);
+        // console.log("Parsed session user:", user);
         return user;
     } catch (error) {
         console.error("Failed to parse session user:", error);
@@ -82,9 +82,8 @@ const getMessages = async () => {
 
         let formattedTime;
         if (diffMinutes < 60) {
-            formattedTime = `${diffMinutes} minute${
-                diffMinutes > 1 ? "s" : ""
-            } ago`;
+            formattedTime = `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""
+                } ago`;
         } else if (diffHours < 24) {
             formattedTime = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
         } else {
@@ -161,9 +160,8 @@ const getNotifications = async () => {
 
         let formattedTime;
         if (diffMinutes < 60) {
-            formattedTime = `${diffMinutes} minute${
-                diffMinutes > 1 ? "s" : ""
-            } ago`;
+            formattedTime = `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""
+                } ago`;
         } else if (diffHours < 24) {
             formattedTime = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
         } else {
@@ -256,8 +254,8 @@ const createReservation = async (userId, parkingLot, startTime, endTime, numSpot
             // Server responded with error status
             switch (error.response.status) {
                 case 409:
-                    throw {message: 'Conflict: Not enough spaces in parking lot for reservation'};
-                default: 
+                    throw { message: 'Conflict: Not enough spaces in parking lot for reservation' };
+                default:
                     throw error.response?.data || { message: "Reservation failed" };
             }
         }
@@ -302,11 +300,11 @@ export const getTickets = async (userId) => {
     }
 };
 
-export const getPaidTickets = async (UserId) =>{
-    try{
+export const getPaidTickets = async (UserId) => {
+    try {
         const response = await http.get(`/tickets/user/${UserId}/paid`);
         return response.data;
-    } catch  {
+    } catch {
         console.error("Failed to fetch paid tickets:", error);
         throw error.response?.data || { message: "Failed to fetch paid tickets" };
     }
@@ -333,6 +331,20 @@ export const fetchAllUsers = async () => {
         throw error.response?.data || { message: "Failed to fetch users" };
     }
 };
+
+export const findUserById = async (userId) => {
+    console.log("Finding user by ID:", userId);
+    try {
+        const response = await http.get(`/admin/${userId}`);
+        console.log("User found:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user by ID:", error);
+        throw error.response?.data || { message: "Error fetching user by ID" };
+    }
+};
+
+
 export const approveUser = async (userId) => {
     try {
         await http.post("/admin/approveUser", { userId });
@@ -432,7 +444,7 @@ const getNumAvailableSpotsAtTime = async (lot, reservationStart, reservationEnd)
     }
 }
 
-export const  createFeedback = async (userId, topic, details) => {
+export const createFeedback = async (userId, topic, details) => {
     try {
         const response = await http.post("/feedback/create", {
             userId,
@@ -446,6 +458,41 @@ export const  createFeedback = async (userId, topic, details) => {
     }
 };
 
+export const fetchFeedback = async () => {
+    try {
+        const response = await http.get("/feedback/list");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching feedback:", error);
+        throw error.response?.data || { message: "Error fetching feedback" };
+    }
+}
+
+export const getFeedbackDetails = async (feedbackId) => {
+    try {
+        const response = await http.get(`/feedback/${feedbackId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching feedback details:", error);
+        throw error.response?.data || { message: "Error fetching feedback details" };
+    }
+};
+
+export const resolveFeedback = async (feedbackId, messageDetails, senderId, recipientId) => {
+    try {
+        const response = await http.post("/feedback/resolve", {
+            feedbackId,
+            messageDetails,
+            senderId,
+            recipientId,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error resolving feedback:", error);
+        throw error.response?.data || { message: "Error resolving feedback" };
+    }
+};
+
 export const getPopularHours = async (lot, day) => {
     try {
         const response = await http.get(`/reservation/lot/hourly?lot=${lot}&day=${day}`)
@@ -456,15 +503,6 @@ export const getPopularHours = async (lot, day) => {
     }
 }
 
-export const fetchFeedback = async () => {
-    try {
-        const response = await http.get("/feedback/all");
-        return response.data;
-    } catch (error) {
-        console.error("Error fetching feedback:", error);
-        throw error.response?.data || { message: "Error fetching feedback" };
-    }
-}
 
 // Stripe
 export const createPaymentIntent = async (amount) => {
@@ -517,6 +555,35 @@ export const fetchCompletedReservations = async () => {
     }
 }
 
+export const fetchCapacityAnalysis = async () => {
+    try {
+        const response = await http.get("/analysis/capacity");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching capacity analysis:", error);
+        throw error.response?.data || { message: "Error fetching capacity analysis" };
+    }
+}
+
+export const fetchRevenueAnalysis = async () => {
+    try {
+        const response = await http.get("/analysis/revenue");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching revenue analysis:", error);
+        throw error.response?.data || { message: "Error fetching revenue analysis" };
+    }
+}
+
+export const fetchUserAnalysis = async () => { 
+    try {
+        const response = await http.get("/analysis/user");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user analysis:", error);
+        throw error.response?.data || { message: "Error fetching user analysis" };
+    }
+}
 
 const ApiService = {
     registerUser: registerUser,
@@ -533,6 +600,7 @@ const ApiService = {
     getPopularHours: getPopularHours,
     createTicket: createTicket,
     fetchAllUsers: fetchAllUsers,
+    findUserById: findUserById,
     payTickets: payTickets,
     approveUser: approveUser,
     deleteUser: deleteUser,
@@ -544,11 +612,16 @@ const ApiService = {
     getUserReservations: getUserReservations,
     createFeedback: createFeedback,
     fetchFeedback: fetchFeedback,
+    getFeedbackDetails: getFeedbackDetails,
+    resolveFeedback: resolveFeedback,
     getNumAvailableSpotsAtTime: getNumAvailableSpotsAtTime,
     createPaymentIntent: createPaymentIntent,
     approveReservation: approveReservation,
     fetchPendingReservations: fetchPendingReservations,
     fetchCompletedReservations: fetchCompletedReservations,
+    fetchCapacityAnalysis: fetchCapacityAnalysis,
+    fetchRevenueAnalysis: fetchRevenueAnalysis,
+    fetchUserAnalysis: fetchUserAnalysis,  
 };
 
 export default ApiService;
