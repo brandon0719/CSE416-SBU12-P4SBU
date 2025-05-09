@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend } from "chart.js";
 import { Bar, Pie } from "react-chartjs-2";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
@@ -18,11 +19,14 @@ const AdminData = () => {
 
     const [capacityData, setCapacityData] = useState(null);
     const [revenueData, setRevenueData] = useState(null);
-    const [userAnalysisData, setUserAnalysisData] = useState(null);
+    const [ticketData, setTicketData] = useState(null);
+    const [reservationData, setReservationData] = useState(null);
+
 
     const [capacityChartType, setCapacityChartType] = useState("bar");
     const [revenueChartType, setRevenueChartType] = useState("bar");
-    const [userAnalysisChartType, setUserAnalysisChartType] = useState("bar");
+    const [ticketChartType, setTicketChartType] = useState("bar");
+    const [reservationChartType, setReservationChartType] = useState("bar");
 
     const admin = ApiService.getSessionUser();
 
@@ -32,7 +36,8 @@ const AdminData = () => {
         } else if (activeTab === "analysis") {
             fetchCapacityData(); // Fetch analysis data when the analysis tab is active
             fetchRevenueData();
-            fetchUserAnalysisData();
+            fetchTicketData();
+            fetchReservationData();
         }
     }, [activeTab]);
 
@@ -66,32 +71,68 @@ const AdminData = () => {
         }
     };
 
-    const fetchUserAnalysisData = async () => {
+    const fetchTicketData = async () => {
         try {
-            const userAnalysis = await ApiService.fetchUserAnalysis();
-            setUserAnalysisData(userAnalysis);
+            const tickets = await ApiService.fetchTicketAnalysis();
+            setTicketData(tickets);
         } catch (error) {
-            console.error("Failed to fetch user analysis data:", error);
+            console.error("Failed to fetch ticket analysis:", error);
+        }
+    };
+
+    const fetchReservationData = async () => {
+        try {
+            const reservations = await ApiService.fetchReservationAnalysis();
+            setReservationData(reservations);
+        } catch (error) {
+            console.error("Failed to fetch reservation analysis:", error);
         }
     };
 
     const renderChart = (data, labels, title, chartType) => {
+        const numericData = data.map(Number); // Ensure data is numeric
+        console.log("Numeric Data for", title, "chart:", numericData);
+    
         const chartData = {
             labels,
             datasets: [
                 {
                     label: title,
-                    data,
+                    data: numericData,
                     backgroundColor: ["#007bff", "#28a745", "#ffc107", "#dc3545"],
                 },
             ],
         };
-
+    
         const options = {
             responsive: true,
-            maintainAspectRatio: true,
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    formatter: (value, context) => {
+                        const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                        if (total === 0) return "0.0%"; // Handle cases where total is 0
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${percentage}%`;
+                    },
+                    color: "#fff",
+                    font: {
+                        weight: "bold",
+                    },
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => {
+                            const total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                            if (total === 0) return `${context.label}: 0 (0.0%)`;
+                            const percentage = ((context.raw / total) * 100).toFixed(1);
+                            return `${context.label}: ${context.raw} (${percentage}%)`;
+                        },
+                    },
+                },
+            },
         };
-
+    
         return chartType === "bar" ? (
             <Bar data={chartData} options={options} />
         ) : (
@@ -240,7 +281,9 @@ const AdminData = () => {
                                                 .filter((item) => item.user_type && item.user_type.trim() !== "")
                                                 .map((item) => (
                                                     <li key={item.user_type}>
-                                                        {item.user_type}: ${item.reservation_revenue + item.ticket_revenue}
+                                                        {item.user_type}:
+                                                        Reservation Revenue: ${parseFloat(item.reservation_revenue).toFixed(2)} <br />
+                                                        Ticket Revenue: ${parseFloat(item.ticket_revenue).toFixed(2)}
                                                     </li>
                                                 ))}
                                         </ul>
@@ -261,7 +304,7 @@ const AdminData = () => {
                                         renderChart(
                                             revenueData
                                                 .filter((item) => item.user_type && item.user_type.trim() !== "")
-                                                .map((item) => item.reservation_revenue + item.ticket_revenue),
+                                                .map((item) => parseFloat(item.reservation_revenue) + parseFloat(item.ticket_revenue)),
                                             revenueData
                                                 .filter((item) => item.user_type && item.user_type.trim() !== "")
                                                 .map((item) => item.user_type),
@@ -274,46 +317,92 @@ const AdminData = () => {
                             {/* User Analysis */}
                             <div className="analysis-section">
                                 <div className="analysis-text">
-                                    <h3>User Analysis</h3>
-                                    <button onClick={() => fetchUserAnalysisData()} className="recalculate-button">
+                                    <h3>Ticket Analysis</h3>
+                                    <button onClick={() => fetchTicketData()} className="recalculate-button">
                                         Recalculate
                                     </button>
-                                    {userAnalysisData ? (
+                                    {ticketData ? (
                                         <ul>
-                                            {userAnalysisData
+                                            {ticketData
                                                 .filter((item) => item.user_type && item.user_type.trim() !== "")
                                                 .map((item) => (
                                                     <li key={item.user_type}>
-                                                        {item.user_type}: {item.total_reservations} reservations,{" "}
-                                                        {item.total_tickets} tickets
+                                                        {item.user_type}: {item.total_tickets} tickets
+
                                                     </li>
                                                 ))}
                                         </ul>
                                     ) : (
-                                        <p>Loading user analysis data...</p>
+                                        <p>Loading ticket data...</p>
                                     )}
                                 </div>
                                 <div className="analysis-chart">
                                     <button
                                         onClick={() =>
-                                            setUserAnalysisChartType(
-                                                userAnalysisChartType === "bar" ? "pie" : "bar"
+                                            setTicketChartType(
+                                                ticketChartType === "bar" ? "pie" : "bar"
                                             )
                                         }
                                         className="toggle-chart-button"
                                     >
-                                        {userAnalysisChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
+                                        {ticketChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
                                     </button>
-                                    {userAnalysisData &&
+                                    {ticketData &&
                                         renderChart(
-                                            userAnalysisData
+                                            ticketData
                                                 .filter((item) => item.user_type && item.user_type.trim() !== "")
-                                                .map((item) => item.total_reservations),
-                                            userAnalysisData
+                                                .map((item) => item.total_tickets),
+                                            ticketData
                                                 .filter((item) => item.user_type && item.user_type.trim() !== "")
                                                 .map((item) => item.user_type),
                                             "User Analysis (Reservations)",
-                                            userAnalysisChartType
+                                            ticketChartType
+                                        )}
+                                </div>
+                            </div>
+
+                            {/* Reservation Analysis */}
+                            <div className="analysis-section">
+                                <div className="analysis-text">
+                                    <h3>Reservation Analysis</h3>
+                                    <button onClick={() => fetchReservationData()} className="recalculate-button">
+                                        Recalculate
+                                    </button>
+                                    {reservationData ? (
+                                        <ul>
+                                            {reservationData
+                                                .filter((item) => item.user_type && item.user_type.trim() !== "")
+                                                .map((item) => (
+                                                    <li key={item.user_type}>
+                                                        {item.user_type}: {item.total_reservations} reservations
+                                                    </li>
+                                                ))}
+                                        </ul>
+                                    ) : (
+                                        <p>Loading reservation data...</p>
+                                    )}
+                                </div>
+                                <div className="analysis-chart">
+                                    <button
+                                        onClick={() =>
+                                            setReservationChartType(
+                                                reservationChartType === "bar" ? "pie" : "bar"
+                                            )
+                                        }
+                                        className="toggle-chart-button"
+                                    >
+                                        {reservationChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
+                                    </button>
+                                    {reservationData &&
+                                        renderChart(
+                                            reservationData
+                                                .filter((item) => item.user_type && item.user_type.trim() !== "")
+                                                .map((item) => item.total_reservations),
+                                            reservationData
+                                                .filter((item) => item.user_type && item.user_type.trim() !== "")
+                                                .map((item) => item.user_type),
+                                            "Reservation Analysis",
+                                            reservationChartType
                                         )}
                                 </div>
                             </div>
