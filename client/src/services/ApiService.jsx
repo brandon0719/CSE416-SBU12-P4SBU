@@ -564,6 +564,16 @@ export const fetchCapacityAnalysis = async () => {
     }
 }
 
+export const fetchCapacityUsage = async () => {
+    try {
+        const response = await http.get("/analysis/capacity-usage");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching capacity usage:", error);
+        throw error.response?.data || { message: "Error fetching capacity usage" };
+    }
+}
+
 export const fetchRevenueAnalysis = async () => {
     try {
         const response = await http.get("/analysis/revenue");
@@ -629,6 +639,7 @@ const ApiService = {
     fetchPendingReservations: fetchPendingReservations,
     fetchCompletedReservations: fetchCompletedReservations,
     fetchCapacityAnalysis: fetchCapacityAnalysis,
+    fetchCapacityUsage: fetchCapacityUsage,
     fetchRevenueAnalysis: fetchRevenueAnalysis,
     fetchTicketAnalysis: fetchTicketAnalysis,
     fetchReservationAnalysis: fetchReservationAnalysis, 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ApiService from "../services/ApiService";
-import "../stylesheets/AdminHome.css";
+import "../stylesheets/AdminParkingPop.css";
 
 const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
     const [formData, setFormData] = useState({
