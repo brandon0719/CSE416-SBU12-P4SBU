@@ -431,12 +431,13 @@ const getUserReservations = async (userId) => {
 };
 
 const getNumAvailableSpotsAtTime = async (lot, reservationStart, reservationEnd) => {
-    console.log(lot + reservationStart.toLocaleString() + reservationEnd.toLocaleString())
     try {
-        const response = await http.get(`/reservation/lot/num?parkingLot=${lot}&startTime=${reservationStart.toLocaleString()}&endTime=${reservationEnd.toLocaleString()}`, {
-            lot,
-            reservationStart,
-            reservationEnd
+        const response = await http.get('/reservation/lot/num', {
+            params: {  
+                parkingLot: lot,
+                startTime: reservationStart.toISOString(),
+                endTime: reservationEnd.toISOString()
+            }
         });
         return response.data;
     } catch (error) {
