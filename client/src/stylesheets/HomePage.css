@@ -282,7 +282,7 @@ body {
     justify-content: center;
 }
 
-/* The white box */
+
 .modal-content {
     background: #ffffff;
     border-radius: 8px;
@@ -294,6 +294,19 @@ body {
     padding: 1.5rem;
     position: relative;
 }
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
 /* Optional: smooth fade/slide */
 .modal-overlay {
