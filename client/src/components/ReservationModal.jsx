@@ -7,24 +7,49 @@ import PopularHoursChart from "./PopularHoursChart";
 const sessionUser = ApiService.getSessionUser()
 
 const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, numAvailableSpots, onClose, onSubmit }) => {
+    
+    const [sessionUser, setSessionUser] = useState(null);
     const [formData, setFormData] = useState({
-        name: sessionUser.name,
-        email: sessionUser.email,
+        name: '',
+        email: '',
         lot: lotName,
         start: reservationStart,
         end: reservationEnd,
         numSpots: 1,
         explanation: ""
-    });
+      });
+
+    useEffect(() => {
+        fetchSessionUser();
+        }
+    , []);
+
+    useEffect(() => {
+        fetchSessionUser()
+    }, [isOpen]);
 
     useEffect(() => {
         setFormData(prev => ({
-          ...prev,
-          start: reservationStart,
-          end: reservationEnd,
-          lot: lotName
+            ...prev, 
+            lot: lotName,
+            start: reservationStart,
+            end: reservationEnd
         }));
       }, [reservationStart, reservationEnd, lotName]);
+
+    const fetchSessionUser = () => {
+        try {
+            const user = ApiService.getSessionUser();
+            setSessionUser(user);
+            setFormData({
+                name: user.name,
+                email: user.email,
+            });
+        }
+        catch (error) {
+            console.error(error);
+        }
+    }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -36,6 +61,10 @@ const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, n
         onSubmit(formData);
     };
 
+      // Don't render modal content until formData is ready
+    if (!formData.name) {
+        return null;
+    }
 
 
     return (
