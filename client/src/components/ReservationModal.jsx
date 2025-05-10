@@ -31,9 +31,9 @@ const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, n
     useEffect(() => {
         setFormData(prev => ({
             ...prev, 
-            lot: lotName,
             start: reservationStart,
-            end: reservationEnd
+            end: reservationEnd,
+            lot: lotName,
         }));
       }, [reservationStart, reservationEnd, lotName]);
 
@@ -41,10 +41,12 @@ const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, n
         try {
             const user = ApiService.getSessionUser();
             setSessionUser(user);
-            setFormData({
+            setFormData(prev => ({
+                ...prev,
                 name: user.name,
                 email: user.email,
-            });
+            
+            }));
         }
         catch (error) {
             console.error(error);
@@ -65,7 +67,6 @@ const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, n
     if (!formData.name) {
         return null;
     }
-
 
     return (
         <>
