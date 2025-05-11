@@ -54,12 +54,13 @@ const ProfilePage = () => {
         // 1) Fetch pending first
         ApiService.fetchPendingReservations()
             .then(({ reservations: pending }) => {
-                // keep pending in state
-                setPendingReservations(pending);
-
-                // build a Set of pending IDs for fast lookup
+                // only keep this user's pending reservations
+                const userPending = pending.filter(
+                    (r) => r.user_id === sessionUser.user_id
+                );
+                setPendingReservations(userPending);
                 const pendingIds = new Set(
-                    pending.map((r) => r.reservation_id)
+                    userPending.map((r) => r.reservation_id)
                 );
 
                 // 2) Now fetch current & past
@@ -154,7 +155,8 @@ const ProfilePage = () => {
             {/* Edit Toggle */}
             <button
                 onClick={handleToggleClass}
-                className="edit-information-btn">
+                className="edit-information-btn"
+                disabled={!user?.is_profile_complete}>
                 {isToggled ? "Cancel Edit" : "Edit Information"}
             </button>
 
@@ -232,7 +234,10 @@ const ProfilePage = () => {
                     <div className="error-message">{errorMessage}</div>
                 )}
                 <div className="action-buttons">
-                    <button onClick={handleCancel} className="cancel-btn">
+                    <button
+                        onClick={handleCancel}
+                        className="cancel-btn"
+                        disabled={!user?.is_profile_complete}>
                         Cancel
                     </button>
                     <button onClick={handleSave} className="save-btn">
