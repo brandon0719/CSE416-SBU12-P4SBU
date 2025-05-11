@@ -36,6 +36,8 @@ export const addLotController = async (req, res) => {
 };
 
 export const editLotController = async (req, res) => {
+    console.log(req.body, "still ");
+    console.log(req.params.id, "still here");
     try {
         const updatedLot = await editLot(req.params.id, req.body);
         res.status(200).json(updatedLot);

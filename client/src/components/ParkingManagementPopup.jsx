@@ -22,12 +22,12 @@ const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
             setFormData({
                 campus: lot.campus || "",
                 name: lot.name || "",
-                total_spaces: lot.total_spaces || "",
-                faculty_staff_spots: lot.faculty_staff_spots || "",
-                commuter_premium_spots: lot.commuter_premium_spots || "",
-                metered_spots: lot.metered_spots || "",
-                commuter_spots: lot.commuter_spots || "",
-                resident_spots: lot.resident_spots || "",
+                total_spaces: lot.total_spaces || 0,
+                faculty_staff_spots: lot.faculty_staff_spots || 0,
+                commuter_premium_spots: lot.commuter_premium_spots || 0,
+                metered_spots: lot.metered_spots || 0,
+                commuter_spots: lot.commuter_spots || 0,
+                resident_spots: lot.resident_spots || 0,
                 geom: lot.geom || "",
                 details: lot.details || "",
                 rate: lot.rate || "",
@@ -46,13 +46,14 @@ const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
             return;
         }
 
+
         const sanitizedData = {
             ...formData,
-            faculty_staff_spots: formData.faculty_staff_spots || null,
-            commuter_premium_spots: formData.commuter_premium_spots || null,
-            metered_spots: formData.metered_spots || null,
-            commuter_spots: formData.commuter_spots || null,
-            resident_spots: formData.resident_spots || null,
+            faculty_staff_spots: formData.faculty_staff_spots || 0,
+            commuter_premium_spots: formData.commuter_premium_spots || 0,
+            metered_spots: formData.metered_spots || 0,
+            commuter_spots: formData.commuter_spots || 0,
+            resident_spots: formData.resident_spots || 0,
             geom: formData.geom || null,
             details: formData.details || null,
             rate: formData.rate || null,
@@ -101,6 +102,36 @@ const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
                             />
                         </label>
                         <label>
+                            Details:
+                            <textarea
+                                name="details"
+                                placeholder="Details"
+                                value={formData.details}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                            Geometry (GeoJSON):
+                            <textarea
+                                name="geom"
+                                placeholder="Geometry (GeoJSON)"
+                                value={formData.geom}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                            Rate ($/hr):
+                            <input
+                                type="number"
+                                name="rate"
+                                placeholder="Rate ($/hr)"
+                                value={formData.rate}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                    </div>
+                    <div className="form-column">
+                        <label>
                             Total Spaces (Required):
                             <input
                                 type="number"
@@ -112,34 +143,12 @@ const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
                             />
                         </label>
                         <label>
-                            Faculty/Staff Spots:
-                            <input
-                                type="number"
-                                name="faculty_staff_spots"
-                                placeholder="Faculty/Staff Spots"
-                                value={formData.faculty_staff_spots}
-                                onChange={handleInputChange}
-                            />
-                        </label>
-                        <label>
                             Commuter Premium Spots:
                             <input
                                 type="number"
                                 name="commuter_premium_spots"
                                 placeholder="Commuter Premium Spots"
                                 value={formData.commuter_premium_spots}
-                                onChange={handleInputChange}
-                            />
-                        </label>
-                    </div>
-                    <div className="form-column">
-                        <label>
-                            Metered Spots:
-                            <input
-                                type="number"
-                                name="metered_spots"
-                                placeholder="Metered Spots"
-                                value={formData.metered_spots}
                                 onChange={handleInputChange}
                             />
                         </label>
@@ -154,6 +163,16 @@ const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
                             />
                         </label>
                         <label>
+                            Faculty/Staff Spots:
+                            <input
+                                type="number"
+                                name="faculty_staff_spots"
+                                placeholder="Faculty/Staff Spots"
+                                value={formData.faculty_staff_spots}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
                             Resident Spots:
                             <input
                                 type="number"
@@ -164,30 +183,12 @@ const ParkingManagementPopup = ({ type, lot, onClose, refreshParkingLots }) => {
                             />
                         </label>
                         <label>
-                            Geometry (GeoJSON):
-                            <textarea
-                                name="geom"
-                                placeholder="Geometry (GeoJSON)"
-                                value={formData.geom}
-                                onChange={handleInputChange}
-                            />
-                        </label>
-                        <label>
-                            Details:
-                            <textarea
-                                name="details"
-                                placeholder="Details"
-                                value={formData.details}
-                                onChange={handleInputChange}
-                            />
-                        </label>
-                        <label>
-                            Rate ($/hr):
+                            Metered Spots:
                             <input
                                 type="number"
-                                name="rate"
-                                placeholder="Rate ($/hr)"
-                                value={formData.rate}
+                                name="metered_spots"
+                                placeholder="Metered Spots"
+                                value={formData.metered_spots}
                                 onChange={handleInputChange}
                             />
                         </label>

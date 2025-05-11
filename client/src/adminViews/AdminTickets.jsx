@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
 import ApiService from "../services/ApiService";
-import "../stylesheets/AdminHome.css";
+import "../stylesheets/AdminTickets.css";
 
 const AdminTickets = () => {
     const [users, setUsers] = useState([]);
@@ -59,35 +59,43 @@ const AdminTickets = () => {
     };
 
     return (
-        <div className="admin-page-container">
+        <div className="admin-tickets-container">
             <Header />
             <AdminNav />
-            <div className="admin-page-content">
-                <div className="admin-header">
-                    <div className="sorting-options">
-                        <label htmlFor="sort-criteria">Sort by:</label>
-                        <select
-                            id="sort-criteria"
-                            value={sortCriteria}
-                            onChange={(e) => setSortCriteria(e.target.value)}
-                        >
-                            <option value="default">Default</option>
-                            <option value="alphabetical">Alphabetical</option>
-                        </select>
+            <div className="admin-tickets-content">
+                <div className="admin-tickets-header">
+                    <div className="admin-tickets-header-actions">
+                        <div className="admin-tickets-sorting-options ">
+                            <label htmlFor="sort-criteria">Sort by:</label>
+                            <select
+                                id="sort-criteria"
+                                value={sortCriteria}
+                                onChange={(e) => setSortCriteria(e.target.value)}
+                            >
+                                <option value="default">Default</option>
+                                <option value="alphabetical">Alphabetical</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-                <div className="user-list-container">
-                    <ul className="user-list">
+                <div className="admin-tickets-user-list-container">
+                    <ul className="admin-tickets-user-list">
                         {sortedUsers.map((user) => (
-                            <li key={user.user_id} className="user-item">
-                                <span>{user.name} ({user.license_plate})</span>
-                                <button onClick={() => handleOpenPopup(user)}>Add Ticket</button>
+                            <li key={user.user_id} className="admin-tickets-user-item">
+                                <span>
+                                    <strong>{user.name}</strong> - {user.license_plate ? (
+                                        user.license_plate
+                                    ) : (
+                                        <span style={{ color: 'red' }}>Missing Plate</span>
+                                    )}
+                                </span>
+                                <button onClick={() => handleOpenPopup(user)} className="admin-tickets-add-ticket-button">Add Ticket</button>
                             </li>
                         ))}
                     </ul>
                 </div>
                 {showPopup && (
-                    <div className="popup">
+                    <div className="admin-tickets-popup">
                         <h2>Create Ticket for {selectedUser.name}</h2>
                         <input
                             type="date"
@@ -95,6 +103,7 @@ const AdminTickets = () => {
                             onChange={(e) =>
                                 setTicketDetails({ ...ticketDetails, violationDate: e.target.value })
                             }
+                            className="admin-tickets-popup-input"
                         />
                         <input
                             type="number"
@@ -103,6 +112,7 @@ const AdminTickets = () => {
                             onChange={(e) =>
                                 setTicketDetails({ ...ticketDetails, ticketPrice: e.target.value })
                             }
+                            className="admin-tickets-popup-input"
                         />
                         <textarea
                             placeholder="Ticket Details"
@@ -110,9 +120,12 @@ const AdminTickets = () => {
                             onChange={(e) =>
                                 setTicketDetails({ ...ticketDetails, ticketText: e.target.value })
                             }
+                            className="admin-tickets-popup-textarea"
                         />
-                        <button onClick={handleClosePopup}>Cancel</button>
-                        <button onClick={handleSubmit}>Submit</button>
+                        <div className="admin-tickets-popup-actions">
+                            <button onClick={handleClosePopup} className="admin-tickets-popup-cancel-button">Cancel</button>
+                            <button onClick={handleSubmit} className="admin-tickets-popup-submit-button">Submit</button>
+                        </div>
                     </div>
                 )}
             </div>

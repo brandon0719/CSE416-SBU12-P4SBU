@@ -3,7 +3,8 @@ import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
 import ApiService from "../services/ApiService";
 import UserManagementPopup from "../components/UserManagementPopup";
-import "../stylesheets/AdminHome.css";
+// Change CSS import to new file
+import "../stylesheets/AdminHomeUnique.css";
 
 const AdminHome = () => {
     const [users, setUsers] = useState([]);
@@ -106,7 +107,6 @@ const AdminHome = () => {
                 return showError("SBU ID must be 9 digits.");
             if (!profileData.user_type) return showError("User type is required.");
 
-   
             const updateData = {
                 userId: profileData.user_id,
                 name: profileData.name,
@@ -131,13 +131,13 @@ const AdminHome = () => {
     };
 
     return (
-        <div className="admin-page-container">
+        <div className="admin-home-container">
             <Header />
             <AdminNav />
-            <div className="admin-page-content">
-                <div className="admin-header">
-                    <div className="admin-header-actions">
-                        <div className="sorting-options">
+            <div className="admin-home-content">
+                <div className="admin-home-header">
+                    <div className="admin-home-header-actions">
+                        <div className="admin-home-sorting-options">
                             <label htmlFor="sort-criteria">Sort by:</label>
                             <select
                                 id="sort-criteria"
@@ -150,37 +150,40 @@ const AdminHome = () => {
                                 <option value="alphabetical">Alphabetical</option>
                             </select>
                         </div>
-                        <button className="approve-button" onClick={() => openPopup("add")}>
+                        <button className="admin-home-approve-button" onClick={() => openPopup("add")}>
                             Add New User
                         </button>
                     </div>
                 </div>
-                <div className="user-list-container">
-                    <ul className="user-list">
+                <div className="admin-home-user-list-container">
+                    <ul className="admin-home-user-list">
                         {sortedUsers.map((user) => (
-                            <li key={user.user_id} className="user-item">
+                            <li key={user.user_id} className="admin-home-user-item">
                                 <span>
-                                    {user.name} ({user.email})
+                                    <strong>
+                                        {user.name} {" "}
+                                    </strong>
+                                     - {user.email}
                                 </span>
                                 <div className="actions">
                                     {user.is_approved ? (
-                                        <span>Approved User</span>
+                                        <span className="admin-home-approved">Approved User</span>
                                     ) : (
                                         <button
-                                            className="approve-button"
+                                            className="admin-home-approve-button"
                                             onClick={() => handleApprove(user.user_id)}
                                         >
                                             Approve User
                                         </button>
                                     )}
                                     <button
-                                        className="view-button"
+                                        className="admin-home-view-button"
                                         onClick={() => openProfileModal(user)}
                                     >
                                         View
                                     </button>
                                     <button
-                                        className="delete-button"
+                                        className="admin-home-delete-button"
                                         onClick={() => openPopup("delete", user)}
                                     >
                                         Delete User
@@ -200,37 +203,37 @@ const AdminHome = () => {
                 />
             )}
             {showProfileModal && profileData && (
-                <div className="popup">
+                <div className="admin-home-popup">
                     <h2>Edit Profile</h2>
-                    <div className="profile-section">
+                    <div className="admin-home-profile-section">
                         <label>Name:</label>
                         <input
                             value={profileData.name}
                             onChange={(e) => handleProfileChange("name", e.target.value)}
                         />
                     </div>
-                    <div className="profile-section">
+                    <div className="admin-home-profile-section">
                         <label>Email:</label>
                         <input
                             value={profileData.email}
                             onChange={(e) => handleProfileChange("email", e.target.value)}
                         />
                     </div>
-                    <div className="profile-section">
+                    <div className="admin-home-profile-section">
                         <label>SBU ID:</label>
                         <input
                             value={profileData.sbu_id || ""}
                             onChange={(e) => handleProfileChange("sbu_id", e.target.value)}
                         />
                     </div>
-                    <div className="profile-section">
+                    <div className="admin-home-profile-section">
                         <label>Address:</label>
                         <input
                             value={profileData.address || ""}
                             onChange={(e) => handleProfileChange("address", e.target.value)}
                         />
                     </div>
-                    <div className="profile-section">
+                    <div className="admin-home-profile-section">
                         <label>User Type:</label>
                         <select
                             value={profileData.user_type || ""}
@@ -243,29 +246,29 @@ const AdminHome = () => {
                             <option value="Faculty">Faculty</option>
                         </select>
                     </div>
-                    <div className="profile-section">
+                    <div className="admin-home-profile-section">
                         <label>Permit Number:</label>
                         <input
                             value={profileData.permit_number || ""}
                             onChange={(e) => handleProfileChange("permit_number", e.target.value)}
                         />
                     </div>
-                    <div className="profile-section">
+                    <div className="admin-home-profile-section">
                         <label>Car Model:</label>
                         <input
                             value={profileData.car_model || ""}
                             onChange={(e) => handleProfileChange("car_model", e.target.value)}
                         />
                     </div>
-                    <div className="profile-section">
+                    <div className="admin-home-profile-section">
                         <label>License Plate:</label>
                         <input
                             value={profileData.license_plate || ""}
                             onChange={(e) => handleProfileChange("license_plate", e.target.value)}
                         />
                     </div>
-                    {errorMessage && <div className="error-message">{errorMessage}</div>}
-                    <div className="popup-actions">
+                    {errorMessage && <div className="admin-home-error-message">{errorMessage}</div>}
+                    <div className="admin-home-popup-actions">
                         <button onClick={closeProfileModal}>Cancel</button>
                         <button onClick={handleSaveProfile}>Save</button>
                     </div>

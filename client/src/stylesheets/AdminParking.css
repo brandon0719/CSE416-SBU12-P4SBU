@@ -1,0 +1,174 @@
+.admin-parking-container {
+    color: black;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    background-color: white;
+}
+
+.admin-parking-content {
+    margin: 10px auto;
+    width: 1100px;
+    background-color: white;
+}
+
+.admin-parking-header {
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.admin-parking-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.admin-parking-sorting-options {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 180px;
+}
+
+.admin-parking-sorting-options label {
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.admin-parking-sorting-options select {
+    flex: 1;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    color: black;
+}
+
+.admin-parking-approve-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.admin-parking-user-list-container {
+    height: 65vh;
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+}
+
+.admin-parking-user-list {
+    list-style: none;
+    padding: 0;
+}
+
+.admin-parking-user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.admin-parking-user-item span {
+    font-size: 16px;
+}
+
+.admin-parking-user-item .actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 5px;
+    flex: 1;
+}
+
+.admin-parking-user-item .approve-button,
+.admin-parking-user-item .view-button,
+.admin-parking-user-item .delete-button {
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-parking-add-button {
+    background-color: #28a745;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+}
+
+.admin-parking-add-button:hover {
+    background-color: #218838;
+}
+
+.admin-parking-user-item .admin-parking-edit-button {
+    background-color: #007bff;
+    margin-right: 10px;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+}
+
+.admin-parking-user-item .admin-parking-edit-button:hover {
+    background-color: #0056b3;
+}
+
+.admin-parking-user-item .admin-parking-remove-button {
+    background-color: red;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    color: white;
+}
+
+.admin-parking-user-item .admin-parking-remove-button:hover {
+    background-color: #961010;
+}
+
+.admin-parking-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.admin-parking-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.admin-parking-actions button:hover {
+    background-color: #0056b3;
+}

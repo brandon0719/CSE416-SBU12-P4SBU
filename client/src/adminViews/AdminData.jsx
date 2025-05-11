@@ -7,7 +7,7 @@ import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
 import refreshIcon from "../images/refresh-icon.svg";
 import ApiService from "../services/ApiService";
-import "../stylesheets/AdminHome.css";
+import "../stylesheets/AdminData.css";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
 
@@ -101,13 +101,13 @@ const AdminData = () => {
     const renderProgressBar = (used, total, label) => {
         const percentage = ((used / total) * 100).toFixed(1);
         return (
-            <div className="progress-bar-container">
-                <div className="progress-bar-label">
+            <div className="admin-data-progress-bar-container">
+                <div className="admin-data-progress-bar-label">
                     {label}: {used}/{total} ({percentage}%)
                 </div>
-                <div className="progress-bar">
+                <div className="admin-data-progress-bar">
                     <div
-                        className="progress-bar-fill"
+                        className="admin-data-progress-bar-fill"
                         style={{ width: `${percentage}%` }}
                     ></div>
                 </div>
@@ -189,31 +189,31 @@ const AdminData = () => {
     };
 
     return (
-        <div className="admin-page-container">
+        <div className="admin-data-container">
             <Header />
             <AdminNav />
-            <div className="admin-page-content">
-                <div className="tabs">
+            <div className="admin-data-content">
+                <div className="admin-data-tabs">
                     <button
-                        className={activeTab === "feedback" ? "active-tab" : ""}
+                        className={activeTab === "feedback" ? "admin-data-active-tab" : ""}
                         onClick={() => setActiveTab("feedback")}
                     >
                         User Feedback
                     </button>
                     <button
-                        className={activeTab === "analysis" ? "active-tab" : ""}
+                        className={activeTab === "analysis" ? "admin-data-active-tab" : ""}
                         onClick={() => setActiveTab("analysis")}
                     >
                         Data Analysis
                     </button>
                 </div>
-                <div className="tab-content">
+                <div className="admin-data-tab-content">
                     {activeTab === "feedback" && (
-                        <div className="feedback-tab">
-                            <ul className="feedback-list">
+                        <div className="admin-data-feedback-tab">
+                            <ul className="admin-data-feedback-list">
                                 {feedback.map((item) => (
-                                    <li key={item.feedback_id} className="feedback-item">
-                                        <div className="feedback-row">
+                                    <li key={item.feedback_id} className="admin-data-feedback-item">
+                                        <div className="admin-data-feedback-row">
                                             <p><strong>Topic:</strong> {item.topic}</p>
                                             <p><strong>Submitted By:</strong> {item.name}, {item.user_type}</p>
                                             <p><strong>Date:</strong> {new Date(item.creation_date).toLocaleString()}</p>
@@ -227,15 +227,15 @@ const AdminData = () => {
                                 <Modal
                                     isOpen={!!selectedFeedback}
                                     onRequestClose={() => setSelectedFeedback(null)}
-                                    className="admin-popup"
-                                    overlayClassName="modal-overlay"
+                                    className="admin-data-popup"
+                                    overlayClassName="admin-data-modal-overlay"
                                     appElement={document.getElementById("root")}
                                 >
-                                    <div className="admin-modal-content">
+                                    <div className="admin-data-feedback-modal">
                                         <h2>Feedback Details</h2>
-                                        <div className="feedback-details">
+                                        <div className="admin-data-feedback-details">
                                             <p><strong>Topic:</strong> {selectedFeedback.topic}</p>
-                                            <p><strong>Submitted on:</strong> {selectedFeedback.creation_date}</p>
+                                            <p><strong>Submitted on:</strong> {new Date(selectedFeedback.creation_date).toLocaleString()}</p>
                                             <p><strong>Submitted By:</strong> {selectedFeedback.name}</p>
                                             <p><strong>Details:</strong> {selectedFeedback.details}</p>
                                         </div>
@@ -243,9 +243,9 @@ const AdminData = () => {
                                             placeholder="Write a message to the user..."
                                             value={message}
                                             onChange={(e) => setMessage(e.target.value)}
-                                            className="message-textarea"
+                                            className="admin-data-message-textarea"
                                         />
-                                        <div className="modal-actions">
+                                        <div className="admin-data-modal-actions">
                                             <button onClick={handleResolveFeedback}>Resolve</button>
                                             <button onClick={() => setSelectedFeedback(null)}>Close</button>
                                         </div>
@@ -255,23 +255,23 @@ const AdminData = () => {
                         </div>
                     )}
                     {activeTab === "analysis" && (
-                        <div className="analysis-tab">
+                        <div className="admin-data-analysis-tab">
                             {/* Capacity Analysis */}
-                            <div className="analysis-section">
-                                <div className="analysis-header">
+                            <div className="admin-data-analysis-section">
+                                <div className="admin-data-analysis-header">
                                     <h3>Capacity Analysis</h3>
                                     <img
                                         src={refreshIcon}
                                         alt="Refresh"
-                                        className="refresh-icon"
+                                        className="admin-data-refresh-icon"
                                         onClick={() => {
                                             fetchCapacityData();
                                             fetchCapacityUsageData();
                                         }}
                                     />
                                 </div>
-                                <div className="analysis-body">
-                                    <div className="analysis-text">
+                                <div className="admin-data-analysis-body">
+                                    <div className="admin-data-analysis-text">
                                         {capacityData ? (
                                             <ul>
                                                 <li>Commuter: {capacityData.commuter_capacity}</li>
@@ -283,12 +283,12 @@ const AdminData = () => {
                                             <p>Loading capacity data...</p>
                                         )}
                                     </div>
-                                    <div className="analysis-chart">
+                                    <div className="admin-data-analysis-chart">
                                         <button
                                             onClick={() =>
                                                 setCapacityChartType(capacityChartType === "bar" ? "pie" : "bar")
                                             }
-                                            className="toggle-chart-button"
+                                            className="admin-data-toggle-chart-button"
                                         >
                                             {capacityChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
                                         </button>
@@ -305,9 +305,9 @@ const AdminData = () => {
                                                 capacityChartType
                                             )}
                                     </div>
-                                    <div className="analysis-unique-data">
+                                    <div className="admin-data-analysis-unique-data">
                                         {capacityUsageData ? (
-                                            <div className="progress-bars">
+                                            <div className="admin-data-progress-bars">
                                                 {renderProgressBar(
                                                     capacityUsageData.commuter_used,
                                                     capacityData.commuter_capacity,
@@ -337,18 +337,18 @@ const AdminData = () => {
                             </div>
 
                             {/* Revenue Analysis */}
-                            <div className="analysis-section">
-                                <div className="analysis-header">
+                            <div className="admin-data-analysis-section">
+                                <div className="admin-data-analysis-header">
                                     <h3>Revenue Analysis</h3>
                                     <img
                                         src={refreshIcon}
                                         alt="Refresh"
-                                        className="refresh-icon"
+                                        className="admin-data-refresh-icon"
                                         onClick={() => fetchRevenueData()}
                                     />
                                 </div>
-                                <div className="analysis-body">
-                                    <div className="analysis-text">
+                                <div className="admin-data-analysis-body">
+                                    <div className="admin-data-analysis-text">
                                         {revenueData ? (
                                             <ul>
                                                 {revenueData
@@ -365,12 +365,12 @@ const AdminData = () => {
                                             <p>Loading revenue data...</p>
                                         )}
                                     </div>
-                                    <div className="analysis-chart">
+                                    <div className="admin-data-analysis-chart">
                                         <button
                                             onClick={() =>
                                                 setRevenueChartType(revenueChartType === "bar" ? "pie" : "bar")
                                             }
-                                            className="toggle-chart-button"
+                                            className="admin-data-toggle-chart-button"
                                         >
                                             {revenueChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
                                         </button>
@@ -386,25 +386,25 @@ const AdminData = () => {
                                                 revenueChartType
                                             )}
                                     </div>
-                                    <div className="analysis-unique-data">
+                                    <div className="admin-data-analysis-unique-data">
                                         <p>Placeholder for Revenue Analysis unique data</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Ticket Analysis */}
-                            <div className="analysis-section">
-                                <div className="analysis-header">
+                            <div className="admin-data-analysis-section">
+                                <div className="admin-data-analysis-header">
                                     <h3>Ticket Analysis</h3>
                                     <img
                                         src={refreshIcon}
                                         alt="Refresh"
-                                        className="refresh-icon"
+                                        className="admin-data-refresh-icon"
                                         onClick={() => fetchTicketData()}
                                     />
                                 </div>
-                                <div className="analysis-body">
-                                    <div className="analysis-text">
+                                <div className="admin-data-analysis-body">
+                                    <div className="admin-data-analysis-text">
                                         {ticketData ? (
                                             <ul>
                                                 {ticketData
@@ -419,12 +419,12 @@ const AdminData = () => {
                                             <p>Loading ticket data...</p>
                                         )}
                                     </div>
-                                    <div className="analysis-chart">
+                                    <div className="admin-data-analysis-chart">
                                         <button
                                             onClick={() =>
                                                 setTicketChartType(ticketChartType === "bar" ? "pie" : "bar")
                                             }
-                                            className="toggle-chart-button"
+                                            className="admin-data-toggle-chart-button"
                                         >
                                             {ticketChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
                                         </button>
@@ -440,25 +440,25 @@ const AdminData = () => {
                                                 ticketChartType
                                             )}
                                     </div>
-                                    <div className="analysis-unique-data">
+                                    <div className="admin-data-analysis-unique-data">
                                         <p>Placeholder for Ticket Analysis unique data</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Reservation Analysis */}
-                            <div className="analysis-section">
-                                <div className="analysis-header">
+                            <div className="admin-data-analysis-section">
+                                <div className="admin-data-analysis-header">
                                     <h3>Reservation Analysis</h3>
                                     <img
                                         src={refreshIcon}
                                         alt="Refresh"
-                                        className="refresh-icon"
+                                        className="admin-data-refresh-icon"
                                         onClick={() => fetchReservationData()}
                                     />
                                 </div>
-                                <div className="analysis-body">
-                                    <div className="analysis-text">
+                                <div className="admin-data-analysis-body">
+                                    <div className="admin-data-analysis-text">
                                         {reservationData ? (
                                             <ul>
                                                 {reservationData
@@ -473,12 +473,12 @@ const AdminData = () => {
                                             <p>Loading reservation data...</p>
                                         )}
                                     </div>
-                                    <div className="analysis-chart">
+                                    <div className="admin-data-analysis-chart">
                                         <button
                                             onClick={() =>
                                                 setReservationChartType(reservationChartType === "bar" ? "pie" : "bar")
                                             }
-                                            className="toggle-chart-button"
+                                            className="admin-data-toggle-chart-button"
                                         >
                                             {reservationChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
                                         </button>
@@ -494,7 +494,7 @@ const AdminData = () => {
                                                 reservationChartType
                                             )}
                                     </div>
-                                    <div className="analysis-unique-data">
+                                    <div className="admin-data-analysis-unique-data">
                                         <p>Placeholder for Reservation Analysis unique data</p>
                                     </div>
                                 </div>
