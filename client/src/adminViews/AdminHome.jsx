@@ -1,15 +1,20 @@
+// client/src/adminViews/AdminHome.jsx
+
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
 import ApiService from "../services/ApiService";
 import UserManagementPopup from "../components/UserManagementPopup";
-// Change CSS import to new file
+import SearchBar from "../components/SearchBar";
 import "../stylesheets/AdminHomeUnique.css";
 
 const AdminHome = () => {
     const [users, setUsers] = useState([]);
-    const [sortedUsers, setSortedUsers] = useState([]);
+    const [displayList, setDisplayList] = useState([]);
     const [sortCriteria, setSortCriteria] = useState("default");
+    const [searchTerm, setSearchTerm] = useState("");
+
+    // popups
     const [popupType, setPopupType] = useState(null);
     const [selectedUser, setSelectedUser] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
@@ -17,34 +22,40 @@ const AdminHome = () => {
     const [profileData, setProfileData] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
 
+    // 1) Fetch on mount
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const response = await ApiService.fetchAllUsers();
-                setUsers(response.users);
-                setSortedUsers(response.users);
-            } catch (error) {
-                console.error("Failed to fetch users:", error);
-            }
-        };
-        fetchUsers();
+        ApiService.fetchAllUsers()
+            .then((res) => {
+                setUsers(res.users);
+            })
+            .catch(console.error);
     }, []);
 
+    // 2) Whenever users / searchTerm / sortCriteria change, recalc displayList
     useEffect(() => {
-        sortUsers(sortCriteria);
-    }, [sortCriteria, users]);
+        // filter
+        const filtered = users.filter((u) =>
+            u.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        // sort
+        let sorted = [...filtered];
+        if (sortCriteria === "approved") {
+            sorted.sort((a, b) => b.is_approved - a.is_approved);
+        } else if (sortCriteria === "unapproved") {
+            sorted.sort((a, b) => a.is_approved - b.is_approved);
+        } else if (sortCriteria === "alphabetical") {
+            sorted.sort((a, b) => a.name.localeCompare(b.name));
+        }
+        setDisplayList(sorted);
+    }, [users, searchTerm, sortCriteria]);
 
     const handleApprove = async (userId) => {
-        try {
-            await ApiService.approveUser(userId);
-            setUsers((prevUsers) =>
-                prevUsers.map((user) =>
-                    user.user_id === userId ? { ...user, is_approved: true } : user
-                )
-            );
-        } catch (error) {
-            console.error("Failed to approve user:", error);
-        }
+        await ApiService.approveUser(userId);
+        setUsers((us) =>
+            us.map((u) =>
+                u.user_id === userId ? { ...u, is_approved: true } : u
+            )
+        );
     };
 
     const openPopup = (type, user = null) => {
@@ -52,48 +63,20 @@ const AdminHome = () => {
         setSelectedUser(user);
         setShowPopup(true);
     };
-
-    const closePopup = () => {
-        setShowPopup(false);
-        setPopupType(null);
-        setSelectedUser(null);
-    };
-
-    const refreshUsers = async () => {
-        try {
-            const response = await ApiService.fetchAllUsers();
-            setUsers(response.users);
-        } catch (error) {
-            console.error("Failed to refresh users:", error);
-        }
-    };
-
-    const sortUsers = (criteria) => {
-        let sorted = [...users];
-        if (criteria === "approved") {
-            sorted = sorted.sort((a, b) => b.is_approved - a.is_approved);
-        } else if (criteria === "unapproved") {
-            sorted = sorted.sort((a, b) => a.is_approved - b.is_approved);
-        } else if (criteria === "alphabetical") {
-            sorted = sorted.sort((a, b) => a.name.localeCompare(b.name));
-        }
-        setSortedUsers(sorted);
-    };
+    const closePopup = () => setShowPopup(false);
 
     const openProfileModal = (user) => {
         setProfileData({ ...user });
         setShowProfileModal(true);
     };
-
     const closeProfileModal = () => {
         setShowProfileModal(false);
         setProfileData(null);
         setErrorMessage("");
     };
 
-    const handleProfileChange = (field, value) => {
-        setProfileData((prev) => ({ ...prev, [field]: value }));
-    };
+    const handleProfileChange = (field, value) =>
+        setProfileData((pd) => ({ ...pd, [field]: value }));
 
     const showError = (msg) => {
         setErrorMessage(msg);
@@ -101,33 +84,26 @@ const AdminHome = () => {
     };
 
     const handleSaveProfile = async () => {
-        try {
-            if (!profileData.name.trim()) return showError("Name is required.");
-            if (!/^[0-9]{9}$/.test(profileData.sbu_id))
-                return showError("SBU ID must be 9 digits.");
-            if (!profileData.user_type) return showError("User type is required.");
+        if (!profileData.name.trim()) return showError("Name required");
+        if (!/^[0-9]{9}$/.test(profileData.sbu_id))
+            return showError("SBU ID must be 9 digits");
+        if (!profileData.user_type) return showError("User type is required");
 
-            const updateData = {
-                userId: profileData.user_id,
-                name: profileData.name,
-                sbuId: profileData.sbu_id,
-                address: profileData.address,
-                userType: profileData.user_type,
-                permitNumber: profileData.permit_number,
-                carModel: profileData.car_model,
-                licensePlate: profileData.license_plate,
-            };
-            await ApiService.updateProfile(updateData);
-            setUsers((prevUsers) =>
-                prevUsers.map((user) =>
-                    user.user_id === profileData.user_id ? profileData : user
-                )
-            );
-            alert("Profile updated successfully!");
-            closeProfileModal();
-        } catch (error) {
-            setErrorMessage("Failed to update profile: " + (error.message || ""));
-        }
+        await ApiService.updateProfile({
+            userId: profileData.user_id,
+            name: profileData.name,
+            sbuId: profileData.sbu_id,
+            address: profileData.address,
+            userType: profileData.user_type,
+            permitNumber: profileData.permit_number,
+            carModel: profileData.car_model,
+            licensePlate: profileData.license_plate,
+        });
+        setUsers((us) =>
+            us.map((u) => (u.user_id === profileData.user_id ? profileData : u))
+        );
+        alert("Profile updated!");
+        closeProfileModal();
     };
 
     return (
@@ -142,51 +118,65 @@ const AdminHome = () => {
                             <select
                                 id="sort-criteria"
                                 value={sortCriteria}
-                                onChange={(e) => setSortCriteria(e.target.value)}
-                            >
+                                onChange={(e) =>
+                                    setSortCriteria(e.target.value)
+                                }>
                                 <option value="default">Default</option>
                                 <option value="approved">Approved</option>
                                 <option value="unapproved">Unapproved</option>
-                                <option value="alphabetical">Alphabetical</option>
+                                <option value="alphabetical">
+                                    Alphabetical
+                                </option>
                             </select>
                         </div>
-                        <button className="admin-home-approve-button" onClick={() => openPopup("add")}>
+                        <button
+                            className="admin-home-approve-button"
+                            onClick={() => openPopup("add")}>
                             Add New User
                         </button>
                     </div>
                 </div>
+
+                {/* --- Search Bar --- */}
+                <SearchBar
+                    placeholder="Search users by name…"
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                />
+
+                {/* --- User List --- */}
                 <div className="admin-home-user-list-container">
                     <ul className="admin-home-user-list">
-                        {sortedUsers.map((user) => (
-                            <li key={user.user_id} className="admin-home-user-item">
+                        {displayList.map((u) => (
+                            <li
+                                key={u.user_id}
+                                className="admin-home-user-item">
                                 <span>
-                                    <strong>
-                                        {user.name} {" "}
-                                    </strong>
-                                     - {user.email}
+                                    <strong>{u.name}</strong> – {u.email}
                                 </span>
                                 <div className="actions">
-                                    {user.is_approved ? (
-                                        <span className="admin-home-approved">Approved User</span>
+                                    {u.is_approved ? (
+                                        <span className="admin-home-approved">
+                                            Approved User
+                                        </span>
                                     ) : (
                                         <button
                                             className="admin-home-approve-button"
-                                            onClick={() => handleApprove(user.user_id)}
-                                        >
-                                            Approve User
+                                            onClick={() =>
+                                                handleApprove(u.user_id)
+                                            }>
+                                            Approve
                                         </button>
                                     )}
                                     <button
                                         className="admin-home-view-button"
-                                        onClick={() => openProfileModal(user)}
-                                    >
+                                        onClick={() => openProfileModal(u)}>
                                         View
                                     </button>
                                     <button
                                         className="admin-home-delete-button"
-                                        onClick={() => openPopup("delete", user)}
-                                    >
-                                        Delete User
+                                        onClick={() => openPopup("delete", u)}>
+                                        Delete
                                     </button>
                                 </div>
                             </li>
@@ -194,80 +184,70 @@ const AdminHome = () => {
                     </ul>
                 </div>
             </div>
+
+            {/* --- Add/Delete Popup --- */}
             {showPopup && (
                 <UserManagementPopup
                     type={popupType}
                     user={selectedUser}
                     onClose={closePopup}
-                    refreshUsers={refreshUsers}
+                    refreshUsers={() => {
+                        ApiService.fetchAllUsers().then((r) =>
+                            setUsers(r.users)
+                        );
+                    }}
                 />
             )}
+
+            {/* --- Profile Modal --- */}
             {showProfileModal && profileData && (
                 <div className="admin-home-popup">
                     <h2>Edit Profile</h2>
-                    <div className="admin-home-profile-section">
-                        <label>Name:</label>
-                        <input
-                            value={profileData.name}
-                            onChange={(e) => handleProfileChange("name", e.target.value)}
-                        />
-                    </div>
-                    <div className="admin-home-profile-section">
-                        <label>Email:</label>
-                        <input
-                            value={profileData.email}
-                            onChange={(e) => handleProfileChange("email", e.target.value)}
-                        />
-                    </div>
-                    <div className="admin-home-profile-section">
-                        <label>SBU ID:</label>
-                        <input
-                            value={profileData.sbu_id || ""}
-                            onChange={(e) => handleProfileChange("sbu_id", e.target.value)}
-                        />
-                    </div>
-                    <div className="admin-home-profile-section">
-                        <label>Address:</label>
-                        <input
-                            value={profileData.address || ""}
-                            onChange={(e) => handleProfileChange("address", e.target.value)}
-                        />
-                    </div>
-                    <div className="admin-home-profile-section">
-                        <label>User Type:</label>
-                        <select
-                            value={profileData.user_type || ""}
-                            onChange={(e) => handleProfileChange("user_type", e.target.value)}
-                        >
-                            <option value="">Select User Type</option>
-                            <option value="Commuter">Commuter</option>
-                            <option value="Resident">Resident</option>
-                            <option value="Visitor">Visitor</option>
-                            <option value="Faculty">Faculty</option>
-                        </select>
-                    </div>
-                    <div className="admin-home-profile-section">
-                        <label>Permit Number:</label>
-                        <input
-                            value={profileData.permit_number || ""}
-                            onChange={(e) => handleProfileChange("permit_number", e.target.value)}
-                        />
-                    </div>
-                    <div className="admin-home-profile-section">
-                        <label>Car Model:</label>
-                        <input
-                            value={profileData.car_model || ""}
-                            onChange={(e) => handleProfileChange("car_model", e.target.value)}
-                        />
-                    </div>
-                    <div className="admin-home-profile-section">
-                        <label>License Plate:</label>
-                        <input
-                            value={profileData.license_plate || ""}
-                            onChange={(e) => handleProfileChange("license_plate", e.target.value)}
-                        />
-                    </div>
-                    {errorMessage && <div className="admin-home-error-message">{errorMessage}</div>}
+                    {[
+                        "name",
+                        "email",
+                        "sbu_id",
+                        "address",
+                        "user_type",
+                        "permit_number",
+                        "car_model",
+                        "license_plate",
+                    ].map((field) => (
+                        <div key={field} className="admin-home-profile-section">
+                            <label>{field.replace(/_/g, " ")}:</label>
+                            {field === "user_type" ? (
+                                <select
+                                    value={profileData.user_type || ""}
+                                    onChange={(e) =>
+                                        handleProfileChange(
+                                            "user_type",
+                                            e.target.value
+                                        )
+                                    }>
+                                    <option value="">Select User Type</option>
+                                    <option value="Commuter">Commuter</option>
+                                    <option value="Resident">Resident</option>
+                                    <option value="Visitor">Visitor</option>
+                                    <option value="Faculty">Faculty</option>
+                                </select>
+                            ) : (
+                                <input
+                                    value={profileData[field] || ""}
+                                    onChange={(e) =>
+                                        handleProfileChange(
+                                            field,
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                            )}
+                        </div>
+                    ))}
+                    {errorMessage && (
+                        <div className="admin-home-error-message">
+                            {errorMessage}
+                        </div>
+                    )}
                     <div className="admin-home-popup-actions">
                         <button onClick={closeProfileModal}>Cancel</button>
                         <button onClick={handleSaveProfile}>Save</button>

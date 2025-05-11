@@ -15,7 +15,7 @@
     padding: 1rem;
     background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* Header */
@@ -110,4 +110,27 @@
 .show-completed-toggle {
     text-align: center;
     margin-top: 1rem;
+}
+
+/* Completed reservation styles */
+.completed-reservations {
+    margin-top: 1rem;
+}
+
+/* wrap the <ul> in a container */
+.admin-reservations-list-container {
+    max-height: 400px; /* whatever height you like */
+    overflow-y: auto; /* enable vertical scrolling */
+    scrollbar-gutter: stable;
+    padding-right: 0.5rem; /* give a little room for the scrollbar */
+}
+
+/* optional: style the scrollbar (Webkit browsers) */
+.admin-reservations-list-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.admin-reservations-list-container::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
 }
