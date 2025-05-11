@@ -1,3 +1,5 @@
+// client/src/adminViews/AdminReservations.jsx
+
 import React, { useEffect, useState } from "react";
 import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
@@ -8,51 +10,84 @@ const AdminReservations = () => {
     const [pendingReservations, setPendingReservations] = useState([]);
     const [completedReservations, setCompletedReservations] = useState([]);
     const [showCompleted, setShowCompleted] = useState(false);
+    const [sortKey, setSortKey] = useState("start"); // or "lot"
 
     useEffect(() => {
-        fetchPending();
-        fetchCompleted();
+        loadPending();
+        loadCompleted();
     }, []);
 
-    const fetchPending = async () => {
+    const loadPending = async () => {
         try {
-            const data = await ApiService.fetchPendingReservations();
-            setPendingReservations(data.reservations || []);
-        } catch (error) {
-            console.error("Failed to fetch pending reservations:", error);
+            const { reservations = [] } =
+                await ApiService.fetchPendingReservations();
+            const now = new Date();
+            const keep = [];
+
+            for (const r of reservations) {
+                const end = new Date(r.end_time);
+
+                if (r.num_spots === 1) {
+                    // auto-approve singles
+                    try {
+                        await ApiService.approveReservation(r.reservation_id);
+                    } catch (e) {
+                        /* swallow */
+                    }
+                } else if (end < now) {
+                    // auto-reject expired group
+                    try {
+                        await ApiService.rejectReservation(r.reservation_id);
+                    } catch (e) {
+                        /* swallow */
+                    }
+                } else {
+                    keep.push(r);
+                }
+            }
+
+            setPendingReservations(keep);
+            // refresh completed to pick up any auto approvals
+            loadCompleted();
+        } catch (err) {
+            console.error("Failed to fetch pending reservations:", err);
             alert("Error loading pending reservations");
         }
     };
 
-    const fetchCompleted = async () => {
+    const loadCompleted = async () => {
         try {
-            const data = await ApiService.fetchCompletedReservations();
-            setCompletedReservations(data.reservations || []);
-        } catch (error) {
-            console.error("Failed to fetch completed reservations:", error);
+            const { reservations = [] } =
+                await ApiService.fetchCompletedReservations();
+            setCompletedReservations(reservations);
+        } catch (err) {
+            console.error("Failed to fetch completed reservations:", err);
             alert("Error loading completed reservations");
         }
     };
 
     const handleApprove = async (reservationId) => {
-        if (!window.confirm("Approve this reservation?")) return;
+        if (!window.confirm("Approve this group reservation?")) return;
         try {
             await ApiService.approveReservation(reservationId);
-            alert("✅ Reservation approved");
             setPendingReservations((prev) =>
                 prev.filter((r) => r.reservation_id !== reservationId)
             );
-            const approved = pendingReservations.find(
-                (r) => r.reservation_id === reservationId
-            );
-            setCompletedReservations((prev) =>
-                approved ? [...prev, approved] : prev
-            );
-        } catch (error) {
-            console.error("Failed to approve reservation:", error);
-            alert("Approval failed: " + (error.error || error.message));
+            loadCompleted();
+        } catch (err) {
+            console.error("Approval failed:", err);
+            alert("Approval failed: " + (err.error || err.message));
         }
     };
+
+    // sort pending according to sortKey
+    const sortedPending = [...pendingReservations].sort((a, b) => {
+        if (sortKey === "lot") {
+            return a.lot_name.localeCompare(b.lot_name);
+        }
+        // default: by start date
+        return new Date(a.start_time) - new Date(b.start_time);
+    });
 
     return (
         <div className="admin-reservations-container">
@@ -60,50 +95,56 @@ const AdminReservations = () => {
             <AdminNav />
 
             <div className="admin-reservations-content">
+                {/* Sorting control */}
                 <div className="admin-reservations-header">
-                    <h1>Pending Reservations</h1>
+                    <h1>Pending Group Reservations</h1>
+                    <div>
+                        <label>Sort by:&nbsp;</label>
+                        <select
+                            value={sortKey}
+                            onChange={(e) => setSortKey(e.target.value)}>
+                            <option value="start">Earliest Start</option>
+                            <option value="lot">Lot Name</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div className="admin-reservations-list-container">
-                    {pendingReservations.length === 0 ? (
-                        <p>No pending reservations.</p>
+                    {sortedPending.length === 0 ? (
+                        <p>No pending group reservations.</p>
                     ) : (
                         <ul className="admin-reservations-list">
-                            {pendingReservations.map((resv) => (
+                            {sortedPending.map((r) => (
                                 <li
-                                    key={resv.reservation_id}
+                                    key={r.reservation_id}
                                     className="reservation-item">
                                     <p>
-                                        <strong>User:</strong> {resv.user_id}
+                                        <strong>User:</strong> {r.user_id}
                                     </p>
                                     <p>
-                                        <strong>Lot:</strong>{" "}
-                                        {resv.lot_name},{" "}
-                                        <strong>Spots:</strong>{" "}
-                                        {resv.num_spots}
+                                        <strong>Lot:</strong> {r.lot_name},{" "}
+                                        <strong>Spots:</strong> {r.num_spots}
                                     </p>
                                     <p>
                                         <strong>From:</strong>{" "}
                                         {new Date(
-                                            resv.start_time
+                                            r.start_time
                                         ).toLocaleString()}
                                     </p>
                                     <p>
                                         <strong>To:</strong>{" "}
-                                        {new Date(
-                                            resv.end_time
-                                        ).toLocaleString()}
+                                        {new Date(r.end_time).toLocaleString()}
                                     </p>
-                                    {resv.explanation && (
+                                    {r.explanation && (
                                         <p>
                                             <strong>Explanation:</strong>{" "}
-                                            {resv.explanation}
+                                            {r.explanation}
                                         </p>
                                     )}
                                     <button
                                         className="approve-btn"
                                         onClick={() =>
-                                            handleApprove(resv.reservation_id)
+                                            handleApprove(r.reservation_id)
                                         }>
                                         Approve
                                     </button>
@@ -129,40 +170,42 @@ const AdminReservations = () => {
                                 <p>No completed reservations.</p>
                             ) : (
                                 <ul className="admin-reservations-list">
-                                    {completedReservations.map((resv) => (
+                                    {completedReservations.map((r) => (
                                         <li
-                                            key={resv.reservation_id}
+                                            key={r.reservation_id}
                                             className="reservation-item">
                                             <p>
                                                 <strong>ID:</strong>{" "}
-                                                {resv.reservation_id}
+                                                {r.reservation_id}
                                             </p>
                                             <p>
                                                 <strong>User:</strong>{" "}
-                                                {resv.user_id}
+                                                {r.user_id}
                                             </p>
                                             <p>
                                                 <strong>Lot:</strong>{" "}
-                                                {resv.lot_name},
+                                                {r.lot_name},{" "}
                                                 <strong>Spots:</strong>{" "}
-                                                {resv.num_spots}
+                                                {r.num_spots}
                                             </p>
                                             <p>
                                                 <strong>From:</strong>{" "}
                                                 {new Date(
-                                                    resv.start_time
+                                                    r.start_time
                                                 ).toLocaleString()}
                                             </p>
                                             <p>
                                                 <strong>To:</strong>{" "}
                                                 {new Date(
-                                                    resv.end_time
+                                                    r.end_time
                                                 ).toLocaleString()}
                                             </p>
-                                            {resv.explanation && (
+                                            {r.explanation && (
                                                 <p>
-                                                    <strong>Explanation:</strong>{" "}
-                                                    {resv.explanation}
+                                                    <strong>
+                                                        Explanation:
+                                                    </strong>{" "}
+                                                    {r.explanation}
                                                 </p>
                                             )}
                                         </li>
