@@ -683,7 +683,10 @@ const HomePage = () => {
                 price={lots.find((l) => l.name === selectedLot)?.rate || 0} // ← here
                 isOpen={isModalOpen}
                 numAvailableSpots={availableSpots}
-                onClose={() => setIsModalOpen(false)}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    set;
+                }}
                 onSubmit={handleReservation}
             />
             {clientSecret && pendingReservation && (
@@ -693,6 +696,7 @@ const HomePage = () => {
                         <h4>Complete Payment</h4>
                         <CheckoutForm
                             clientSecret={clientSecret}
+                            amount={pendingReservation.numSpots * lots.find((l) => l.name === selectedLot)?.rate || 0}
                             onSuccessfulPayment={async () => {
                                 const d = pendingReservation;
                                 await ApiService.createReservation(

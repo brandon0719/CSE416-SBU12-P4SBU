@@ -1,89 +1,55 @@
-/* Form container styling */
 .checkout-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding: 20px;
-    background-color: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin: 0 auto;
-    font-family: Arial, sans-serif;
 }
 
-/* Stripe CardElement styling */
-.stripe-element {
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f9f9f9;
-    font-size: 16px;
-    color: #424770;
-    transition: border-color 0.3s ease;
-}
-
-.stripe-element:focus {
-    border-color: #007bff;
-    outline: none;
-    background-color: #ffffff;
-}
-
-/* Error message styling */
-.error-message {
-    color: #d9534f;
-    font-size: 14px;
+.checkout-amount {
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
     text-align: center;
-    margin-top: -10px;
 }
 
-/* Button group styling */
+.stripe-element {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ccd0d2;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    margin-bottom: 1rem;
+}
+
 .button-group {
     display: flex;
-    justify-content: space-between;
-    gap: 10px;
+    gap: 0.5rem;
 }
 
-/* Submit button styling */
-.checkout-submit-btn {
-    padding: 10px 15px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.checkout-submit-btn:disabled {
-    background-color: #6c757d;
-    cursor: not-allowed;
-}
-
-.checkout-submit-btn:hover:not(:disabled) {
-    background-color: #218838;
-    transform: scale(1.05);
-}
-
-/* Cancel button styling */
+.checkout-submit-btn,
 .checkout-cancel-btn {
-    padding: 10px 15px;
-    background-color: #dc3545;
-    color: white;
+    flex: 1;
+    padding: 0.75rem;
+    font-size: 1rem;
     border: none;
-    border-radius: 5px;
-    font-size: 14px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
+.checkout-submit-btn {
+    background-color: #6772e5;
+    color: #fff;
+}
+
+.checkout-cancel-btn {
+    background-color: #e02424;
+    color: #fff;
+}
+
+.checkout-submit-btn:disabled,
 .checkout-cancel-btn:disabled {
-    background-color: #6c757d;
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
-.checkout-cancel-btn:hover:not(:disabled) {
-    background-color: #c82333;
-    transform: scale(1.05);
+.error-message {
+    color: red;
+    margin-bottom: 1rem;
+    text-align: center;
 }

@@ -6,15 +6,16 @@ import CheckoutForm from "../components/CheckoutForm";
 import "../stylesheets/TicketPage.css";
 
 const TicketPage = () => {
+    // all your existing states...
     const [tickets, setTickets] = useState([]);
     const [paidTickets, setPaidTickets] = useState([]);
     const [selectedTickets, setSelectedTickets] = useState([]);
-
-    // Stripe integration states:
     const [clientSecret, setClientSecret] = useState(null);
     const [pendingTickets, setPendingTickets] = useState([]);
-
     const [showAllPaidTickets, setShowAllPaidTickets] = useState(false);
+
+    // new error state
+    const [errorMsg, setErrorMsg] = useState("");
 
     useEffect(() => {
         const user = ApiService.getSessionUser();
@@ -37,31 +38,38 @@ const TicketPage = () => {
         );
     };
 
-    // 1) Kick off payment intent instead of directly paying
     const handlePayTickets = async () => {
         if (selectedTickets.length === 0) {
-            return alert("Please select at least one ticket to pay.");
+            setErrorMsg("Please select at least one ticket to pay.");
+            return;
         }
 
         // Compute total in cents
         const totalCents = tickets
             .filter((t) => selectedTickets.includes(t.ticket_id))
-            .reduce((sum, t) => sum + Math.round(t.ticket_price * 100), 0);
+            .reduce(
+                (sum, t) => sum + Math.round(parseFloat(t.ticket_price) * 100),
+                0
+            );
 
-        // Stash the IDs so we can finalize after payment
         setPendingTickets(selectedTickets);
 
         try {
-            // 2) Create the PaymentIntent
             const secret = await ApiService.createPaymentIntent(totalCents);
             setClientSecret(secret);
         } catch (err) {
             console.error("Payment init failed:", err);
-            alert("Could not start payment: " + (err.message || err));
+            setErrorMsg("Could not start payment: " + (err.message || err));
         }
     };
 
-    // 3) Toggle show more/less for paid tickets
+    // clear error after 5s
+    useEffect(() => {
+        if (!errorMsg) return;
+        const timer = setTimeout(() => setErrorMsg(""), 5000);
+        return () => clearTimeout(timer);
+    }, [errorMsg]);
+
     const toggleShowAllPaidTickets = () => {
         setShowAllPaidTickets((v) => !v);
     };
@@ -73,7 +81,8 @@ const TicketPage = () => {
 
             <div className="ticket-page-content">
                 <h1>Outstanding Tickets</h1>
-
+                {/* error banner */}
+                {errorMsg && <div className="ticketpage-error">{errorMsg}</div>}
                 {tickets.length ? (
                     <ul className="ticket-list">
                         {tickets.map((ticket) => (
@@ -169,7 +178,7 @@ const TicketPage = () => {
                 )}
             </div>
 
-            {/* 4) Stripe Checkout Modal */}
+            {/* Stripe Checkout Modal */}
             {clientSecret && pendingTickets.length > 0 && (
                 <>
                     <div className="modal-overlay" />
@@ -177,17 +186,23 @@ const TicketPage = () => {
                         <h4>Complete Payment</h4>
                         <CheckoutForm
                             clientSecret={clientSecret}
+                            amount={tickets
+                                .filter((t) =>
+                                    pendingTickets.includes(t.ticket_id)
+                                )
+                                .reduce(
+                                    (sum, t) =>
+                                        sum + parseFloat(t.ticket_price),
+                                    0
+                                )}
                             onCancel={() => {
                                 setClientSecret(null);
                                 setPendingTickets([]);
                             }}
                             onSuccessfulPayment={async () => {
                                 try {
-                                    // 5) finalize via your tickets API
                                     await ApiService.payTickets(pendingTickets);
-                                    alert("Tickets paid successfully!");
-
-                                    // update state: remove paid from outstanding, refresh paid list
+                                    // refresh lists…
                                     setTickets((tks) =>
                                         tks.filter(
                                             (t) =>
@@ -207,7 +222,7 @@ const TicketPage = () => {
                                         "Finalizing payment failed:",
                                         err
                                     );
-                                    alert(
+                                    setErrorMsg(
                                         "Error finalizing payment: " +
                                             err.message
                                     );

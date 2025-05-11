@@ -1,61 +1,55 @@
-import React, { useState, useEffect } from "react";
-import Modal from 'react-modal';
+import React, { useEffect, useState } from "react";
+import Modal from "react-modal";
 import ApiService from "../services/ApiService";
 import "../stylesheets/HomePage.css";
 import PopularHoursChart from "./PopularHoursChart";
 
-const sessionUser = ApiService.getSessionUser()
-
-const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, numAvailableSpots, onClose, onSubmit }) => {
-    
-    const [sessionUser, setSessionUser] = useState(null);
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        lot: lotName,
-        start: reservationStart,
-        end: reservationEnd,
+const ReservationModal = ({
+    reservationStart,
+    reservationEnd,
+    lotName,
+    isOpen,
+    numAvailableSpots,
+    onClose,
+    onSubmit,
+}) => {
+    const initialForm = {
+        name: "",
+        email: "",
+        lot: lotName || "",
+        start: reservationStart || null,
+        end: reservationEnd || null,
         numSpots: 1,
-        explanation: ""
-      });
+        explanation: "",
+    };
 
+    const [formData, setFormData] = useState(initialForm);
+
+    // whenever the modal opens, seed name/email/lot/start/end from parent & session
     useEffect(() => {
-        fetchSessionUser();
-        }
-    , []);
-
-    useEffect(() => {
-        fetchSessionUser()
-    }, [isOpen]);
-
-    useEffect(() => {
-        setFormData(prev => ({
-            ...prev, 
-            start: reservationStart,
-            end: reservationEnd,
-            lot: lotName,
-        }));
-      }, [reservationStart, reservationEnd, lotName]);
-
-    const fetchSessionUser = () => {
-        try {
+        if (isOpen) {
             const user = ApiService.getSessionUser();
-            setSessionUser(user);
-            setFormData(prev => ({
-                ...prev,
-                name: user.name,
-                email: user.email,
-            
-            }));
+            setFormData({
+                ...initialForm,
+                name: user?.name || "",
+                email: user?.email || "",
+                lot: lotName,
+                start: reservationStart,
+                end: reservationEnd,
+            });
         }
-        catch (error) {
-            console.error(error);
+    }, [isOpen, lotName, reservationStart, reservationEnd]);
+
+    // when it closes, wipe the form back to initial
+    useEffect(() => {
+        if (!isOpen) {
+            setFormData(initialForm);
         }
-    }
+    }, [isOpen]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData((f) => ({ ...f, [name]: value }));
     };
 
     const handleSubmit = (e) => {
@@ -63,87 +57,97 @@ const ReservationModal = ({ reservationStart, reservationEnd, lotName, isOpen, n
         onSubmit(formData);
     };
 
-      // Don't render modal content until formData is ready
-    if (!formData.name) {
-        return null;
-    }
-
     return (
-        <>
-            <Modal
+        <Modal
             isOpen={isOpen}
-            onClose={onClose}
+            onRequestClose={() => {
+                onClose();
+                // formData will reset automatically via the useEffect above
+            }}
             contentLabel="Create Reservation"
             className="modal-content"
             overlayClassName="modal-overlay">
-                <div className="popup">
-                    <div className="chart">
+            <div className="popup">
+                <div className="chart">
                     <PopularHoursChart
                         lot={formData.lot}
-                        date={formData.start}/>
-                    </div>
-                    
-                    <div className="info">
-                        <h2>Confirm Reservation</h2>
-                        <form onSubmit={handleSubmit}>
+                        date={formData.start}
+                    />
+                </div>
 
-                                <p>Name: {formData.name} <br/>
-                                Email: {formData.email} <br/>
-                                Parking Lot: {formData.lot}<br/>
-                                Number of Available Spots: {numAvailableSpots}<br/>
-                                Reservation Start: {reservationStart.toLocaleString('en-US', {
-                                    month: 'long',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                    hour12: true
-                                })}<br/>
-                                Reservation End: {reservationEnd.toLocaleString('en-US', {
-                                    month: 'long',
-                                    day: 'numeric',
-                                    year: 'numeric',
-                                    hour: 'numeric',
-                                    minute: '2-digit',
-                                    hour12: true
-                                })}
-                                </p>
-                            <div className="form-row">
+                <div className="info">
+                    <h2>Confirm Reservation</h2>
+                    <form onSubmit={handleSubmit}>
+                        <p>
+                            Name: {formData.name}
+                            <br />
+                            Email: {formData.email}
+                            <br />
+                            Parking Lot: {formData.lot}
+                            <br />
+                            Available Spots: {numAvailableSpots}
+                            <br />
+                            Start:{" "}
+                            {formData.start?.toLocaleString("en-US", {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                                hour12: true,
+                            })}
+                            <br />
+                            End:{" "}
+                            {formData.end?.toLocaleString("en-US", {
+                                month: "long",
+                                day: "numeric",
+                                year: "numeric",
+                                hour: "numeric",
+                                minute: "2-digit",
+                                hour12: true,
+                            })}
+                        </p>
 
+                        <div className="form-row">
                             <div className="form-group">
                                 <label>Number of Spots</label>
                                 <input
-                                type="number"
-                                name="numSpots"
-                                value={formData.numSpots}
-                                onChange={handleInputChange}
-                                required
-                                />
-                            </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>Explanation (if number of spots is greater than 1)</label>
-                                <textarea
-                                    name="explanation"
-                                    value={formData.explanation}
+                                    type="number"
+                                    name="numSpots"
+                                    value={formData.numSpots}
                                     onChange={handleInputChange}
-                                    rows="3"
+                                    min={1}
+                                    max={numAvailableSpots}
+                                    required
                                 />
                             </div>
-
-                            <div className="popup-actions">
-                                <button type="button" onClick={onClose}>Cancel</button>
-                                <button type="submit">Confirm</button>
-                            </div>
-                        </form>
                         </div>
-                    
-                </div>
 
-            </Modal>
-            
-        </>
+                        <div className="form-group">
+                            <label>Explanation (if greater than 1 spot)</label>
+                            <textarea
+                                name="explanation"
+                                value={formData.explanation}
+                                onChange={handleInputChange}
+                                rows="3"
+                            />
+                        </div>
+
+                        <div className="popup-actions">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    onClose();
+                                    // no extra reset needed, effect will fire
+                                }}>
+                                Cancel
+                            </button>
+                            <button type="submit">Confirm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </Modal>
     );
 };
 

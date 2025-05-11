@@ -4,6 +4,7 @@ import "../stylesheets/CheckoutForm.css";
 
 export default function CheckoutForm({
     clientSecret,
+    amount,
     onSuccessfulPayment,
     onCancel,
 }) {
@@ -38,6 +39,11 @@ export default function CheckoutForm({
 
     return (
         <form className="checkout-form" onSubmit={handleSubmit}>
+            {/* Display the amount */}
+            <div className="checkout-amount">
+                Total Amount: <strong>${amount.toFixed(2)}</strong>
+            </div>
+
             <CardElement
                 options={{
                     style: {
@@ -53,13 +59,15 @@ export default function CheckoutForm({
                 }}
                 className="stripe-element"
             />
+
             {errorMsg && <div className="error-message">{errorMsg}</div>}
+
             <div className="button-group">
                 <button
                     type="submit"
                     className="checkout-submit-btn"
                     disabled={!stripe || processing}>
-                    {processing ? "Processing…" : "Pay"}
+                    {processing ? "Processing…" : `Pay $${amount.toFixed(2)}`}
                 </button>
                 <button
                     type="button"
