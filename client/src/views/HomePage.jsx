@@ -95,59 +95,58 @@ const HomePage = () => {
     useEffect(() => {
         const fetchAndSortLots = async () => {
             try {
+                // 1) Fetch & sort lots exactly as before…
                 const response = await fetch("/api/lots/getlotdetails");
                 const data = await response.json();
 
+                let lotsData;
                 if (
                     sortCriteria === "distance" ||
                     sortCriteria === "distance-non-metered"
                 ) {
-                    // Determine the origin: use selected building's location if available,
-                    // otherwise fallback to user location.
                     const origin =
-                        selectedBuilding &&
-                            selectedBuilding.location &&
-                            selectedBuilding.location.coordinates
-                            ? selectedBuilding.location.coordinates
-                            : [userLocation.lng, userLocation.lat];
+                        selectedBuilding?.location?.coordinates ||
+                        [userLocation.lng, userLocation.lat];
 
-                    // Compute walking distance for each parking lot; if the lot does not have
-                    // a valid geometry, assign Infinity so it sorts last.
-                    const lotsWithDistance = await Promise.all(
-                        data.map(async (lot) => {
-                            if (
-                                lot.geom &&
-                                lot.geom.coordinates &&
-                                lot.geom.coordinates.length > 0
-                            ) {
+                    const withDistance = await Promise.all(
+                        data.map(async lot => {
+                            if (lot.geom?.coordinates?.length) {
                                 const centroid = computeCentroid(lot.geom);
-                                const distance = await getWalkingDistance(
+                                const walkingDistance = await getWalkingDistance(
                                     origin,
                                     centroid
                                 );
-                                return { ...lot, walkingDistance: distance };
-                            } else {
-                                // If lot location is not set, assign a high distance value.
-                                return { ...lot, walkingDistance: Infinity };
+                                return { ...lot, walkingDistance };
                             }
+                            return { ...lot, walkingDistance: Infinity };
                         })
                     );
-
-                    // Sort the lots so that those with a finite (computed) walking distance come first.
-                    lotsWithDistance.sort(
-                        (a, b) => a.walkingDistance - b.walkingDistance
-                    );
-                    setLots(lotsWithDistance);
+                    withDistance.sort((a, b) => a.walkingDistance - b.walkingDistance);
+                    lotsData = withDistance;
                 } else if (sortCriteria === "price") {
-                    // Sorting by price – simply sort based on the rate field.
                     data.sort((a, b) => a.rate - b.rate);
-                    setLots(data);
+                    lotsData = data;
                 } else {
-                    // If no specific sorting criteria applied, set the fetched data as is.
-                    setLots(data);
+                    lotsData = data;
                 }
+
+                // 2) Fetch usage
+                const usageRows = await ApiService.getLotUsage();
+                const usageMap = usageRows.reduce((acc, { lot_name, permit_type, spots_taken }) => {
+                    acc[lot_name] = acc[lot_name] || {};
+                    acc[lot_name][permit_type] = spots_taken;
+                    return acc;
+                }, {});
+
+                // 3) Merge usage into each lot
+                const lotsWithUsage = lotsData.map(lot => ({
+                    ...lot,
+                    usage: usageMap[lot.name] || {}
+                }));
+
+                setLots(lotsWithUsage);
             } catch (error) {
-                console.error("Error fetching lots:", error);
+                console.error("Error fetching lots or usage:", error);
             }
         };
 
@@ -374,7 +373,7 @@ const HomePage = () => {
             return alert("Error: selected lot not found.");
         }
         // 2) compute cost in cents
-        const amountCents = formData.numSpots * lotObj.rate * 100; 
+        const amountCents = formData.numSpots * lotObj.rate * 100;
 
         // 3) stash the form data for after payment succeeds
         setPendingReservation(formData);
@@ -554,43 +553,56 @@ const HomePage = () => {
                                             : true
                                     )
                                     .map((lot) => (
-                                        <div
-                                            key={lot.name}
-                                            className="lot-item">
-                                            <p>
-                                                <strong>{lot.name}</strong>
-                                            </p>
-                                            <p>{lot.details}</p>
-                                            <p>
-                                                {" "}
-                                                Rate:{" "}
-                                                {lot.rate != null
-                                                    ? `$${parseFloat(
-                                                          lot.rate
-                                                      ).toFixed(2)}/hr`
-                                                    : "N/A"}
-                                            </p>
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    gap: "10px",
-                                                }}>
-                                                <button
-                                                    onClick={() =>
-                                                        handleReserveClicked(
-                                                            lot.name
-                                                        )
-                                                    }>
-                                                    Reserve
-                                                </button>
-                                                {lot.geom && (
-                                                    <button
-                                                        onClick={() =>
-                                                            handleLotView(lot)
-                                                        }>
-                                                        View
+                                        <div key={lot.name} className="lot-item">
+                                            {/* Left column: name, details, rate, buttons */}
+                                            <div className="lot-item-left">
+                                                <p><strong>{lot.name}</strong></p>
+                                                <p>
+                                                    {lot.details?.trim()
+                                                        ? lot.details
+                                                        : "No additional information"}
+                                                </p>
+                                                <p>
+                                                    Rate:{" "}
+                                                    {lot.rate != null
+                                                        ? `$${parseFloat(lot.rate).toFixed(2)}/hr`
+                                                        : "N/A"}
+                                                </p>
+                                                <div className="lot-item-buttons">
+                                                    <button onClick={() => handleReserveClicked(lot.name)}>
+                                                        Reserve
                                                     </button>
-                                                )}
+                                                    {lot.geom && (
+                                                        <button onClick={() => handleLotView(lot)}>
+                                                            View
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Right column: usage by permit */}
+                                            <div className="lot-item-usage">
+                                                {["faculty", "commuter", "resident", "visitor"].map(pt => {
+                                                    // capacity per permit
+                                                    const capacity = (
+                                                        pt === "faculty" ? lot.faculty_staff_spots :
+                                                            pt === "commuter" ? lot.commuter_spots + lot.commuter_premium_spots :
+                                                                pt === "resident" ? lot.resident_spots :
+                                                                    lot.metered_spots
+                                                    ) || 0;
+
+                                                    // taken so far
+                                                    const taken = lot.usage[pt] || 0;
+
+                                                    // remaining
+                                                    const remaining = Math.max(capacity - taken, 0);
+
+                                                    return (
+                                                        <p key={pt}>
+                                                            {pt.charAt(0).toUpperCase() + pt.slice(1)}: {remaining}
+                                                        </p>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
                                     ))}

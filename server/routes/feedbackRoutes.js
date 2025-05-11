@@ -1,5 +1,5 @@
 import express from "express";
-import { handleCreateFeedback, handleGetAllFeedback } from "../controllers/feedbackControllers.js";
+import { handleCreateFeedback, handleGetAllFeedback, handleGetFeedbackList, handleGetFeedbackDetails, handleResolveFeedback, handleSendMessage } from "../controllers/feedbackControllers.js";
 
 const router = express.Router();
 
@@ -7,5 +7,13 @@ const router = express.Router();
 router.post("/create", handleCreateFeedback);
 
 router.get("/all", handleGetAllFeedback);
+
+router.get("/list", handleGetFeedbackList);
+
+router.get("/:id", handleGetFeedbackDetails);
+
+router.post("/resolve", handleResolveFeedback);
+
+router.post("/message", handleSendMessage);
 
 export default router;

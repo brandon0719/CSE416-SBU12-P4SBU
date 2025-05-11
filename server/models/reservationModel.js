@@ -183,3 +183,23 @@ export const getApprovedReservations = async () => {
 //         throw new Error(error.message);
 //     }
 // };
+
+/**
+ * Returns, for every lot and permit type, how many spots are taken right now.
+ * Output rows: { lot_name, permit_type, spots_taken }
+ */
+export const getCurrentLotUsage = async () => {
+    const { rows } = await pool.query(`
+        SELECT
+          r.lot_name,
+          u.user_type   AS permit_type,
+          SUM(r.num_spots) AS spots_taken
+        FROM reservations r
+        JOIN users u
+          ON u.user_id = r.user_id
+        WHERE
+          r.status IN ('approved','pending')
+        GROUP BY r.lot_name, u.user_type
+      `);
+    return rows;
+};

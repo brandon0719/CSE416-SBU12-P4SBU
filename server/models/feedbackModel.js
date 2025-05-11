@@ -22,3 +22,56 @@ export const getAllFeedback = async () => {
         throw new Error("Error fetching feedback: " + error.message);
     }
 }
+
+export const getFeedbackList = async () => {
+    try {
+        const { rows } = await pool.query(
+            `SELECT 
+                feedback.feedback_id, 
+                feedback.topic, 
+                feedback.creation_date, 
+                feedback.resolved, 
+                users.name, 
+                users.user_type 
+            FROM feedback
+            JOIN users ON feedback.user_id = users.user_id
+            ORDER BY feedback.creation_date DESC`
+        );
+        return rows;
+    } catch (error) {
+        throw new Error("Error fetching feedback list: " + error.message);
+    }
+};
+
+export const getFeedbackDetails = async (feedbackId) => {
+    try {
+        const { rows } = await pool.query(
+            `SELECT 
+                feedback.feedback_id, 
+                feedback.topic, 
+                feedback.creation_date, 
+                feedback.resolved, 
+                users.name, 
+                users.user_type, 
+                feedback.details 
+            FROM feedback
+            JOIN users ON feedback.user_id = users.user_id
+            WHERE feedback.feedback_id = $1`,
+            [feedbackId]
+        );
+        return rows[0];
+    } catch (error) {
+        throw new Error("Error fetching feedback details: " + error.message);
+    }
+};
+
+export const resolveFeedback = async (feedbackId) => {
+    try {
+        await pool.query(
+            "UPDATE feedback SET resolved = TRUE WHERE feedback_id = $1",
+            [feedbackId]
+        );
+    } catch (error) {
+        throw new Error("Error resolving feedback: " + error.message);
+    }
+};

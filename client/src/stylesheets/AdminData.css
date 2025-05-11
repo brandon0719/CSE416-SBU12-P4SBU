@@ -1,0 +1,330 @@
+.admin-data-container {
+    color: black;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    background-color: white;
+}
+
+.admin-data-content {
+    margin: 10px auto;
+    width: 1100px;
+    background-color: white;
+}
+
+/* Tabs */
+.admin-data-tabs {
+    display: flex;
+    justify-content: flex-start;
+    margin: 30px 0 20px 0;
+    border-bottom: 2px solid #ddd;
+}
+
+.admin-data-tabs button {
+    padding: 10px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+.admin-data-tabs button.admin-data-active-tab {
+    color: #961010;
+    border: 2px solid #961010;
+    border-bottom: none;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.admin-data-tabs button:hover {
+    color: #dc3545;
+}
+
+.admin-data-tab-content {
+    margin-top: 20px;
+}
+
+/* Feedback list */
+.admin-data-feedback-list {
+    list-style: none;
+    padding: 0;
+}
+
+.admin-data-feedback-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}
+
+.admin-data-feedback-row {
+    display: grid;
+    grid-template-columns: 225px 305px 205px 135px 105px;
+    gap: 20px;
+    align-items: center;
+}
+
+.admin-data-feedback-row p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.admin-data-feedback-row button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.admin-data-feedback-row button:hover {
+    background-color: #0056b3;
+}
+
+/* Feedback Modal */
+.admin-data-feedback-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 40%;
+    max-width: 600px;
+    min-width: 400px;
+    height: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-data-feedback-modal h2 {
+    font-size: 24px;
+    margin: 0;
+    color: #333;
+    text-align: center;
+    font-weight: bold;
+}
+
+.admin-data-feedback-modal .admin-data-feedback-details {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #555;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.admin-data-feedback-modal textarea {
+    width: 100%;
+    height: 120px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #ffffff;
+    color: #333;
+    resize: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.admin-data-feedback-modal textarea::placeholder {
+    color: #aaa;
+}
+
+.admin-data-feedback-modal .admin-data-modal-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.admin-data-feedback-modal .admin-data-modal-actions button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.admin-data-feedback-modal .admin-data-modal-actions button:first-child {
+    background-color: #28a745;
+    color: white;
+}
+
+.admin-data-feedback-modal .admin-data-modal-actions button:first-child:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+.admin-data-feedback-modal .admin-data-modal-actions button:last-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.admin-data-feedback-modal .admin-data-modal-actions button:last-child:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+/* Popup/modal */
+/* .admin-data-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    z-index: 1000;
+    max-width: 600px;
+    min-width: 400px;
+} */
+/*Data analysis section*/
+
+/* Ensure h3 and img are on the same line in the analysis-header */
+.admin-data-analysis-header {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Add spacing between the h3 and the img */
+}
+
+.admin-data-analysis-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.admin-data-analysis-header img {
+    width: 20px;
+    height: 20px;
+    cursor: pointer; /* Show the finger mouse when hovered */
+    transition: transform 0.2s ease;
+}   
+
+.admin-data-analysis-header img:hover {
+    transform: scale(1.1); /* Slightly enlarge the icon on hover */
+}
+
+/* Adjust the layout of analysis-body */
+.admin-data-analysis-body {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 35px; /* Add spacing between the sections */
+}
+
+.admin-data-analysis-text {
+    flex: 0 0 16%; /* Take up 20% of the space */
+    height: 300px;
+    align-items: center;
+    display: flex;
+    overflow-y: auto;
+}
+
+.admin-data-analysis-chart {
+    flex: 0 0 38%; /* Take up 40% of the space */
+    height: 240px; /* Ensure consistent height for the chart container */
+    text-align: center;
+    align-items: center;
+    position: relative;
+}
+
+.admin-data-analysis-unique-data {
+    height: 300px;
+    flex: 0 0 36%; /* Take up 40% of the space */
+    margin: auto 0 auto 0; 
+}
+
+.toggle-chart-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.toggle-chart-button:hover {
+    background-color: #0056b3;
+}
+
+.profile-section{
+    margin-bottom: 0;
+}
+
+.progress-bars {
+    margin-top: 20px;
+}
+
+.progress-bar-container {
+    margin-bottom: 15px;
+}
+
+.progress-bar-label {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+
+
+
+
+
+
+
+/* Progress bars and charts */
+.admin-data-progress-bar-container {
+    margin-bottom: 15px;
+}
+
+.admin-data-progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.admin-data-progress-bar-fill {
+    height: 100%;
+    background-color: #007bff;
+    transition: width 0.3s;
+}
+
+/* Toggle chart button */
+.admin-data-toggle-chart-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* ...other rules as needed... */

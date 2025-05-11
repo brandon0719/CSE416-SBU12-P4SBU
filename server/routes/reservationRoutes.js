@@ -1,5 +1,5 @@
 import express from "express";
-import { reserve, getReservations, getSortedReservations, getReservationsByLot, getReservationsByLotAndTime, getNumAvailableAtTime, getPopularHours, listPendingReservations, listApprovedReservations  } from "../controllers/reservationControllers.js";
+import { reserve, getReservations, getSortedReservations, getReservationsByLot, getReservationsByLotAndTime, getNumAvailableAtTime, getPopularHours, listPendingReservations, listApprovedReservations, getCurrentUsage  } from "../controllers/reservationControllers.js";
 
 const router = express.Router();
 
@@ -11,6 +11,7 @@ router.get("/lot/num", getNumAvailableAtTime)
 router.get("/lot/hourly", getPopularHours)
 router.get("/pending", listPendingReservations)
 router.get("/approved", listApprovedReservations)
+router.get("/usage", getCurrentUsage)
 
 
 export default router;

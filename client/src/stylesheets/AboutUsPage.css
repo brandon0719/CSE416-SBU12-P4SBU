@@ -1,7 +1,3 @@
-* {
-    box-sizing: border-box; /* Include padding and borders in width/height calculations */
-}
-
 .about-us-page-container {
     position: relative;
     background-size: cover;
