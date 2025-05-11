@@ -429,12 +429,13 @@ const getUserReservations = async (userId) => {
 };
 
 const getNumAvailableSpotsAtTime = async (lot, reservationStart, reservationEnd) => {
-    console.log(lot + reservationStart.toLocaleString() + reservationEnd.toLocaleString())
     try {
-        const response = await http.get(`/reservation/lot/num?parkingLot=${lot}&startTime=${reservationStart.toLocaleString()}&endTime=${reservationEnd.toLocaleString()}`, {
-            lot,
-            reservationStart,
-            reservationEnd
+        const response = await http.get('/reservation/lot/num', {
+            params: {  
+                parkingLot: lot,
+                startTime: reservationStart.toISOString(),
+                endTime: reservationEnd.toISOString()
+            }
         });
         return response.data;
     } catch (error) {
@@ -554,6 +555,11 @@ export const fetchCompletedReservations = async () => {
     }
 }
 
+const getLotUsage = async () => {
+    const { data } = await http.get("/reservation/usage");
+    return data; // array of { lot_name, permit_type, spots_taken }
+};
+
 export const fetchCapacityAnalysis = async () => {
     try {
         const response = await http.get("/analysis/capacity");
@@ -638,6 +644,7 @@ const ApiService = {
     approveReservation: approveReservation,
     fetchPendingReservations: fetchPendingReservations,
     fetchCompletedReservations: fetchCompletedReservations,
+    getLotUsage: getLotUsage,
     fetchCapacityAnalysis: fetchCapacityAnalysis,
     fetchCapacityUsage: fetchCapacityUsage,
     fetchRevenueAnalysis: fetchRevenueAnalysis,
