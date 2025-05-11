@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ApiService from "../services/ApiService";
-import "../stylesheets/AdminHome.css";
+import "../stylesheets/UserManagementPopup.css";
 
 const UserManagementPopup = ({ type, user, onClose, refreshUsers }) => {
     const [formData, setFormData] = useState({

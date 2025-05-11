@@ -3,7 +3,7 @@ import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
 import ApiService from "../services/ApiService";
 import ParkingManagementPopup from "../components/ParkingManagementPopup";
-import "../stylesheets/AdminHome.css";
+import "../stylesheets/AdminParking.css";
 
 const AdminParking = () => {
     const [parkingLots, setParkingLots] = useState([]);
@@ -65,13 +65,13 @@ const AdminParking = () => {
     };
 
     return (
-        <div className="admin-page-container">
+        <div className="admin-parking-container">
             <Header />
             <AdminNav />
-            <div className="admin-page-content">
-                <div className="admin-header">
-                    <div className="admin-header-actions">
-                        <div className="sorting-options">
+            <div className="admin-parking-content">
+                <div className="admin-parking-header ">
+                    <div className="admin-parking-header-actions">
+                        <div className="admin-parking-sorting-options">
                             <label htmlFor="sort-criteria">Sort by:</label>
                             <select
                                 id="sort-criteria"
@@ -83,17 +83,17 @@ const AdminParking = () => {
                                 <option value="totalSpaces">Total Spaces</option>
                             </select>
                         </div>
-                        <button onClick={() => openPopup("add")}>Add Parking Lot</button>
+                        <button className ="admin-parking-add-button" onClick={() => openPopup("add")}>Add Parking Lot</button>
                     </div>
                 </div>
-                <div className="user-list-container">
-                    <ul className="user-list">
+                <div className="admin-parking-user-list-container">
+                    <ul className="admin-parking-user-list">
                         {sortedParkingLots.map((lot) => (
-                            <li key={lot.lotid} className="user-item">
-                                <span>{lot.name} - Capacity: {lot.total_spaces}</span>
+                            <li key={lot.lotid} className="admin-parking-user-item">
+                                <span><strong>{lot.name}</strong> - Capacity: {lot.total_spaces}</span>
                                 <span>
-                                    <button className="approve-button" onClick={() => openPopup("edit", lot)}>Edit Lot</button>
-                                    <button className="delete-button" onClick={() => handleDelete(lot.lotid)}>Remove Lot</button>
+                                    <button className="admin-parking-edit-button" onClick={() => openPopup("edit", lot)}>Edit Lot</button>
+                                    <button className="admin-parking-remove-button" onClick={() => handleDelete(lot.lotid)}>Remove Lot</button>
                                 </span>
                             </li>
                         ))}

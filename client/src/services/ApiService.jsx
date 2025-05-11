@@ -189,8 +189,6 @@ const getNotifications = async () => {
 };
 
 export const handleLogin = async (email, password) => {
-    console.log("handleLogin called with:", { email, password });
-
     try {
         const response = await http.post("/auth/login", { email, password });
         console.log("Login API response:", response); // Log the full response
@@ -572,6 +570,16 @@ export const fetchCapacityAnalysis = async () => {
     }
 }
 
+export const fetchCapacityUsage = async () => {
+    try {
+        const response = await http.get("/analysis/capacity-usage");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching capacity usage:", error);
+        throw error.response?.data || { message: "Error fetching capacity usage" };
+    }
+}
+
 export const fetchRevenueAnalysis = async () => {
     try {
         const response = await http.get("/analysis/revenue");
@@ -582,15 +590,25 @@ export const fetchRevenueAnalysis = async () => {
     }
 }
 
-export const fetchUserAnalysis = async () => { 
+export const fetchTicketAnalysis = async () => {
     try {
-        const response = await http.get("/analysis/user");
+        const response = await http.get("/analysis/tickets");
         return response.data;
     } catch (error) {
-        console.error("Error fetching user analysis:", error);
-        throw error.response?.data || { message: "Error fetching user analysis" };
+        console.error("Error fetching ticket analysis:", error);
+        throw error.response?.data || { message: "Error fetching ticket analysis" };
     }
-}
+};
+
+export const fetchReservationAnalysis = async () => {
+    try {
+        const response = await http.get("/analysis/reservations");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching reservation analysis:", error);
+        throw error.response?.data || { message: "Error fetching reservation analysis" };
+    }
+};
 
 const ApiService = {
     registerUser: registerUser,
@@ -628,8 +646,10 @@ const ApiService = {
     fetchCompletedReservations: fetchCompletedReservations,
     getLotUsage: getLotUsage,
     fetchCapacityAnalysis: fetchCapacityAnalysis,
+    fetchCapacityUsage: fetchCapacityUsage,
     fetchRevenueAnalysis: fetchRevenueAnalysis,
-    fetchUserAnalysis: fetchUserAnalysis,  
+    fetchTicketAnalysis: fetchTicketAnalysis,
+    fetchReservationAnalysis: fetchReservationAnalysis, 
 };
 
 export default ApiService;

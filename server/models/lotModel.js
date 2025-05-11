@@ -77,13 +77,62 @@ export const editLot = async (lotId, lotData) => {
     } = lotData;
 
     try {
-        const { rows } = await pool.query(
-            "UPDATE lots SET campus = $1, name = $2, total_spaces = $3, faculty_staff_spots = $4, commuter_premium_spots = $5, metered_spots = $6, commuter_spots = $7, resident_spots = $8, geom = ST_GeomFromGeoJSON($9), details = $10, rate = $11 WHERE lotid = $12 RETURNING *",
-            [campus, name, total_spaces, faculty_staff_spots, commuter_premium_spots, metered_spots, commuter_spots, resident_spots, geom, details, rate, lotId]
-        )
-        console.log(rows);
+        // Fetch the current geom value from the database
+        const { rows: currentRows } = await pool.query(
+            "SELECT encode(ST_AsBinary(geom), 'hex') AS geom FROM lots WHERE lotid = $1",
+            [lotId]
+        );
+
+        if (currentRows.length === 0) {
+            throw new Error("Parking lot not found");
+        }
+
+        const currentGeom = currentRows[0].geom;
+
+        // Determine whether to update the geom field
+        const geomQueryPart =
+            geom && geom !== currentGeom
+                ? "geom = ST_GeomFromWKB(decode($9, 'hex'))"
+                : "geom = geom";
+
+        // Build the query
+        const query = `
+            UPDATE lots 
+            SET campus = $1, 
+                name = $2, 
+                total_spaces = $3, 
+                faculty_staff_spots = $4, 
+                commuter_premium_spots = $5, 
+                metered_spots = $6, 
+                commuter_spots = $7, 
+                resident_spots = $8, 
+                ${geomQueryPart}, 
+                details = $10, 
+                rate = $11 
+            WHERE lotid = $12 
+            RETURNING *`;
+
+        // Prepare query parameters
+        const queryParams = [
+            campus,
+            name,
+            total_spaces,
+            faculty_staff_spots,
+            commuter_premium_spots,
+            metered_spots,
+            commuter_spots,
+            resident_spots,
+            geom && geom !== currentGeom ? geom : null, // Only pass geom if it's different
+            details,
+            rate,
+            lotId,
+        ];
+
+        // Execute the query
+        const { rows } = await pool.query(query, queryParams);
         return rows[0];
     } catch (error) {
+        console.error("Error editing parking lot:", error.message);
         throw new Error("Error editing parking lot: " + error.message);
     }
 };

@@ -1,0 +1,88 @@
+/* Popup container styling */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 500px;
+    max-width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Added spacing between elements */
+}
+
+/* Popup header styling */
+.popup h2 {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin: 0 0 20px 0; /* Added margin below the header */
+    font-weight: bold;
+}
+
+/* Input fields styling */
+.popup input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: #f9f9f9;
+    color: #333;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.popup input:focus {
+    border-color: #007bff;
+    outline: none;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Confirmation message styling */
+.popup p {
+    font-size: 16px;
+    color: #555;
+    text-align: center;
+}
+
+/* Popup actions (buttons) styling */
+.popup-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Added spacing between buttons */
+}
+
+.popup-actions button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.popup-actions button:first-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.popup-actions button:first-child:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+.popup-actions button:last-child {
+    background-color: #28a745;
+    color: white;
+}
+
+.popup-actions button:last-child:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}

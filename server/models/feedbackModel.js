@@ -46,7 +46,17 @@ export const getFeedbackList = async () => {
 export const getFeedbackDetails = async (feedbackId) => {
     try {
         const { rows } = await pool.query(
-            "SELECT * FROM feedback WHERE feedback_id = $1",
+            `SELECT 
+                feedback.feedback_id, 
+                feedback.topic, 
+                feedback.creation_date, 
+                feedback.resolved, 
+                users.name, 
+                users.user_type, 
+                feedback.details 
+            FROM feedback
+            JOIN users ON feedback.user_id = users.user_id
+            WHERE feedback.feedback_id = $1`,
             [feedbackId]
         );
         return rows[0];
