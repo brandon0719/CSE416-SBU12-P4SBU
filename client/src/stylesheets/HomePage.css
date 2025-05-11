@@ -457,3 +457,13 @@ body {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+/* Reservation error message */
+.reservation-error {
+    background: #fdecea;
+    color: #b00020;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}

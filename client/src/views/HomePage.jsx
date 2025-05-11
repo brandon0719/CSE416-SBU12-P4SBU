@@ -82,6 +82,9 @@ const HomePage = () => {
     const [clientSecret, setClientSecret] = useState(null);
     const [pendingReservation, setPendingReservation] = useState(null);
 
+    // Error handling
+    const [reserveError, setReserveError] = useState("");
+
     // Filter the parking lots based on the search term
     const filteredLots = lots.filter((lot) =>
         lot.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -91,6 +94,15 @@ const HomePage = () => {
     const filteredBuildings = buildings.filter((building) =>
         building.name.toLowerCase().includes(buildingSearchTerm.toLowerCase())
     );
+
+    // Effect whenever reserveError changes to a non‐empty string, schedule a 8s clear
+    useEffect(() => {
+        if (!reserveError) return;
+        const timer = setTimeout(() => {
+            setReserveError("");
+        }, 8000);
+        return () => clearTimeout(timer);
+    }, [reserveError]);
 
     useEffect(() => {
         const fetchAndSortLots = async () => {
@@ -104,24 +116,25 @@ const HomePage = () => {
                     sortCriteria === "distance" ||
                     sortCriteria === "distance-non-metered"
                 ) {
-                    const origin =
-                        selectedBuilding?.location?.coordinates ||
-                        [userLocation.lng, userLocation.lat];
+                    const origin = selectedBuilding?.location?.coordinates || [
+                        userLocation.lng,
+                        userLocation.lat,
+                    ];
 
                     const withDistance = await Promise.all(
-                        data.map(async lot => {
+                        data.map(async (lot) => {
                             if (lot.geom?.coordinates?.length) {
                                 const centroid = computeCentroid(lot.geom);
-                                const walkingDistance = await getWalkingDistance(
-                                    origin,
-                                    centroid
-                                );
+                                const walkingDistance =
+                                    await getWalkingDistance(origin, centroid);
                                 return { ...lot, walkingDistance };
                             }
                             return { ...lot, walkingDistance: Infinity };
                         })
                     );
-                    withDistance.sort((a, b) => a.walkingDistance - b.walkingDistance);
+                    withDistance.sort(
+                        (a, b) => a.walkingDistance - b.walkingDistance
+                    );
                     lotsData = withDistance;
                 } else if (sortCriteria === "price") {
                     data.sort((a, b) => a.rate - b.rate);
@@ -132,16 +145,19 @@ const HomePage = () => {
 
                 // 2) Fetch usage
                 const usageRows = await ApiService.getLotUsage();
-                const usageMap = usageRows.reduce((acc, { lot_name, permit_type, spots_taken }) => {
-                    acc[lot_name] = acc[lot_name] || {};
-                    acc[lot_name][permit_type] = spots_taken;
-                    return acc;
-                }, {});
+                const usageMap = usageRows.reduce(
+                    (acc, { lot_name, permit_type, spots_taken }) => {
+                        acc[lot_name] = acc[lot_name] || {};
+                        acc[lot_name][permit_type] = spots_taken;
+                        return acc;
+                    },
+                    {}
+                );
 
                 // 3) Merge usage into each lot
-                const lotsWithUsage = lotsData.map(lot => ({
+                const lotsWithUsage = lotsData.map((lot) => ({
                     ...lot,
-                    usage: usageMap[lot.name] || {}
+                    usage: usageMap[lot.name] || {},
                 }));
 
                 setLots(lotsWithUsage);
@@ -275,8 +291,9 @@ const HomePage = () => {
                                         `
                   <div style="text-align: center;">
                     <h3>${lot.name}</h3>
-                    <p>${lot.details || "No additional information available."
-                                        }</p>
+                    <p>${
+                        lot.details || "No additional information available."
+                    }</p>
                   </div>
                 `
                                     )
@@ -351,13 +368,17 @@ const HomePage = () => {
 
     const handleReserveClicked = (lotName) => {
         setSelectedLot(lotName);
-        if (reservationEnd < reservationStart) {
-            alert("Reservation end cannot be before start");
-        } else if (!reservationStart || !reservationEnd) {
-            alert("Please enter reservation time.");
-        } else {
-            setIsModalOpen(true);
+        if (!reservationStart || !reservationEnd) {
+            setReserveError("Please enter reservation time.");
+            return;
+        } else if (reservationEnd < reservationStart) {
+            setReserveError("Reservation end cannot be before start");
+            return;
+        } else if (!availableSpots) {
+            setReserveError("No available spots for this time.");
+            return;
         }
+        setIsModalOpen(true);
     };
 
     // 2) Helper to call your backend and get a Stripe PaymentIntent:
@@ -454,9 +475,11 @@ const HomePage = () => {
                                         {selectedBuilding.name}
                                     </h3>
                                     <button
-                                        onClick={() =>
-                                            setSelectedBuilding(null)
-                                        }
+                                        onClick={() => {
+                                            setSelectedBuilding(null);
+                                            setReservationEnd("");
+                                            setReservationStart("");
+                                        }}
                                         className="change-building-btn">
                                         Change Selection
                                     </button>
@@ -505,6 +528,11 @@ const HomePage = () => {
                                         />
                                     </div>
                                 </div>
+                                {reserveError && (
+                                    <div className="reservation-error">
+                                        {reserveError}
+                                    </div>
+                                )}
                                 {/* Flex container for the lots header and sorting controls */}
                                 <div className="lots-header-sort">
                                     <h3 className="lots-title">Parking Lots</h3>
@@ -553,10 +581,14 @@ const HomePage = () => {
                                             : true
                                     )
                                     .map((lot) => (
-                                        <div key={lot.name} className="lot-item">
+                                        <div
+                                            key={lot.name}
+                                            className="lot-item">
                                             {/* Left column: name, details, rate, buttons */}
                                             <div className="lot-item-left">
-                                                <p><strong>{lot.name}</strong></p>
+                                                <p>
+                                                    <strong>{lot.name}</strong>
+                                                </p>
                                                 <p>
                                                     {lot.details?.trim()
                                                         ? lot.details
@@ -565,15 +597,27 @@ const HomePage = () => {
                                                 <p>
                                                     Rate:{" "}
                                                     {lot.rate != null
-                                                        ? `$${parseFloat(lot.rate).toFixed(2)}/hr`
+                                                        ? `$${parseFloat(
+                                                              lot.rate
+                                                          ).toFixed(2)}/hr`
                                                         : "N/A"}
                                                 </p>
                                                 <div className="lot-item-buttons">
-                                                    <button onClick={() => handleReserveClicked(lot.name)}>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleReserveClicked(
+                                                                lot.name
+                                                            )
+                                                        }>
                                                         Reserve
                                                     </button>
                                                     {lot.geom && (
-                                                        <button onClick={() => handleLotView(lot)}>
+                                                        <button
+                                                            onClick={() =>
+                                                                handleLotView(
+                                                                    lot
+                                                                )
+                                                            }>
                                                             View
                                                         </button>
                                                     )}
@@ -582,24 +626,41 @@ const HomePage = () => {
 
                                             {/* Right column: usage by permit */}
                                             <div className="lot-item-usage">
-                                                {["faculty", "commuter", "resident", "visitor"].map(pt => {
+                                                {[
+                                                    "faculty",
+                                                    "commuter",
+                                                    "resident",
+                                                    "visitor",
+                                                ].map((pt) => {
                                                     // capacity per permit
-                                                    const capacity = (
-                                                        pt === "faculty" ? lot.faculty_staff_spots :
-                                                            pt === "commuter" ? lot.commuter_spots + lot.commuter_premium_spots :
-                                                                pt === "resident" ? lot.resident_spots :
-                                                                    lot.metered_spots
-                                                    ) || 0;
+                                                    const capacity =
+                                                        (pt === "faculty"
+                                                            ? lot.faculty_staff_spots
+                                                            : pt === "commuter"
+                                                            ? lot.commuter_spots +
+                                                              lot.commuter_premium_spots
+                                                            : pt === "resident"
+                                                            ? lot.resident_spots
+                                                            : lot.metered_spots) ||
+                                                        0;
 
                                                     // taken so far
-                                                    const taken = lot.usage[pt] || 0;
+                                                    const taken =
+                                                        lot.usage[pt] || 0;
 
                                                     // remaining
-                                                    const remaining = Math.max(capacity - taken, 0);
+                                                    const remaining = Math.max(
+                                                        capacity - taken,
+                                                        0
+                                                    );
 
                                                     return (
                                                         <p key={pt}>
-                                                            {pt.charAt(0).toUpperCase() + pt.slice(1)}: {remaining}
+                                                            {pt
+                                                                .charAt(0)
+                                                                .toUpperCase() +
+                                                                pt.slice(1)}
+                                                            : {remaining}
                                                         </p>
                                                     );
                                                 })}
@@ -629,9 +690,7 @@ const HomePage = () => {
                 <>
                     <div className="modal-overlay" />
                     <div className="checkout-container">
-                        <h4>
-                            Complete Payment
-                        </h4>
+                        <h4>Complete Payment</h4>
                         <CheckoutForm
                             clientSecret={clientSecret}
                             onSuccessfulPayment={async () => {
