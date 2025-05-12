@@ -184,17 +184,23 @@ const TicketPage = () => {
                     <div className="modal-overlay" />
                     <div className="checkout-container">
                         <h4>Complete Payment</h4>
+                        {console.log(pendingTickets)}
+                        {console.log(selectedTickets)}
                         <CheckoutForm
                             clientSecret={clientSecret}
-                            amount={tickets
+                            rate={tickets
                                 .filter((t) =>
-                                    pendingTickets.includes(t.ticket_id)
+                                    selectedTickets.includes(t.ticket_id)
                                 )
                                 .reduce(
                                     (sum, t) =>
-                                        sum + parseFloat(t.ticket_price),
+                                        sum +
+                                        Math.round(
+                                            parseFloat(t.ticket_price)
+                                        ),
                                     0
                                 )}
+                            hours = {1}
                             onCancel={() => {
                                 setClientSecret(null);
                                 setPendingTickets([]);
