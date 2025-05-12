@@ -45,7 +45,12 @@ const AdminData = () => {
     // Holds the chart type for each analysis ex: pie or bar
     const [capacityChartType, setCapacityChartType] = useState("bar");
     const [revenueChartType, setRevenueChartType] = useState("bar");
-    const [ticketReservationChartType, setTicketReservationChartType] = useState("bar"); // Default to "bar"
+    const [ticketReservationChartType, setTicketReservationChartType] = useState("bar");
+    const [userChartType, setUserChartType] = useState("bar");
+
+    const [userTypeCounts, setUserTypeCounts] = useState([]);
+    const [dailyFeedbackCounts, setDailyFeedbackCounts] = useState([]);
+    const [userAnalysisSelectedMonth, setUserAnalysisSelectedMonth] = useState(new Date().getMonth() + 1);
 
     // Holds the data for all the corresponding special graphs
     const [capacityUsageData, setCapacityUsageData] = useState(null);
@@ -85,6 +90,11 @@ const AdminData = () => {
             fetchDailyReservationData();
         }
     }, [ticketReservationType, ticketReservationSelectedMonth]);
+
+    useEffect(() => {
+        fetchUserTypeCounts();
+        fetchDailyFeedbackCounts();
+    }, [userAnalysisSelectedMonth]);
 
     // Fetch the list of feedback
     const fetchFeedbackList = async () => {
@@ -182,6 +192,24 @@ const AdminData = () => {
         }
     };
 
+    const fetchUserTypeCounts = async () => {
+        try {
+            const data = await ApiService.fetchUserTypeCounts();
+            setUserTypeCounts(data);
+        } catch (error) {
+            console.error("Failed to fetch user type counts:", error);
+        }
+    };
+
+    const fetchDailyFeedbackCounts = async () => {
+        try {
+            const data = await ApiService.fetchDailyFeedbackCounts(userAnalysisSelectedMonth);
+            setDailyFeedbackCounts(data);
+        } catch (error) {
+            console.error("Failed to fetch daily feedback counts:", error);
+        }
+    };
+
     const renderProgressBar = (used, total, label) => {
         const percentage = ((used / total) * 100).toFixed(2);
         if (total === 0) {
@@ -275,8 +303,7 @@ const AdminData = () => {
             const d = new Date(date);
             const month = '' + (d.getMonth() + 1);
             const day = '' + d.getDate();
-            const year = d.getFullYear();
-            return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
+            return [month.padStart(2, '0'), day.padStart(2, '0')].join('-');
         };
 
         // Create a set of unique day labels from the raw data
@@ -312,13 +339,13 @@ const AdminData = () => {
                     borderColor = "blue";
                     break;
                 case "Faculty":
-                    borderColor = "red";
-                    break;
-                case "Resident":
                     borderColor = "green";
                     break;
-                case "Visitor":
+                case "Resident":
                     borderColor = "orange";
+                    break;
+                case "Visitor":
+                    borderColor = "red";
                     break;
                 default:
                     borderColor = "gray";
@@ -352,6 +379,7 @@ const AdminData = () => {
                     },
                 },
                 y: {
+                    beginAtZero: true,
                     title: {
                         display: true,
                         text: "Revenue ($)",
@@ -411,13 +439,13 @@ const AdminData = () => {
                     borderColor = "blue";
                     break;
                 case "Faculty":
-                    borderColor = "red";
-                    break;
-                case "Resident":
                     borderColor = "green";
                     break;
-                case "Visitor":
+                case "Resident":
                     borderColor = "orange";
+                    break;
+                case "Visitor":
+                    borderColor = "red";
                     break;
                 default:
                     borderColor = "gray";
@@ -441,7 +469,7 @@ const AdminData = () => {
         const chartOptions = {
             responsive: true,
             plugins: {
-                legend: { position: "top" },
+                legend: { position: "bottom" },
             },
             scales: {
                 x: {
@@ -462,6 +490,66 @@ const AdminData = () => {
         return (
             <div className="line-chart-container">
                 <Line key={`${ticketReservationType}-${ticketReservationSelectedMonth}`} data={chartData} options={chartOptions} />
+            </div>
+        );
+    };
+
+    const renderUFLineChart = () => {
+        if (!dailyFeedbackCounts || dailyFeedbackCounts.length === 0) {
+            return <p>No feedback data available for the selected month.</p>;
+        }
+
+        // Helper function to format a date as YYYY-MM-DD
+        const formatDate = (date) => {
+            const d = new Date(date);
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${month}-${day}`;
+        };
+
+        // Format the day field for each feedback count
+        const formattedData = dailyFeedbackCounts.map((item) => ({
+            ...item,
+            day: formatDate(item.day),
+        }));
+
+        return (
+            <div className="line-chart-container">
+                <Line
+                    data={{
+                        labels: formattedData.map((item) => item.day),
+                        datasets: [
+                            {
+                                label: "Daily Feedbacks",
+                                data: formattedData.map((item) => item.total_feedbacks),
+                                borderColor: "blue",
+                                backgroundColor: "blue",
+                                fill: false,
+                                tension: 0.1,
+                            },
+                        ],
+                    }}
+                    options={{
+                        responsive: true,
+                        plugins: {
+                            legend: { position: "bottom" },
+                        },
+                        scales: {
+                            x: {
+                                title: {
+                                    display: false,
+                                    text: "Day",
+                                },
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "Feedbacks",
+                                },
+                            },
+                        },
+                    }}
+                />
             </div>
         );
     };
@@ -805,6 +893,62 @@ const AdminData = () => {
                                     {/* Line Chart Section */}
                                     <div className="admin-data-analysis-unique-data">
                                         {renderTRLineChart()}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* User/Feedback Analysis Section */}
+                            <div className="admin-data-analysis-section">
+                                <div className="admin-data-analysis-header">
+                                    <h3>User Analysis</h3>
+                                    <img
+                                        src={refreshIcon}
+                                        alt="Refresh"
+                                        className="admin-data-refresh-icon"
+                                        onClick={() => {
+                                            fetchUserTypeCounts();
+                                            fetchDailyFeedbackCounts();
+                                        }}
+                                    />
+                                </div>
+                                <div className="admin-data-analysis-body">
+                                    {/* Analysis Text Section */}
+                                    <div className="admin-data-analysis-text">
+                                        <div className="admin-data-month-dropdown">
+                                            {[...Array(12)].map((_, index) => (
+                                                <div
+                                                    key={index + 1}
+                                                    className={`admin-data-lot-option ${userAnalysisSelectedMonth === index + 1 ? "selected" : ""}`}
+                                                    onClick={() => setUserAnalysisSelectedMonth(index + 1)}
+                                                >
+                                                    {new Date(0, index).toLocaleString("default", { month: "long" })}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Analysis Chart Section */}
+                                    <div className="admin-data-analysis-chart">
+                                        <button
+                                            onClick={() =>
+                                                setUserChartType(userChartType === "bar" ? "pie" : "bar")
+                                            }
+                                            className="admin-data-toggle-chart-button"
+                                        >
+                                            {userChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
+                                        </button>
+                                        {userTypeCounts &&
+                                            renderChart(
+                                                userTypeCounts.map((item) => item.total_users),
+                                                userTypeCounts.map((item) => item.user_type),
+                                                "Users",
+                                                userChartType
+                                            )}
+                                    </div>
+
+                                    {/* Unique Data Section */}
+                                    <div className="admin-data-analysis-unique-data">
+                                        {renderUFLineChart()}
                                     </div>
                                 </div>
                             </div>

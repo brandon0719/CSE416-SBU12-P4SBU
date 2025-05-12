@@ -54,15 +54,18 @@
 
 /* Feedback list */
 .admin-data-feedback-list {
-    list-style: none;
-    padding: 0;
+    height: 65vh;
+    overflow-y: auto;
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f9f9f9;
 }
 
 .admin-data-feedback-item {
     padding: 15px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    margin-bottom: 10px;
     background-color: #f9f9f9;
 }
 
@@ -75,7 +78,7 @@
 
 .admin-data-feedback-row p {
     margin: 0;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .admin-data-feedback-row button {
@@ -204,7 +207,8 @@
 .admin-data-analysis-header {
     display: flex;
     align-items: center;
-    gap: 10px; /* Add spacing between the h3 and the img */
+    gap: 10px;
+    /* Add spacing between the h3 and the img */
 }
 
 .admin-data-analysis-header h3 {
@@ -216,12 +220,14 @@
 .admin-data-analysis-header img {
     width: 20px;
     height: 20px;
-    cursor: pointer; /* Show the finger mouse when hovered */
+    cursor: pointer;
+    /* Show the finger mouse when hovered */
     transition: transform 0.2s ease;
-}   
+}
 
 .admin-data-analysis-header img:hover {
-    transform: scale(1.1); /* Slightly enlarge the icon on hover */
+    transform: scale(1.1);
+    /* Slightly enlarge the icon on hover */
 }
 
 /* Adjust the layout of analysis-body */
@@ -230,26 +236,37 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 35px; /* Add spacing between the sections */
+    gap: 35px;
+    /* Add spacing between the sections */
 }
 
 .admin-data-analysis-text {
-    flex: 0 0 22%; /* Take up 22% of the space */
-    height: 270px; /* Fixed height */
+    flex: 0 0 20%;
+    /* Take up 22% of the space */
+    height: 270px;
+    /* Fixed height */
     display: flex;
-    flex-direction: column; /* Ensure the dropdown stacks vertically */
-    overflow: hidden; /* Prevent overflow */
-    background-color: white; /* Match the background */
-    border: 0.5px solid #ddd; /* Add a border for separation */
-    border-radius: 8px; /* Rounded corners */
+    flex-direction: column;
+    /* Ensure the dropdown stacks vertically */
+    overflow: hidden;
+    /* Prevent overflow */
+    background-color: white;
+    /* Match the background */
+    border: 0.5px solid #ddd;
+    /* Add a border for separation */
+    border-radius: 8px;
+    /* Rounded corners */
     padding: 5px;
     margin: 0 0 30px 0;
-    gap: 10px;;
+    gap: 10px;
+    ;
 }
 
 .admin-data-analysis-chart {
-    flex: 0 0 38%; /* Take up 40% of the space */
-    height: 240px; /* Ensure consistent height for the chart container */
+    flex: 0 0 38%;
+    /* Take up 40% of the space */
+    height: 240px;
+    /* Ensure consistent height for the chart container */
     text-align: center;
     align-items: center;
     position: relative;
@@ -257,8 +274,9 @@
 
 .admin-data-analysis-unique-data {
     height: 300px;
-    flex: 0 0 30%; /* Take up 40% of the space */
-    margin: auto 0 auto 0; 
+    flex: 0 0 32%;
+    /* Take up 40% of the space */
+    margin: auto 0 auto 0;
 }
 
 .toggle-chart-button {
@@ -277,7 +295,7 @@
     background-color: #0056b3;
 }
 
-.profile-section{
+.profile-section {
     margin-bottom: 0;
 }
 
@@ -329,73 +347,90 @@
 .admin-data-lot-dropdown {
     display: flex;
     flex-direction: column;
-    width: 100%; /* Fit perfectly in the parent div */
-    height: 100%; /* Take up the full height of the parent div */
-    overflow-y: auto; /* Add vertical scroll for overflow */
-    overflow-x: hidden; /* Prevent horizontal overflow */
-    background-color: #f9f9f9; /* Light background for better visibility */
-    border: 1px solid #ddd; /* Add a border for separation */
-    border-radius: 8px; /* Rounded corners */
-    padding: 10px; /* Add padding for spacing */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 100%;
+    /* Fit perfectly in the parent div */
+    height: 100%;
+    /* Take up the full height of the parent div */
+    overflow-y: auto;
+    /* Add vertical scroll for overflow */
+    overflow-x: hidden;
+    /* Prevent horizontal overflow */
+    background-color: #f9f9f9;
+    /* Light background for better visibility */
+    border: 1px solid #ddd;
+    /* Add a border for separation */
+    border-radius: 8px;
+    /* Rounded corners */
+    padding: 10px;
+    /* Add padding for spacing */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow for depth */
 }
 
 .admin-data-lot-option {
-    padding: 6px 15px; /* Add padding for clickable area */
-    font-size: 14px; /* Adjust font size */
-    color: #555; /* Neutral text color */
-    cursor: pointer; /* Pointer cursor for clickable items */
-    border-radius: 4px; /* Rounded corners for options */
-    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+    padding: 6px 15px;
+    /* Add padding for clickable area */
+    font-size: 14px;
+    /* Adjust font size */
+    color: #555;
+    /* Neutral text color */
+    cursor: pointer;
+    /* Pointer cursor for clickable items */
+    border-radius: 4px;
+    /* Rounded corners for options */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    /* Smooth hover effect */
 }
 
 .admin-data-lot-option:hover {
-    background-color: #007bff; /* Highlight background on hover */
-    color: white; /* Change text color on hover */
+    background-color: #007bff;
+    /* Highlight background on hover */
+    color: white;
+    /* Change text color on hover */
 }
 
 .admin-data-lot-option.selected {
-    background-color: #961010; /* Highlight selected option */
-    color: white; /* White text for selected option */
-    font-weight: bold; /* Bold text for emphasis */
+    background-color: #961010;
+    /* Highlight selected option */
+    color: white;
+    /* White text for selected option */
+    font-weight: bold;
+    /* Bold text for emphasis */
 }
 
 .admin-data-lot-dropdown::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
+    width: 8px;
+    /* Width of the scrollbar */
 }
 
 .admin-data-lot-dropdown::-webkit-scrollbar-thumb {
-    background-color: #ccc; /* Scrollbar thumb color */
-    border-radius: 4px; /* Rounded scrollbar thumb */
+    background-color: #ccc;
+    /* Scrollbar thumb color */
+    border-radius: 4px;
+    /* Rounded scrollbar thumb */
 }
 
 .admin-data-lot-dropdown::-webkit-scrollbar-thumb:hover {
-    background-color: #aaa; /* Darker color on hover */
+    background-color: #aaa;
+    /* Darker color on hover */
 }
 
-.admin-data-revenue-dropdown,
-.admin-data-month-dropdown {
-    display: flex;
-    flex-direction: column;
-    width: 100%; /* Fit the parent container */
-    height: 150px; /* Take up the full height */
-    overflow-y: auto; /* Add vertical scroll for overflow */
-    overflow-x: hidden; /* Prevent horizontal overflow */
-    background-color: #f9f9f9; /* Light background */
-    border: 1px solid #ddd; /* Border for separation */
-    border-radius: 8px; /* Rounded corners */
-    padding: 10px; /* Add padding */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
 
 .line-chart-container {
-    margin: 20px 0; /* Add top margin */
-    height: 230px; /* Increase the height of the chart */
-    padding: 10px; /* Optional padding for spacing */
-    background-color: #f9f9f9; /* Optional background color */
-    border: 1px solid #ddd; /* Optional border for separation */
-    border-radius: 8px; /* Optional rounded corners */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional subtle shadow */
+    margin: 20px 0;
+    /* Add top margin */
+    height: 230px;
+    /* Increase the height of the chart */
+    padding: 10px;
+    /* Optional padding for spacing */
+    background-color: #f9f9f9;
+    /* Optional background color */
+    border: 1px solid #ddd;
+    /* Optional border for separation */
+    border-radius: 8px;
+    /* Optional rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Optional subtle shadow */
 }
 
 
@@ -404,7 +439,7 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 150px;
+    height: 300px;
     overflow-y: auto;
     background-color: #f9f9f9;
     border: 1px solid #ddd;

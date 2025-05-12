@@ -1,5 +1,5 @@
 import express from "express";
-import { getCapacityAnalysis, getCapacityUsage, getRevenueAnalysis, getDailyRevenueAnalysis, getTicketAnalysis, getReservationAnalysis, getDailyTicketAnalysis, getDailyReservationAnalysis } from "../controllers/analysisControllers.js";
+import { getCapacityAnalysis, getCapacityUsage, getRevenueAnalysis, getDailyRevenueAnalysis, getTicketAnalysis, getReservationAnalysis, getDailyTicketAnalysis, getDailyReservationAnalysis, getUserTypeCounts, getDailyFeedbackCounts } from "../controllers/analysisControllers.js";
 
 const router = express.Router();
 
@@ -15,5 +15,8 @@ router.get("/daily-tickets", getDailyTicketAnalysis);
 
 router.get("/reservations", getReservationAnalysis);
 router.get("/daily-reservations", getDailyReservationAnalysis);
+
+router.get("/user-type-counts", getUserTypeCounts);
+router.get("/daily-feedback-counts", getDailyFeedbackCounts);
 
 export default router;

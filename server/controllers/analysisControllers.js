@@ -222,7 +222,7 @@ export const getTicketAnalysis = async (req, res) => {
             ORDER BY ut.user_type;
         `, [month]);
 
-        console.log("Ticket Analysis Result:", result.rows);
+        // console.log("Ticket Analysis Result:", result.rows);
         res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -276,7 +276,7 @@ export const getReservationAnalysis = async (req, res) => {
             ORDER BY ut.user_type;
         `, [month]);
 
-        console.log("Reservation Analysis Result:", result.rows);
+        // console.log("Reservation Analysis Result:", result.rows);
         res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -303,6 +303,48 @@ export const getDailyReservationAnalysis = async (req, res) => {
             ORDER BY DATE(r.start_time), ut.user_type;
         `, [month]);
 
+        res.status(200).json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getUserTypeCounts = async (req, res) => {
+    try {
+        const result = await pool.query(`
+            WITH user_types AS (
+                SELECT UNNEST(ARRAY['Commuter', 'Faculty', 'Resident', 'Visitor']) AS user_type
+            )
+            SELECT 
+                ut.user_type,
+                COALESCE(COUNT(u.user_id), 0) AS total_users
+            FROM user_types ut
+            LEFT JOIN users u ON ut.user_type = u.user_type
+            GROUP BY ut.user_type
+            ORDER BY ut.user_type;
+        `);
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getDailyFeedbackCounts = async (req, res) => {
+    const { month } = req.query;
+
+    try {
+        const result = await pool.query(`
+            SELECT 
+                DATE(f.creation_date) AS day,
+                COUNT(f.feedback_id) AS total_feedbacks
+            FROM feedback f
+            WHERE EXTRACT(MONTH FROM f.creation_date) = $1
+            GROUP BY DATE(f.creation_date)
+            ORDER BY DATE(f.creation_date);
+        `, [month]);
+
+        console.log("Daily Feedback Counts Result:", result.rows);
         res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
