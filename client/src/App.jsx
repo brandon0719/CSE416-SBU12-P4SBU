@@ -75,7 +75,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="/reservations"
+                    path="/myreservations"
                     element={
                         <ProtectedRoute>
                             <ReservationPage />
