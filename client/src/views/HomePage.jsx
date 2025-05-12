@@ -86,9 +86,10 @@ const HomePage = () => {
     const [reserveError, setReserveError] = useState("");
 
     // Filter the parking lots based on the search term
-    const filteredLots = lots.filter((lot) =>
-        lot.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredLots = lots.filter((lot) => {
+        const name = lot.name ?? "";    // if lot.name is null/undefined, use ""
+        return name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
 
     // Filter the buildings based on the building search term
     const filteredBuildings = buildings.filter((building) =>
