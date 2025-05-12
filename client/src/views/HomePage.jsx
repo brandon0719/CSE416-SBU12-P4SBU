@@ -87,7 +87,7 @@ const HomePage = () => {
 
     // Filter the parking lots based on the search term
     const filteredLots = lots.filter((lot) => {
-        const name = lot.name ?? "";    // if lot.name is null/undefined, use ""
+        const name = lot.name ?? ""; // if lot.name is null/undefined, use ""
         return name.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
@@ -388,20 +388,27 @@ const HomePage = () => {
         setClientSecret(clientSecret);
     };
 
+    // 2) compute duration in hours (decimal)
+    const ms = reservationEnd - reservationStart;
+    const hours = ms / (1000 * 60 * 60);
+
     const handleReservation = async (formData) => {
         // 1) find the lot object to get its price
         const lotObj = lots.find((lot) => lot.name === selectedLot);
         if (!lotObj) {
             return alert("Error: selected lot not found.");
         }
-        // 2) compute cost in cents
-        const amountCents = formData.numSpots * lotObj.rate * 100;
+        // 2) compute the number of hours
+        // compute total cents
+        const totalCents = Math.round(
+            formData.numSpots * lotObj.rate * hours * 100
+        );
 
         // 3) stash the form data for after payment succeeds
         setPendingReservation(formData);
 
         // 4) kick off Stripe
-        await fetchPaymentIntent(amountCents);
+        await fetchPaymentIntent(totalCents);
         console.log(formData);
     };
 
@@ -681,12 +688,10 @@ const HomePage = () => {
                 reservationStart={reservationStart}
                 reservationEnd={reservationEnd}
                 lotName={selectedLot}
-                price={lots.find((l) => l.name === selectedLot)?.rate || 0} // ← here
                 isOpen={isModalOpen}
                 numAvailableSpots={availableSpots}
                 onClose={() => {
                     setIsModalOpen(false);
-                    set;
                 }}
                 onSubmit={handleReservation}
             />
@@ -697,7 +702,12 @@ const HomePage = () => {
                         <h4>Complete Payment</h4>
                         <CheckoutForm
                             clientSecret={clientSecret}
-                            amount={pendingReservation.numSpots * lots.find((l) => l.name === selectedLot)?.rate || 0}
+                            rate={
+                                pendingReservation.numSpots *
+                                    lots.find((l) => l.name === selectedLot)
+                                        ?.rate || 0
+                            }
+                            hours={hours}
                             onSuccessfulPayment={async () => {
                                 const d = pendingReservation;
                                 await ApiService.createReservation(
