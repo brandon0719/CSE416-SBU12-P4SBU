@@ -516,8 +516,8 @@ export const fetchCompletedReservations = async () => {
 }
 
 const getLotUsage = async () => {
-    const { data } = await http.get("/reservation/usage");
-    return data; // array of { lot_name, permit_type, spots_taken }
+    const response = await http.get("/reservation/usage");
+    return response.data; // array of { lot_name, permit_type, spots_taken }
 };
 
 export const fetchCapacityAnalysis = async (lotName = "All") => {

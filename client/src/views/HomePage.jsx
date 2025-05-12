@@ -13,6 +13,7 @@ import ApiService from "../services/ApiService";
 import CheckoutForm from "../components/CheckoutForm";
 import { FaArrowLeft } from "react-icons/fa";
 
+
 function computeCentroid(geom) {
     let coords = [];
     if (geom.type === "Polygon") {
@@ -60,6 +61,7 @@ const HomePage = () => {
     const [reservationStart, setReservationStart] = useState("");
     const [reservationEnd, setReservationEnd] = useState("");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [refreshFlag, setRefreshFlag] = useState(false);
 
     // New states for campus buildings & building selection/search
     const [buildings, setBuildings] = useState([]);
@@ -169,7 +171,7 @@ const HomePage = () => {
         };
 
         fetchAndSortLots();
-    }, [sortCriteria, userLocation, selectedBuilding]);
+    }, [sortCriteria, userLocation, selectedBuilding, refreshFlag]);
 
     // Fetch campus buildings for initial building selection
     useEffect(() => {
@@ -639,19 +641,19 @@ const HomePage = () => {
                                             {/* Right column: usage by permit */}
                                             <div className="lot-item-usage">
                                                 {[
-                                                    "faculty",
-                                                    "commuter",
-                                                    "resident",
-                                                    "visitor",
+                                                    "Faculty",
+                                                    "Commuter",
+                                                    "Resident",
+                                                    "Visitor",
                                                 ].map((pt) => {
                                                     // capacity per permit
                                                     const capacity =
-                                                        (pt === "faculty"
+                                                        (pt === "Faculty"
                                                             ? lot.faculty_staff_spots
-                                                            : pt === "commuter"
+                                                            : pt === "Commuter"
                                                                 ? lot.commuter_spots +
                                                                 lot.commuter_premium_spots
-                                                                : pt === "resident"
+                                                                : pt === "Resident"
                                                                     ? lot.resident_spots
                                                                     : lot.metered_spots) ||
                                                         0;
@@ -659,7 +661,6 @@ const HomePage = () => {
                                                     // taken so far
                                                     const taken =
                                                         lot.usage[pt] || 0;
-
                                                     // remaining
                                                     const remaining = Math.max(
                                                         capacity - taken,
@@ -729,6 +730,7 @@ const HomePage = () => {
                                 setPendingReservation(null);
                                 setIsModalOpen(false);
                                 setAvailableSpots(availableSpots - d.numSpots);
+                                setRefreshFlag(f => !f);
                             }}
                             onCancel={() => {
                                 setClientSecret(null);
