@@ -136,4 +136,10 @@ For detailed design rationale, data models, wireframes, and user flows, see our 
 
 [Design Document (Google Docs)](https://docs.google.com/document/d/1E8whk3lCZq_UvAOrz5guGLoqqs9F9DHRcLdPyOiF29k/edit?usp=sharing)
 
+## Demo
 
+https://github.com/user-attachments/assets/6a0538e0-88f4-4a68-ae04-c478e8427847
+
+https://github.com/user-attachments/assets/06e338e5-8d87-4257-82d3-5855731a068d
+
+https://github.com/user-attachments/assets/d7383a52-2d58-40dd-9cf0-26ed0dcbbf96
