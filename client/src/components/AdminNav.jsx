@@ -1,21 +1,32 @@
+// client/src/components/AdminNavBar.jsx
 import React from 'react';
 import '../stylesheets/NavBar.css';
 
-function NavBar() {
+const adminLinks = [
+    { to: '/users', label: 'Users' },
+    { to: '/tickets', label: 'Tickets' },
+    { to: '/parking', label: 'Parking' },
+    { to: '/reservations', label: 'Reservations' },
+    { to: '/data-analysis', label: 'Data' },
+];
+
+export default function AdminNavBar() {
+    const currentPath = window.location.pathname;
+
     return (
         <div className="navbar">
             <div className="navbar-links">
-                <a href="/users">Users</a>
-                <a href="/tickets">Tickets</a>
-                <a href="/parking">Parking</a>
-                <a href="/reservations">Reservations</a>
-                <a href="/data-analysis">Data</a>
+                {adminLinks.map(({ to, label }) => (
+                    <a
+                        key={to}
+                        href={to}
+                        className={currentPath === to ? 'active' : ''}
+                    >
+                        {label}
+                    </a>
+                ))}
             </div>
-            <div className="navbar-text">
-                Administrator
-            </div>
+            <div className="navbar-text">Administrator</div>
         </div>
-    );a
+    );
 }
-
-export default NavBar;
