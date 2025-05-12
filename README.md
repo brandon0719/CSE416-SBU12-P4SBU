@@ -1,4 +1,4 @@
-# CSE416-SBU12-P4SBU
+# Smart Parking Application for Stony Brook University
 
 A full-stack web application for managing campus parking and reservations, built with React, Node.js/Express, PostgreSQL/PostGIS, and Stripe for payments. Deployed at [Website](sbuparking.live)
 
