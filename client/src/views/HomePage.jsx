@@ -86,9 +86,10 @@ const HomePage = () => {
     const [reserveError, setReserveError] = useState("");
 
     // Filter the parking lots based on the search term
-    const filteredLots = lots.filter((lot) =>
-        lot.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredLots = lots.filter((lot) => {
+        const name = lot.name ?? ""; // if lot.name is null/undefined, use ""
+        return name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
 
     // Filter the buildings based on the building search term
     const filteredBuildings = buildings.filter((building) =>
@@ -326,12 +327,13 @@ const HomePage = () => {
     }, [selectedBuilding, buildingSearchTerm, searchTerm]);
 
     useEffect(() => {
-        if (!reservationStart || !reservationEnd || !selectedLot) return;
-        ApiService.getNumAvailableSpotsAtTime(
-            selectedLot,
-            reservationStart,
-            reservationEnd
-        )
+        const updateAvailableSpots = async () => {
+            if (!reservationStart || !reservationEnd || !selectedLot) return;
+                await ApiService.getNumAvailableSpotsAtTime(
+                    selectedLot,
+                    reservationStart,
+                    reservationEnd
+                )
             .then((res) => {
                 setAvailableSpots(res);
             })
@@ -342,6 +344,8 @@ const HomePage = () => {
                 );
                 setAvailableSpots(null);
             });
+        }
+        updateAvailableSpots();
     }, [reservationStart, reservationEnd, selectedLot]);
 
     // Handler when a building is selected
@@ -374,7 +378,7 @@ const HomePage = () => {
         } else if (reservationEnd < reservationStart) {
             setReserveError("Reservation end cannot be before start");
             return;
-        } else if (!availableSpots) {
+        } else if (ApiService.getNumAvailableSpotsAtTime(selectedLot, reservationStart, reservationEnd) == 0) {
             setReserveError("No available spots for this time.");
             return;
         }
@@ -387,20 +391,27 @@ const HomePage = () => {
         setClientSecret(clientSecret);
     };
 
+    // 2) compute duration in hours (decimal)
+    const ms = reservationEnd - reservationStart;
+    const hours = ms / (1000 * 60 * 60);
+
     const handleReservation = async (formData) => {
         // 1) find the lot object to get its price
         const lotObj = lots.find((lot) => lot.name === selectedLot);
         if (!lotObj) {
             return alert("Error: selected lot not found.");
         }
-        // 2) compute cost in cents
-        const amountCents = formData.numSpots * lotObj.rate * 100;
+        // 2) compute the number of hours
+        // compute total cents
+        const totalCents = Math.round(
+            formData.numSpots * lotObj.rate * hours * 100
+        );
 
         // 3) stash the form data for after payment succeeds
         setPendingReservation(formData);
 
         // 4) kick off Stripe
-        await fetchPaymentIntent(amountCents);
+        await fetchPaymentIntent(totalCents);
         console.log(formData);
     };
 
@@ -680,12 +691,10 @@ const HomePage = () => {
                 reservationStart={reservationStart}
                 reservationEnd={reservationEnd}
                 lotName={selectedLot}
-                price={lots.find((l) => l.name === selectedLot)?.rate || 0} // ← here
                 isOpen={isModalOpen}
                 numAvailableSpots={availableSpots}
                 onClose={() => {
                     setIsModalOpen(false);
-                    set;
                 }}
                 onSubmit={handleReservation}
             />
@@ -696,7 +705,12 @@ const HomePage = () => {
                         <h4>Complete Payment</h4>
                         <CheckoutForm
                             clientSecret={clientSecret}
-                            amount={pendingReservation.numSpots * lots.find((l) => l.name === selectedLot)?.rate || 0}
+                            rate={
+                                pendingReservation.numSpots *
+                                    lots.find((l) => l.name === selectedLot)
+                                        ?.rate || 0
+                            }
+                            hours={hours}
                             onSuccessfulPayment={async () => {
                                 const d = pendingReservation;
                                 await ApiService.createReservation(

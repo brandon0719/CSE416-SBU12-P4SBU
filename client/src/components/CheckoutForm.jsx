@@ -4,7 +4,8 @@ import "../stylesheets/CheckoutForm.css";
 
 export default function CheckoutForm({
     clientSecret,
-    amount,
+    rate, // dollars per hour
+    hours, 
     onSuccessfulPayment,
     onCancel,
 }) {
@@ -12,6 +13,9 @@ export default function CheckoutForm({
     const elements = useElements();
     const [errorMsg, setErrorMsg] = useState(null);
     const [processing, setProcessing] = useState(false);
+
+    // compute total cost
+    const total = rate * hours;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -39,9 +43,17 @@ export default function CheckoutForm({
 
     return (
         <form className="checkout-form" onSubmit={handleSubmit}>
-            {/* Display the amount */}
+            {/* breakdown */}
             <div className="checkout-amount">
-                Total Amount: <strong>${amount.toFixed(2)}</strong>
+                <div>
+                    Rate: <strong>${rate.toFixed(2)}/hr</strong>
+                </div>
+                <div>
+                    Duration: <strong>{hours.toFixed(2)} hrs</strong>
+                </div>
+                <div>
+                    Total: <strong>${total.toFixed(2)}</strong>
+                </div>
             </div>
 
             <CardElement
@@ -52,9 +64,7 @@ export default function CheckoutForm({
                             color: "#424770",
                             "::placeholder": { color: "#aab7c4" },
                         },
-                        invalid: {
-                            color: "#9e2146",
-                        },
+                        invalid: { color: "#9e2146" },
                     },
                 }}
                 className="stripe-element"
@@ -67,7 +77,7 @@ export default function CheckoutForm({
                     type="submit"
                     className="checkout-submit-btn"
                     disabled={!stripe || processing}>
-                    {processing ? "Processing…" : `Pay $${amount.toFixed(2)}`}
+                    {processing ? "Processing…" : `Pay $${total.toFixed(2)}`}
                 </button>
                 <button
                     type="button"

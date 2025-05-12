@@ -14,6 +14,7 @@ import AboutUsPage from "./views/AboutUsPage";
 import ProfilePage from "./views/ProfilePage";
 import MessagePage from "./views/MessagePage";
 import ContactUsPage from "./views/ContactUsPage";
+import ReservationPage from "./views/ReservationPage";
 
 // Admin components
 import AdminHome from "./adminViews/AdminHome"; 
@@ -70,6 +71,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <ProfilePage />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/reservations"
+                    element={
+                        <ProtectedRoute>
+                            <ReservationPage />
                         </ProtectedRoute>
                     }
                 />
