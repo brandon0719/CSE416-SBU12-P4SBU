@@ -23,12 +23,22 @@ const AdminData = () => {
     const [ticketData, setTicketData] = useState(null);
     const [reservationData, setReservationData] = useState(null);
 
-    const [capacityUsageData, setCapacityUsageData] = useState(null);
+    // Holds the selected lot for filtering capacity analysis
+    const [selectedLot, setSelectedLot] = useState("All");
+    const [lots, setLots] = useState([]);
 
+    // Holds the selected month and revenue type for filtering revenue
+    const [revenueType, setRevenueType] = useState("total"); // Default to "total"
+    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month
+
+    // Holds the chart type for each analysis ex: pie or bar
     const [capacityChartType, setCapacityChartType] = useState("bar");
     const [revenueChartType, setRevenueChartType] = useState("bar");
     const [ticketChartType, setTicketChartType] = useState("bar");
     const [reservationChartType, setReservationChartType] = useState("bar");
+
+    // Holds the data for all the corresponding special graphs
+    const [capacityUsageData, setCapacityUsageData] = useState(null);
 
     const admin = ApiService.getSessionUser(); // Get the admin user from session
 
@@ -36,6 +46,7 @@ const AdminData = () => {
         if (activeTab === "feedback") {
             fetchFeedbackList(); // Fetch feedback when the feedback tab is active
         } else if (activeTab === "analysis") {
+            fetchLots();
             fetchCapacityData(); // Fetch analysis data when the analysis tab is active
             fetchRevenueData();
             fetchTicketData();
@@ -43,6 +54,15 @@ const AdminData = () => {
             fetchCapacityUsageData();
         }
     }, [activeTab]);
+
+    useEffect(() => {
+        fetchCapacityData();
+        fetchCapacityUsageData();
+    }, [selectedLot]);
+
+    useEffect(() => {
+        fetchRevenueData();
+    }, [revenueType, selectedMonth]);
 
     // Fetch the list of feedback
     const fetchFeedbackList = async () => {
@@ -56,9 +76,19 @@ const AdminData = () => {
         }
     };
 
+    const fetchLots = async () => {
+        try {
+            const lots = await ApiService.fetchAllParkingLots();
+            setLots(lots);
+        } catch (error) {
+            console.error("Failed to fetch lots:", error);
+        }
+    };
+
+    // Fetch the capacity data
     const fetchCapacityData = async () => {
         try {
-            const capacity = await ApiService.fetchCapacityAnalysis();
+            const capacity = await ApiService.fetchCapacityAnalysis(selectedLot);
             setCapacityData(capacity);
         } catch (error) {
             console.error("Failed to fetch capacity data:", error);
@@ -67,7 +97,8 @@ const AdminData = () => {
 
     const fetchCapacityUsageData = async () => {
         try {
-            const usage = await ApiService.fetchCapacityUsage();
+            const usage = await ApiService.fetchCapacityUsage(selectedLot);
+            // console.log("Fetched capacity usage data:", usage); // Debugging line
             setCapacityUsageData(usage);
         } catch (error) {
             console.error("Failed to fetch capacity usage data:", error);
@@ -76,7 +107,8 @@ const AdminData = () => {
 
     const fetchRevenueData = async () => {
         try {
-            const revenue = await ApiService.fetchRevenueAnalysis();
+            const revenue = await ApiService.fetchRevenueAnalysis(revenueType, selectedMonth);
+            console.log("Fetched revenue data:", revenue); // Debugging line
             setRevenueData(revenue);
         } catch (error) {
             console.error("Failed to fetch revenue data:", error);
@@ -102,10 +134,25 @@ const AdminData = () => {
     };
 
     const renderProgressBar = (used, total, label) => {
-        const percentage = ((used / total) * 100).toFixed(1);
+        const percentage = ((used / total) * 100).toFixed(2);
+        if (total === 0) {
+            return (
+                <div className="admin-data-progress-bar-container">
+                    <div className="progress-bar-label">
+                        {label}: none
+                    </div>
+                    <div className="admin-data-progress-bar">
+                        <div
+                            className="admin-data-progress-bar-fill"
+                            style={{ width: `${percentage}%` }}
+                        ></div>
+                    </div>
+                </div>
+            );
+        }
         return (
             <div className="admin-data-progress-bar-container">
-                <div className="admin-data-progress-bar-label">
+                <div className="progress-bar-label">
                     {label}: {used}/{total} ({percentage}%)
                 </div>
                 <div className="admin-data-progress-bar">
@@ -276,16 +323,25 @@ const AdminData = () => {
                                 </div>
                                 <div className="admin-data-analysis-body">
                                     <div className="admin-data-analysis-text">
-                                        {capacityData ? (
-                                            <ul>
-                                                <li>Commuter: {capacityData.commuter_capacity}</li>
-                                                <li>Faculty: {capacityData.faculty_capacity}</li>      
-                                                <li>Resident: {capacityData.resident_capacity}</li>
-                                                <li>Visitor: {capacityData.visitor_capacity}</li>
-                                            </ul>
-                                        ) : (
-                                            <p>Loading capacity data...</p>
-                                        )}
+                                        <div className="admin-data-lot-dropdown">
+                                            <div
+                                                className={`admin-data-lot-option ${selectedLot === "All" ? "selected" : ""
+                                                    }`}
+                                                onClick={() => setSelectedLot("All")}
+                                            >
+                                                All Parking Lots
+                                            </div>
+                                            {lots.map((lot) => (
+                                                <div
+                                                    key={lot.lotid}
+                                                    className={`admin-data-lot-option ${selectedLot === lot.name ? "selected" : ""
+                                                        }`}
+                                                    onClick={() => setSelectedLot(lot.name)}
+                                                >
+                                                    {lot.name}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                     <div className="admin-data-analysis-chart">
                                         <button
@@ -353,21 +409,103 @@ const AdminData = () => {
                                 </div>
                                 <div className="admin-data-analysis-body">
                                     <div className="admin-data-analysis-text">
-                                        {revenueData ? (
-                                            <ul>
-                                                {revenueData
-                                                    .filter((item) => item.user_type && item.user_type.trim() !== "")
-                                                    .map((item) => (
-                                                        <li key={item.user_type}>
-                                                            {item.user_type}: Reservation Revenue: $
-                                                            {parseFloat(item.reservation_revenue).toFixed(2)}, Ticket Revenue: $
-                                                            {parseFloat(item.ticket_revenue).toFixed(2)}
-                                                        </li>
-                                                    ))}
-                                            </ul>
-                                        ) : (
-                                            <p>Loading revenue data...</p>
-                                        )}
+
+                                        <div className="admin-data-revenue-dropdown">
+                                            <div
+                                                className={`admin-data-lot-option ${revenueType === "total" ? "selected" : ""}`}
+                                                onClick={() => setRevenueType("total")}
+                                            >
+                                                Total Revenue
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${revenueType === "ticket" ? "selected" : ""}`}
+                                                onClick={() => setRevenueType("ticket")}
+                                            >
+                                                Ticket Revenue
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${revenueType === "reservation" ? "selected" : ""}`}
+                                                onClick={() => setRevenueType("reservation")}
+                                            >
+                                                Reservation Revenue
+                                            </div>
+                                        </div>
+
+                                        <div className="admin-data-month-dropdown">
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 1 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(1)}
+                                            >
+                                                January
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 2 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(2)}
+                                            >
+                                                February
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 3 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(3)}
+                                            >
+                                                March
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 4 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(4)}
+                                            >
+                                                April
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 5 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(5)}
+                                            >
+                                                May
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 6 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(6)}
+                                            >
+                                                June
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 7 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(7)}
+                                            >
+                                                July
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 8 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(8)}
+                                            >
+                                                August
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 9 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(9)}
+                                            >
+                                                September
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 10 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(10)}
+                                            >
+                                                October
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 11 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(11)}
+                                            >
+                                                November
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${selectedMonth === 12 ? "selected" : ""}`}
+                                                onClick={() => setSelectedMonth(12)}
+                                            >
+                                                December
+                                            </div>
+                                        </div>
+
                                     </div>
                                     <div className="admin-data-analysis-chart">
                                         <button
@@ -382,7 +520,7 @@ const AdminData = () => {
                                             renderChart(
                                                 revenueData
                                                     .filter((item) => item.user_type && item.user_type.trim() !== "")
-                                                    .map((item) => parseFloat(item.reservation_revenue) + parseFloat(item.ticket_revenue)),
+                                                    .map((item) => (item.revenue)),
                                                 revenueData
                                                     .filter((item) => item.user_type && item.user_type.trim() !== "")
                                                     .map((item) => item.user_type),
