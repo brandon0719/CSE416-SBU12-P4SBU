@@ -520,9 +520,11 @@ const getLotUsage = async () => {
     return data; // array of { lot_name, permit_type, spots_taken }
 };
 
-export const fetchCapacityAnalysis = async () => {
+export const fetchCapacityAnalysis = async (lotName = "All") => {
     try {
-        const response = await http.get("/analysis/capacity");
+        const response = await http.get(`/analysis/capacity`, {
+            params: { lotName }
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching capacity analysis:", error);
@@ -530,9 +532,12 @@ export const fetchCapacityAnalysis = async () => {
     }
 }
 
-export const fetchCapacityUsage = async () => {
+export const fetchCapacityUsage = async (lotName= "All") => {
     try {
-        const response = await http.get("/analysis/capacity-usage");
+        console.log("Fetching capacity usage for lot:", lotName);
+        const response = await http.get(`/analysis/capacity-usage`, {
+            params: { lotName },
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching capacity usage:", error);
@@ -540,16 +545,18 @@ export const fetchCapacityUsage = async () => {
     }
 }
 
-export const fetchRevenueAnalysis = async () => {
+export const fetchRevenueAnalysis = async (revenueType = "total", month = new Date().getMonth() + 1) => {
     try {
-        const response = await http.get("/analysis/revenue");
+        console.log("Fetching revenue analysis for month:", month, "and type:", revenueType);
+        const response = await http.get("/analysis/revenue", {
+            params: { revenueType, month },
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching revenue analysis:", error);
-        throw error.response?.data || { message: "Error fetching revenue analysis" };
+        throw error;
     }
-}
-
+};
 export const fetchTicketAnalysis = async () => {
     try {
         const response = await http.get("/analysis/tickets");
