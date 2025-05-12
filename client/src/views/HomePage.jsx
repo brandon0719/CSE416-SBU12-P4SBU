@@ -11,6 +11,7 @@ import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
 import "../stylesheets/HomePage.css";
 import ApiService from "../services/ApiService";
 import CheckoutForm from "../components/CheckoutForm";
+import { FaArrowLeft } from "react-icons/fa";
 
 function computeCentroid(geom) {
     let coords = [];
@@ -292,9 +293,8 @@ const HomePage = () => {
                                         `
                   <div style="text-align: center;">
                     <h3>${lot.name}</h3>
-                    <p>${
-                        lot.details || "No additional information available."
-                    }</p>
+                    <p>${lot.details || "No additional information available."
+                                        }</p>
                   </div>
                 `
                                     )
@@ -329,21 +329,21 @@ const HomePage = () => {
     useEffect(() => {
         const updateAvailableSpots = async () => {
             if (!reservationStart || !reservationEnd || !selectedLot) return;
-                await ApiService.getNumAvailableSpotsAtTime(
-                    selectedLot,
-                    reservationStart,
-                    reservationEnd
-                )
-            .then((res) => {
-                setAvailableSpots(res);
-            })
-            .catch((error) => {
-                console.error(
-                    `Failed to fetch spots for ${selectedLot}:`,
-                    error
-                );
-                setAvailableSpots(null);
-            });
+            await ApiService.getNumAvailableSpotsAtTime(
+                selectedLot,
+                reservationStart,
+                reservationEnd
+            )
+                .then((res) => {
+                    setAvailableSpots(res);
+                })
+                .catch((error) => {
+                    console.error(
+                        `Failed to fetch spots for ${selectedLot}:`,
+                        error
+                    );
+                    setAvailableSpots(null);
+                });
         }
         updateAvailableSpots();
     }, [reservationStart, reservationEnd, selectedLot]);
@@ -480,20 +480,21 @@ const HomePage = () => {
                     ) : (
                         <>
                             <div className="lot-header">
-                                <div className="selected-building-row">
-                                    <h3 className="selected-building-name">
-                                        Selected Building:{" "}
-                                        {selectedBuilding.name}
-                                    </h3>
+                                <div className="selected-building-header">
                                     <button
+                                        className="back-btn"
                                         onClick={() => {
                                             setSelectedBuilding(null);
                                             setReservationEnd("");
                                             setReservationStart("");
                                         }}
-                                        className="change-building-btn">
-                                        Change Selection
+                                        aria-label="Change Building"
+                                    >
+                                        <FaArrowLeft />
                                     </button>
+                                    <h3 className="building-title">
+                                        {selectedBuilding.name}
+                                    </h3>
                                 </div>
 
                                 {/* Row 2: Reservation Start/End */}
@@ -609,8 +610,8 @@ const HomePage = () => {
                                                     Rate:{" "}
                                                     {lot.rate != null
                                                         ? `$${parseFloat(
-                                                              lot.rate
-                                                          ).toFixed(2)}/hr`
+                                                            lot.rate
+                                                        ).toFixed(2)}/hr`
                                                         : "N/A"}
                                                 </p>
                                                 <div className="lot-item-buttons">
@@ -648,11 +649,11 @@ const HomePage = () => {
                                                         (pt === "faculty"
                                                             ? lot.faculty_staff_spots
                                                             : pt === "commuter"
-                                                            ? lot.commuter_spots +
-                                                              lot.commuter_premium_spots
-                                                            : pt === "resident"
-                                                            ? lot.resident_spots
-                                                            : lot.metered_spots) ||
+                                                                ? lot.commuter_spots +
+                                                                lot.commuter_premium_spots
+                                                                : pt === "resident"
+                                                                    ? lot.resident_spots
+                                                                    : lot.metered_spots) ||
                                                         0;
 
                                                     // taken so far
@@ -707,8 +708,8 @@ const HomePage = () => {
                             clientSecret={clientSecret}
                             rate={
                                 pendingReservation.numSpots *
-                                    lots.find((l) => l.name === selectedLot)
-                                        ?.rate || 0
+                                lots.find((l) => l.name === selectedLot)
+                                    ?.rate || 0
                             }
                             hours={hours}
                             onSuccessfulPayment={async () => {
