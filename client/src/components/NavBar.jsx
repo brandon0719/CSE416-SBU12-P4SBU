@@ -2,33 +2,37 @@ import React, { useEffect, useState } from 'react';
 import '../stylesheets/NavBar.css';
 import ApiService from '../services/ApiService';
 
+const links = [
+    { to: '/homepage', label: 'P4SBU' },
+    { to: '/ticketpage', label: 'Tickets/Fines' },
+    { to: '/aboutuspage', label: 'About Us' },
+    { to: '/contactuspage', label: 'Contact Us' },
+];
+
 function NavBar() {
     const [userType, setUserType] = useState('');
 
     useEffect(() => {
-        const fetchUserType = async () => {
-            try {
-                const user = await ApiService.getSessionUser();
-                setUserType(user.user_type || '');
-            } catch (error) {
-                console.error("Error fetching user type:", error);
-            }
-        };
-
-        fetchUserType();
+        const user = ApiService.getSessionUser();
+        setUserType(user?.user_type || '');
     }, []);
+
+    const currentPath = window.location.pathname;
 
     return (
         <div className="navbar">
             <div className="navbar-links">
-                <a href="/homepage">P4SBU</a>
-                <a href="/ticketpage">Tickets/Fines</a>
-                <a href="/aboutuspage">About Us</a>
-                <a href="/contactuspage">Contact Us</a>
+                {links.map(({ to, label }) => (
+                    <a
+                        key={to}
+                        href={to}
+                        className={currentPath === to ? 'active' : ''}
+                    >
+                        {label}
+                    </a>
+                ))}
             </div>
-            <div className="navbar-text">
-                {userType}
-            </div>
+            <div className="navbar-text">{userType}</div>
         </div>
     );
 }

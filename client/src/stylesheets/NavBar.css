@@ -25,6 +25,10 @@
     text-decoration: underline;
 }
 
+.navbar-links a.active {
+    font-weight: bold;
+}
+
 .navbar-text {
     color: white;
     font-size: 16px;
