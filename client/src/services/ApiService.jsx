@@ -615,6 +615,26 @@ export const fetchDailyReservationAnalysis = async (month = new Date().getMonth(
     }
 };
 
+export const fetchUserTypeCounts = async () => {
+    try {
+        const response = await http.get("/analysis/user-type-counts");
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching user type counts:", error);
+        throw error;
+    }
+};
+
+export const fetchDailyFeedbackCounts = async (month = new Date().getMonth() + 1) => {
+    try {
+        const response = await http.get(`/analysis/daily-feedback-counts?month=${month}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching daily feedback counts:", error);
+        throw error;
+    }
+};
+
 const ApiService = {
     registerUser: registerUser,
     handleLogin: handleLogin,
@@ -659,6 +679,8 @@ const ApiService = {
     fetchReservationAnalysis: fetchReservationAnalysis, 
     fetchDailyTicketAnalysis: fetchDailyTicketAnalysis,
     fetchDailyReservationAnalysis: fetchDailyReservationAnalysis,
+    fetchUserTypeCounts: fetchUserTypeCounts,
+    fetchDailyFeedbackCounts: fetchDailyFeedbackCounts,
 };
 
 export default ApiService;
