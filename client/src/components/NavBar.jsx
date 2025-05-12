@@ -4,6 +4,7 @@ import ApiService from '../services/ApiService';
 
 const links = [
     { to: '/homepage', label: 'P4SBU' },
+    { to: "/reservations", label: "My Reservations" },
     { to: '/ticketpage', label: 'Tickets/Fines' },
     { to: '/aboutuspage', label: 'About Us' },
     { to: '/contactuspage', label: 'Contact Us' },
