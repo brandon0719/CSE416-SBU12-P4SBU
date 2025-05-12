@@ -94,7 +94,7 @@ export const getRevenueAnalysis = async (req, res) => {
             SET user_type = u.user_type
             FROM users u
             WHERE reservations.user_id = u.user_id
-              AND (reservations.user_type IS NULL OR reservations.user_type != u.user_type);
+              AND (reservations.user_type IS NULL);
         `);
         // Default to the current month if no month is provided
         const selectedMonth = month || new Date().getMonth() + 1; // Months are 1-based (1 = January)
@@ -118,7 +118,7 @@ export const getRevenueAnalysis = async (req, res) => {
 
         // Filter the result based on the revenue type
         let filteredResult = result.rows;
-        console.log("Filtered Result:", filteredResult);
+        // console.log("Filtered Result:", filteredResult);
         if (revenueType === "ticket") {
             filteredResult = filteredResult.map((row) => ({
                 user_type: row.user_type,
@@ -143,49 +143,167 @@ export const getRevenueAnalysis = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+    
+
+export const getDailyRevenueAnalysis = async (req, res) => {
+    const { month, revenueType } = req.query;
+    // console.log("Month:", month);
+    // console.log("Revenue Type:", revenueType);
+
+    try {
+        // Default to the current month if no month is provided (months as numbers, e.g., 5 for May)
+        const selectedMonth = month || new Date().getMonth() + 1;
+
+        // This query splits reservations and tickets into two parts, then unions them.
+        // Each subquery filters rows by the selected month and outputs: user_type, day, reservation_revenue, ticket_revenue.
+        // Finally, we group by user_type and day in the outer query.
+        let queryStr = `
+            SELECT 
+                user_type, 
+                day, 
+                SUM(reservation_revenue) AS reservation_revenue, 
+                SUM(ticket_revenue) AS ticket_revenue
+            FROM (
+                SELECT 
+                    u.user_type,
+                    DATE(r.start_time) AS day,
+                    r.num_spots * l.rate AS reservation_revenue,
+                    0 AS ticket_revenue
+                FROM users u
+                LEFT JOIN reservations r ON u.user_id = r.user_id
+                LEFT JOIN lots l ON r.lot_name = l.name
+                WHERE u.user_type IS NOT NULL
+                  AND r.start_time IS NOT NULL
+                  AND EXTRACT(MONTH FROM r.start_time) = $1
+                
+                UNION ALL
+                
+                SELECT 
+                    u.user_type,
+                    DATE(t.creation_date) AS day,
+                    0 AS reservation_revenue,
+                    t.ticket_price AS ticket_revenue
+                FROM users u
+                LEFT JOIN tickets t ON u.user_id = t.user_id
+                WHERE u.user_type IS NOT NULL
+                  AND t.creation_date IS NOT NULL
+                  AND EXTRACT(MONTH FROM t.creation_date) = $1
+            ) sub
+            GROUP BY user_type, day
+            ORDER BY day;
+        `;
+
+        // console.log("Executing query...");
+        const result = await pool.query(queryStr, [selectedMonth]);
+        // console.log("Rows from DB:", result.rows);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error("Error executing query:", error.message);
+        res.status(500).json({ error: error.message });
+    }
+};
 
 export const getTicketAnalysis = async (req, res) => {
+    const { month } = req.query;
+
     try {
         const result = await pool.query(`
+            WITH user_types AS (
+                SELECT UNNEST(ARRAY['Commuter', 'Faculty', 'Resident', 'Visitor']) AS user_type
+            )
             SELECT 
-                u.user_type,
-                COUNT(DISTINCT t.ticket_id) AS total_tickets,
-                COALESCE(SUM(t.ticket_price), 0)::NUMERIC(10, 2) AS ticket_revenue
-            FROM users u
+                ut.user_type,
+                COALESCE(COUNT(DISTINCT t.ticket_id), 0) AS total_tickets
+            FROM user_types ut
+            LEFT JOIN users u ON ut.user_type = u.user_type
             LEFT JOIN tickets t ON u.user_id = t.user_id
-            GROUP BY u.user_type
-            ORDER BY u.user_type;
-        `);
-        res.json(result.rows);
+                AND EXTRACT(MONTH FROM t.creation_date) = $1
+            GROUP BY ut.user_type
+            ORDER BY ut.user_type;
+        `, [month]);
+
+        console.log("Ticket Analysis Result:", result.rows);
+        res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-export const getReservationAnalysis = async (req, res) => {
-    try {
-        // Update the user_type column in the reservations table
-        await pool.query(`
-            UPDATE reservations
-            SET user_type = u.user_type
-            FROM users u
-            WHERE reservations.user_id = u.user_id
-              AND (reservations.user_type IS NULL OR reservations.user_type != u.user_type);
-        `);
 
-        // Now perform the reservation analysis
+export const getDailyTicketAnalysis = async (req, res) => {
+    const { month } = req.query;
+
+    try {
         const result = await pool.query(`
+            WITH user_types AS (
+                SELECT UNNEST(ARRAY['Commuter', 'Faculty', 'Resident', 'Visitor']) AS user_type
+            )
             SELECT 
-                u.user_type,
-                COUNT(DISTINCT r.reservation_id) AS total_reservations,
-                COALESCE(SUM(r.num_spots * l.rate), 0)::NUMERIC(10, 2) AS reservation_revenue
-            FROM users u
+                ut.user_type,
+                DATE(t.creation_date) AS day,
+                COUNT(DISTINCT t.ticket_id) AS total_tickets
+            FROM user_types ut
+            LEFT JOIN users u ON ut.user_type = u.user_type
+            LEFT JOIN tickets t ON u.user_id = t.user_id
+                AND EXTRACT(MONTH FROM t.creation_date) = $1
+            GROUP BY ut.user_type, DATE(t.creation_date)
+            ORDER BY DATE(t.creation_date), ut.user_type;
+        `, [month]);
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
+export const getReservationAnalysis = async (req, res) => {
+    const { month } = req.query;
+
+    try {
+        const result = await pool.query(`
+            WITH user_types AS (
+                SELECT UNNEST(ARRAY['Commuter', 'Faculty', 'Resident', 'Visitor']) AS user_type
+            )
+            SELECT 
+                ut.user_type,
+                COALESCE(COUNT(DISTINCT r.reservation_id), 0) AS total_reservations
+            FROM user_types ut
+            LEFT JOIN users u ON ut.user_type = u.user_type
             LEFT JOIN reservations r ON u.user_id = r.user_id
-            LEFT JOIN lots l ON r.lot_name = l.name
-            GROUP BY u.user_type
-            ORDER BY u.user_type;
-        `);
-        res.json(result.rows);
+                AND EXTRACT(MONTH FROM r.start_time) = $1
+            GROUP BY ut.user_type
+            ORDER BY ut.user_type;
+        `, [month]);
+
+        console.log("Reservation Analysis Result:", result.rows);
+        res.status(200).json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const getDailyReservationAnalysis = async (req, res) => {
+    const { month } = req.query;
+
+    try {
+        const result = await pool.query(`
+            WITH user_types AS (
+                SELECT UNNEST(ARRAY['Commuter', 'Faculty', 'Resident', 'Visitor']) AS user_type
+            )
+            SELECT 
+                ut.user_type,
+                DATE(r.start_time) AS day,
+                COUNT(DISTINCT r.reservation_id) AS total_reservations
+            FROM user_types ut
+            LEFT JOIN users u ON ut.user_type = u.user_type
+            LEFT JOIN reservations r ON u.user_id = r.user_id
+                AND EXTRACT(MONTH FROM r.start_time) = $1
+            GROUP BY ut.user_type, DATE(r.start_time)
+            ORDER BY DATE(r.start_time), ut.user_type;
+        `, [month]);
+
+        res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
