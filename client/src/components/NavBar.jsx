@@ -1,7 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../stylesheets/NavBar.css';
+import ApiService from '../services/ApiService';
 
 function NavBar() {
+    const [userType, setUserType] = useState('');
+
+    useEffect(() => {
+        const fetchUserType = async () => {
+            try {
+                const user = await ApiService.getSessionUser();
+                setUserType(user.user_type || '');
+            } catch (error) {
+                console.error("Error fetching user type:", error);
+            }
+        };
+
+        fetchUserType();
+    }, []);
+
     return (
         <div className="navbar">
             <div className="navbar-links">
@@ -11,7 +27,7 @@ function NavBar() {
                 <a href="/contactuspage">Contact Us</a>
             </div>
             <div className="navbar-text">
-                Resident Student
+                {userType}
             </div>
         </div>
     );

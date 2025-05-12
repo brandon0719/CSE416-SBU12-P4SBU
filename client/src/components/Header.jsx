@@ -43,13 +43,21 @@ const Header = () => {
     };
 
     useEffect(() => {
-        ApiService.getMessages()
-            .then((data) => {
-                setMessages(data); // Update state with fetched messages
-            })
-            .catch((error) => {
+        const fetchMessages = async () => {
+            try {
+                const user = ApiService.getSessionUser();
+                if (user && user.user_id) {
+                    const messages = await ApiService.getMessages(user.user_id);
+                    setMessages(messages);
+                } else {
+                    console.error("User ID is undefined");
+                }
+            } catch (error) {
                 console.error("Failed to fetch messages:", error.message);
-            });
+            }
+        };
+
+        fetchMessages();
     }, []);
 
     const toggleMessageDropdown = () => {
@@ -73,7 +81,6 @@ const Header = () => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsDropdownOpen(false); // Close the notification dropdown
             }
-
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -97,19 +104,14 @@ const Header = () => {
                         />
                         {isMessageDropdownOpen && (
                             <div className="message-dropdown">
-                                <button className="message-dropdown-button">
-                                    Message
-                                </button>
                                 <hr style={{ border: "1px solid #eee", margin: "10px 0 0 0" }} />
                                 {messages.length > 0 ? (
                                     <ul>
-                                        {(showAllMessages ? messages : messages.slice(0, 3)).map((message, index) => (
-                                            <li key={index}>
-                                                <a href={message.link}>
-                                                    {message.message}
-                                                </a>
+                                        {(showAllMessages ? messages : messages.slice(0, 3)).map((message) => (
+                                            <li key={message.message_id}>
+                                                <p>{message.message_details}</p>
                                                 <span className="message-time">
-                                                    {message.time}
+                                                    {new Date(message.time_sent).toLocaleString()}
                                                 </span>
                                             </li>
                                         ))}
@@ -184,7 +186,7 @@ const Header = () => {
                     </a>
                 )}
                 <button className="logout-button" onClick={handleLogout}>
-                    Logout  
+                    Logout
                 </button>
             </div>
         </header>

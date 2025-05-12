@@ -51,6 +51,7 @@ export const getFeedbackDetails = async (feedbackId) => {
                 feedback.topic, 
                 feedback.creation_date, 
                 feedback.resolved, 
+                feedback.user_id,
                 users.name, 
                 users.user_type, 
                 feedback.details 

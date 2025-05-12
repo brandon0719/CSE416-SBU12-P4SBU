@@ -91,16 +91,16 @@ const AdminTickets = () => {
                                     Alphabetical
                                 </option>
                             </select>
+
+                            {/* search bar */}
+                            <SearchBar
+                                placeholder="Search users by name…"
+                                value={searchTerm}
+                                onChange={setSearchTerm}
+                            />
                         </div>
                     </div>
                 </div>
-
-                {/* search bar */}
-                <SearchBar
-                    placeholder="Search users by name…"
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                />
 
                 {/* user list */}
                 <div className="admin-tickets-user-list-container">

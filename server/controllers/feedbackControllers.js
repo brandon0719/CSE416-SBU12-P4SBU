@@ -51,10 +51,18 @@ export const handleGetFeedbackDetails = async (req, res) => {
 export const handleResolveFeedback = async (req, res) => {
     const { feedbackId, messageDetails, senderId, recipientId } = req.body;
     try {
+        // Mark feedback as resolved
         await resolveFeedback(feedbackId);
-        await createMessage(senderId, recipientId, messageDetails);
-        res.status(200).json({ message: "Feedback resolved and message sent." });
+
+        // Create a message for the user
+        const message = await createMessage(senderId, recipientId, messageDetails);
+
+        res.status(200).json({
+            message: "Feedback resolved and message sent successfully",
+            data: message,
+        });
     } catch (error) {
+        console.error("Error resolving feedback and sending message:", error);
         res.status(500).json({ error: error.message });
     }
 };
