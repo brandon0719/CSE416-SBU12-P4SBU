@@ -46,13 +46,13 @@ export default function CheckoutForm({
             {/* breakdown */}
             <div className="checkout-amount">
                 <div>
-                    Rate: <strong>${rate.toFixed(2)}/hr</strong>
+                    Rate: <strong>${parseFloat(rate).toFixed(2)}/hr</strong>
                 </div>
                 <div>
-                    Duration: <strong>{hours.toFixed(2)} hrs</strong>
+                    Duration: <strong>{parseFloat(hours).toFixed(2)} hrs</strong>
                 </div>
                 <div>
-                    Total: <strong>${total.toFixed(2)}</strong>
+                    Total: <strong>${parseFloat(total).toFixed(2)}</strong>
                 </div>
             </div>
 
