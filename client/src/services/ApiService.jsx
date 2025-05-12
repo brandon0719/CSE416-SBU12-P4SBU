@@ -547,7 +547,7 @@ export const fetchCapacityUsage = async (lotName= "All") => {
 
 export const fetchRevenueAnalysis = async (revenueType = "total", month = new Date().getMonth() + 1) => {
     try {
-        console.log("Fetching revenue analysis for month:", month, "and type:", revenueType);
+        // console.log("Fetching revenue analysis for month:", month, "and type:", revenueType);
         const response = await http.get("/analysis/revenue", {
             params: { revenueType, month },
         });
@@ -557,9 +557,25 @@ export const fetchRevenueAnalysis = async (revenueType = "total", month = new Da
         throw error;
     }
 };
-export const fetchTicketAnalysis = async () => {
+
+export const fetchDailyRevenueAnalysis = async (revenueType = "total", month = new Date().getMonth() + 1) => {
     try {
-        const response = await http.get("/analysis/tickets");
+        // console.log("Fetching daily revenue analysis for month:", month, "and type:", revenueType);
+        const response = await http.get(`/analysis/daily-revenue`, {
+            params: { revenueType, month },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching daily revenue analysis:", error);
+        throw error;
+    }
+};
+
+export const fetchTicketAnalysis = async (month = new Date().getMonth() + 1) => {
+    try {
+        const response = await http.get("/analysis/tickets", {
+            params: { month },
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching ticket analysis:", error);
@@ -567,13 +583,35 @@ export const fetchTicketAnalysis = async () => {
     }
 };
 
-export const fetchReservationAnalysis = async () => {
+export const fetchDailyTicketAnalysis = async (month = new Date().getMonth() + 1) => {
     try {
-        const response = await http.get("/analysis/reservations");
+        const response = await http.get(`/analysis/daily-tickets?month=${month}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching daily ticket analysis:", error);
+        throw error;
+    }
+};
+
+export const fetchReservationAnalysis = async (month = new Date().getMonth() + 1) => {
+    try {
+        const response = await http.get("/analysis/reservations", {
+            params: { month },
+        });
         return response.data;
     } catch (error) {
         console.error("Error fetching reservation analysis:", error);
         throw error.response?.data || { message: "Error fetching reservation analysis" };
+    }
+};
+
+export const fetchDailyReservationAnalysis = async (month = new Date().getMonth() + 1) => {
+    try {
+        const response = await http.get(`/analysis/daily-reservations?month=${month}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching daily reservation analysis:", error);
+        throw error;
     }
 };
 
@@ -616,8 +654,11 @@ const ApiService = {
     fetchCapacityAnalysis: fetchCapacityAnalysis,
     fetchCapacityUsage: fetchCapacityUsage,
     fetchRevenueAnalysis: fetchRevenueAnalysis,
+    fetchDailyRevenueAnalysis: fetchDailyRevenueAnalysis,
     fetchTicketAnalysis: fetchTicketAnalysis,
     fetchReservationAnalysis: fetchReservationAnalysis, 
+    fetchDailyTicketAnalysis: fetchDailyTicketAnalysis,
+    fetchDailyReservationAnalysis: fetchDailyReservationAnalysis,
 };
 
 export default ApiService;

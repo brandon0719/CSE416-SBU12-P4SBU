@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend } from "chart.js";
-import { Bar, Pie } from "react-chartjs-2";
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend } from "chart.js";
+import { Bar, Pie, Line } from "react-chartjs-2";
 
 import Header from "../components/Header";
 import AdminNav from "../components/AdminNav";
@@ -9,7 +9,7 @@ import refreshIcon from "../images/refresh-icon.svg";
 import ApiService from "../services/ApiService";
 import "../stylesheets/AdminData.css";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Tooltip, Legend);
 
 const AdminData = () => {
     const [activeTab, setActiveTab] = useState("feedback"); // "feedback" or "analysis"
@@ -29,13 +29,23 @@ const AdminData = () => {
 
     // Holds the selected month and revenue type for filtering revenue
     const [revenueType, setRevenueType] = useState("total"); // Default to "total"
-    const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month
+    const [revenueSelectedMonth, setRevenueSelectedMonth] = useState(new Date().getMonth() + 1);
+
+
+    // Holds the daily revenue data for the selected month
+    const [dailyRevenueData, setDailyRevenueData] = useState([]);
+    const [dailyTicketData, setDailyTicketData] = useState([]);
+    const [dailyReservationData, setDailyReservationData] = useState([]);
+
+
+    // Holds all the info for ticket and reservations
+    const [ticketReservationType, setTicketReservationType] = useState("ticket");
+    const [ticketReservationSelectedMonth, setTicketReservationSelectedMonth] = useState(new Date().getMonth() + 1); // For Ticket & Reservation Analysis
 
     // Holds the chart type for each analysis ex: pie or bar
     const [capacityChartType, setCapacityChartType] = useState("bar");
     const [revenueChartType, setRevenueChartType] = useState("bar");
-    const [ticketChartType, setTicketChartType] = useState("bar");
-    const [reservationChartType, setReservationChartType] = useState("bar");
+    const [ticketReservationChartType, setTicketReservationChartType] = useState("bar"); // Default to "bar"
 
     // Holds the data for all the corresponding special graphs
     const [capacityUsageData, setCapacityUsageData] = useState(null);
@@ -51,6 +61,7 @@ const AdminData = () => {
             fetchRevenueData();
             fetchTicketData();
             fetchReservationData();
+            fetchDailyRevenueData();
             fetchCapacityUsageData();
         }
     }, [activeTab]);
@@ -62,7 +73,18 @@ const AdminData = () => {
 
     useEffect(() => {
         fetchRevenueData();
-    }, [revenueType, selectedMonth]);
+        fetchDailyRevenueData();
+    }, [revenueType, revenueSelectedMonth]);
+
+    useEffect(() => {
+        if (ticketReservationType === "ticket") {
+            fetchTicketData
+            fetchDailyTicketData();
+        } else {
+            fetchReservationData();
+            fetchDailyReservationData();
+        }
+    }, [ticketReservationType, ticketReservationSelectedMonth]);
 
     // Fetch the list of feedback
     const fetchFeedbackList = async () => {
@@ -107,7 +129,7 @@ const AdminData = () => {
 
     const fetchRevenueData = async () => {
         try {
-            const revenue = await ApiService.fetchRevenueAnalysis(revenueType, selectedMonth);
+            const revenue = await ApiService.fetchRevenueAnalysis(revenueType, revenueSelectedMonth);
             console.log("Fetched revenue data:", revenue); // Debugging line
             setRevenueData(revenue);
         } catch (error) {
@@ -115,21 +137,48 @@ const AdminData = () => {
         }
     };
 
+    const fetchDailyRevenueData = async () => {
+        try {
+            const data = await ApiService.fetchDailyRevenueAnalysis(revenueType, revenueSelectedMonth);
+            setDailyRevenueData(data);
+        } catch (error) {
+            console.error("Failed to fetch daily revenue data:", error);
+        }
+    };
+
     const fetchTicketData = async () => {
         try {
-            const tickets = await ApiService.fetchTicketAnalysis();
+            const tickets = await ApiService.fetchTicketAnalysis(ticketReservationSelectedMonth);
             setTicketData(tickets);
         } catch (error) {
             console.error("Failed to fetch ticket analysis:", error);
         }
     };
 
+    const fetchDailyTicketData = async () => {
+        try {
+            const tickets = await ApiService.fetchDailyTicketAnalysis(ticketReservationSelectedMonth);
+            setDailyTicketData(tickets);
+        } catch (error) {
+            console.error("Failed to fetch daily ticket analysis:", error);
+        }
+    };
+
     const fetchReservationData = async () => {
         try {
-            const reservations = await ApiService.fetchReservationAnalysis();
+            const reservations = await ApiService.fetchReservationAnalysis(ticketReservationSelectedMonth);
             setReservationData(reservations);
         } catch (error) {
             console.error("Failed to fetch reservation analysis:", error);
+        }
+    };
+
+    const fetchDailyReservationData = async () => {
+        try {
+            const reservations = await ApiService.fetchDailyReservationAnalysis(ticketReservationSelectedMonth);
+            setDailyReservationData(reservations);
+        } catch (error) {
+            console.error("Failed to fetch daily reservation analysis:", error);
         }
     };
 
@@ -213,6 +262,207 @@ const AdminData = () => {
             <Bar data={chartData} options={options} />
         ) : (
             <Pie data={chartData} options={options} />
+        );
+    };
+
+    const renderLineChart = () => {
+        if (!dailyRevenueData || dailyRevenueData.length === 0) {
+            return <p>No daily revenue data available.</p>;
+        }
+
+        // Helper function to format a date as YYYY-MM-DD without any extra libraries
+        const formatDate = (date) => {
+            const d = new Date(date);
+            const month = '' + (d.getMonth() + 1);
+            const day = '' + d.getDate();
+            const year = d.getFullYear();
+            return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
+        };
+
+        // Create a set of unique day labels from the raw data
+        const uniqueDatesSet = new Set();
+        dailyRevenueData.forEach(row => {
+            uniqueDatesSet.add(formatDate(row.day));
+        });
+        const labels = Array.from(uniqueDatesSet).sort();
+
+        // Group revenue data by user_type (using day string as key)
+        const groupedData = {};
+        dailyRevenueData.forEach(row => {
+            const type = row.user_type;
+            const dateKey = formatDate(row.day);
+            const revenueValue =
+                revenueType === "ticket"
+                    ? parseFloat(row.ticket_revenue)
+                    : revenueType === "reservation"
+                        ? parseFloat(row.reservation_revenue)
+                        : parseFloat(row.reservation_revenue) + parseFloat(row.ticket_revenue);
+            if (!groupedData[type]) {
+                groupedData[type] = {};
+            }
+            groupedData[type][dateKey] = (groupedData[type][dateKey] || 0) + revenueValue;
+        });
+
+        // Prepare datasets for the chart
+        const datasets = Object.keys(groupedData).map(userType => {
+            const dataArray = labels.map(day => groupedData[userType][day] || 0);
+            let borderColor;
+            switch (userType) {
+                case "Commuter":
+                    borderColor = "blue";
+                    break;
+                case "Faculty":
+                    borderColor = "red";
+                    break;
+                case "Resident":
+                    borderColor = "green";
+                    break;
+                case "Visitor":
+                    borderColor = "orange";
+                    break;
+                default:
+                    borderColor = "gray";
+                    break;
+            }
+            return {
+                label: userType,
+                data: dataArray,
+                borderColor: borderColor,
+                backgroundColor: borderColor,
+                fill: false,
+                tension: 0.1,
+            };
+        });
+
+        const chartData = {
+            labels,
+            datasets,
+        };
+
+        const chartOptions = {
+            responsive: true,
+            plugins: {
+                legend: { position: "top" },
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: false,
+                        text: "Day",
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: "Revenue ($)",
+                    },
+                },
+            },
+        };
+
+        return (
+            <div className="line-chart-container">
+                <Line key={`${revenueType}-${revenueSelectedMonth}`} data={chartData} options={chartOptions} />
+            </div>
+        );
+    };
+
+    const renderTRLineChart = () => {
+        const data = ticketReservationType === "ticket" ? dailyTicketData : dailyReservationData;
+
+        if (!data || data.length === 0) {
+            return <p>No data available for the selected month.</p>;
+        }
+
+        // Helper function to format a date as YYYY-MM-DD
+        const formatDate = (date) => {
+            const d = new Date(date);
+            const month = '' + (d.getMonth() + 1);
+            const day = '' + d.getDate();
+            const year = d.getFullYear();
+            return [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-');
+        };
+
+        // Create a set of unique day labels from the raw data
+        const uniqueDatesSet = new Set();
+        data.forEach(row => {
+            uniqueDatesSet.add(formatDate(row.day));
+        });
+        const labels = Array.from(uniqueDatesSet).sort();
+
+        // Group data by user_type (using day string as key)
+        const groupedData = {};
+        data.forEach(row => {
+            const type = row.user_type;
+            const dateKey = formatDate(row.day);
+            const value = ticketReservationType === "ticket" ? row.total_tickets : row.total_reservations;
+            if (!groupedData[type]) {
+                groupedData[type] = {};
+            }
+            groupedData[type][dateKey] = (groupedData[type][dateKey] || 0) + value;
+        });
+
+        // Prepare datasets for the chart
+        const datasets = Object.keys(groupedData).map(userType => {
+            const dataArray = labels.map(day => groupedData[userType][day] || 0);
+            let borderColor;
+            switch (userType) {
+                case "Commuter":
+                    borderColor = "blue";
+                    break;
+                case "Faculty":
+                    borderColor = "red";
+                    break;
+                case "Resident":
+                    borderColor = "green";
+                    break;
+                case "Visitor":
+                    borderColor = "orange";
+                    break;
+                default:
+                    borderColor = "gray";
+                    break;
+            }
+            return {
+                label: userType,
+                data: dataArray,
+                borderColor: borderColor,
+                backgroundColor: borderColor,
+                fill: false,
+                tension: 0.1,
+            };
+        });
+
+        const chartData = {
+            labels,
+            datasets,
+        };
+
+        const chartOptions = {
+            responsive: true,
+            plugins: {
+                legend: { position: "top" },
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: false,
+                        text: "Day",
+                    },
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: ticketReservationType === "ticket" ? "Tickets" : "Reservations",
+                    },
+                },
+            },
+        };
+
+        return (
+            <div className="line-chart-container">
+                <Line key={`${ticketReservationType}-${ticketReservationSelectedMonth}`} data={chartData} options={chartOptions} />
+            </div>
         );
     };
 
@@ -431,79 +681,17 @@ const AdminData = () => {
                                             </div>
                                         </div>
 
+                                        {/* Selector for Month in Revenue Analysis */}
                                         <div className="admin-data-month-dropdown">
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 1 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(1)}
-                                            >
-                                                January
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 2 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(2)}
-                                            >
-                                                February
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 3 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(3)}
-                                            >
-                                                March
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 4 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(4)}
-                                            >
-                                                April
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 5 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(5)}
-                                            >
-                                                May
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 6 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(6)}
-                                            >
-                                                June
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 7 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(7)}
-                                            >
-                                                July
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 8 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(8)}
-                                            >
-                                                August
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 9 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(9)}
-                                            >
-                                                September
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 10 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(10)}
-                                            >
-                                                October
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 11 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(11)}
-                                            >
-                                                November
-                                            </div>
-                                            <div
-                                                className={`admin-data-lot-option ${selectedMonth === 12 ? "selected" : ""}`}
-                                                onClick={() => setSelectedMonth(12)}
-                                            >
-                                                December
-                                            </div>
+                                            {[...Array(12)].map((_, index) => (
+                                                <div
+                                                    key={index + 1}
+                                                    className={`admin-data-lot-option ${revenueSelectedMonth === index + 1 ? "selected" : ""}`}
+                                                    onClick={() => setRevenueSelectedMonth(index + 1)}
+                                                >
+                                                    {new Date(0, index).toLocaleString("default", { month: "long" })}
+                                                </div>
+                                            ))}
                                         </div>
 
                                     </div>
@@ -529,48 +717,68 @@ const AdminData = () => {
                                             )}
                                     </div>
                                     <div className="admin-data-analysis-unique-data">
-                                        <p>Placeholder for Revenue Analysis unique data</p>
+                                        {renderLineChart()}
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Ticket Analysis */}
+                            {/* Ticket & Reservation Analysis Section */}
                             <div className="admin-data-analysis-section">
                                 <div className="admin-data-analysis-header">
-                                    <h3>Ticket Analysis</h3>
+                                    <h3>Ticket & Reservation Analysis</h3>
                                     <img
                                         src={refreshIcon}
                                         alt="Refresh"
                                         className="admin-data-refresh-icon"
-                                        onClick={() => fetchTicketData()}
+                                        onClick={() => {
+                                            fetchTicketData();
+                                            fetchReservationData();
+                                        }}
                                     />
                                 </div>
                                 <div className="admin-data-analysis-body">
                                     <div className="admin-data-analysis-text">
-                                        {ticketData ? (
-                                            <ul>
-                                                {ticketData
-                                                    .filter((item) => item.user_type && item.user_type.trim() !== "")
-                                                    .map((item) => (
-                                                        <li key={item.user_type}>
-                                                            {item.user_type}: {item.total_tickets}
-                                                        </li>
-                                                    ))}
-                                            </ul>
-                                        ) : (
-                                            <p>Loading ticket data...</p>
-                                        )}
+                                        {/* Selector for Ticket or Reservation */}
+                                        <div className="admin-data-revenue-dropdown">
+                                            <div
+                                                className={`admin-data-lot-option ${ticketReservationType === "ticket" ? "selected" : ""}`}
+                                                onClick={() => setTicketReservationType("ticket")}
+                                            >
+                                                Ticket
+                                            </div>
+                                            <div
+                                                className={`admin-data-lot-option ${ticketReservationType === "reservation" ? "selected" : ""}`}
+                                                onClick={() => setTicketReservationType("reservation")}
+                                            >
+                                                Reservation
+                                            </div>
+                                        </div>
+
+                                        {/* Selector for Month */}
+                                        <div className="admin-data-month-dropdown">
+                                            {[...Array(12)].map((_, index) => (
+                                                <div
+                                                    key={index + 1}
+                                                    className={`admin-data-lot-option ${ticketReservationSelectedMonth === index + 1 ? "selected" : ""}`}
+                                                    onClick={() => setTicketReservationSelectedMonth(index + 1)}
+                                                >
+                                                    {new Date(0, index).toLocaleString("default", { month: "long" })}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
+
+                                    {/* Chart Section */}
                                     <div className="admin-data-analysis-chart">
                                         <button
                                             onClick={() =>
-                                                setTicketChartType(ticketChartType === "bar" ? "pie" : "bar")
+                                                setTicketReservationChartType(ticketReservationChartType === "bar" ? "pie" : "bar")
                                             }
                                             className="admin-data-toggle-chart-button"
                                         >
-                                            {ticketChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
+                                            {ticketReservationChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
                                         </button>
-                                        {ticketData &&
+                                        {(ticketReservationType === "ticket" && ticketData) &&
                                             renderChart(
                                                 ticketData
                                                     .filter((item) => item.user_type && item.user_type.trim() !== "")
@@ -579,52 +787,9 @@ const AdminData = () => {
                                                     .filter((item) => item.user_type && item.user_type.trim() !== "")
                                                     .map((item) => item.user_type),
                                                 "Tickets",
-                                                ticketChartType
+                                                ticketReservationChartType
                                             )}
-                                    </div>
-                                    <div className="admin-data-analysis-unique-data">
-                                        <p>Placeholder for Ticket Analysis unique data</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Reservation Analysis */}
-                            <div className="admin-data-analysis-section">
-                                <div className="admin-data-analysis-header">
-                                    <h3>Reservation Analysis</h3>
-                                    <img
-                                        src={refreshIcon}
-                                        alt="Refresh"
-                                        className="admin-data-refresh-icon"
-                                        onClick={() => fetchReservationData()}
-                                    />
-                                </div>
-                                <div className="admin-data-analysis-body">
-                                    <div className="admin-data-analysis-text">
-                                        {reservationData ? (
-                                            <ul>
-                                                {reservationData
-                                                    .filter((item) => item.user_type && item.user_type.trim() !== "")
-                                                    .map((item) => (
-                                                        <li key={item.user_type}>
-                                                            {item.user_type}: {item.total_reservations}
-                                                        </li>
-                                                    ))}
-                                            </ul>
-                                        ) : (
-                                            <p>Loading reservation data...</p>
-                                        )}
-                                    </div>
-                                    <div className="admin-data-analysis-chart">
-                                        <button
-                                            onClick={() =>
-                                                setReservationChartType(reservationChartType === "bar" ? "pie" : "bar")
-                                            }
-                                            className="admin-data-toggle-chart-button"
-                                        >
-                                            {reservationChartType === "bar" ? "Switch to Pie Chart" : "Switch to Bar Chart"}
-                                        </button>
-                                        {reservationData &&
+                                        {(ticketReservationType === "reservation" && reservationData) &&
                                             renderChart(
                                                 reservationData
                                                     .filter((item) => item.user_type && item.user_type.trim() !== "")
@@ -633,11 +798,13 @@ const AdminData = () => {
                                                     .filter((item) => item.user_type && item.user_type.trim() !== "")
                                                     .map((item) => item.user_type),
                                                 "Reservations",
-                                                reservationChartType
+                                                ticketReservationChartType
                                             )}
                                     </div>
+
+                                    {/* Line Chart Section */}
                                     <div className="admin-data-analysis-unique-data">
-                                        <p>Placeholder for Reservation Analysis unique data</p>
+                                        {renderTRLineChart()}
                                     </div>
                                 </div>
                             </div>
