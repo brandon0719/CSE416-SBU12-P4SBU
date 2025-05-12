@@ -327,12 +327,13 @@ const HomePage = () => {
     }, [selectedBuilding, buildingSearchTerm, searchTerm]);
 
     useEffect(() => {
-        if (!reservationStart || !reservationEnd || !selectedLot) return;
-        ApiService.getNumAvailableSpotsAtTime(
-            selectedLot,
-            reservationStart,
-            reservationEnd
-        )
+        const updateAvailableSpots = async () => {
+            if (!reservationStart || !reservationEnd || !selectedLot) return;
+                await ApiService.getNumAvailableSpotsAtTime(
+                    selectedLot,
+                    reservationStart,
+                    reservationEnd
+                )
             .then((res) => {
                 setAvailableSpots(res);
             })
@@ -343,6 +344,8 @@ const HomePage = () => {
                 );
                 setAvailableSpots(null);
             });
+        }
+        updateAvailableSpots();
     }, [reservationStart, reservationEnd, selectedLot]);
 
     // Handler when a building is selected
@@ -375,7 +378,7 @@ const HomePage = () => {
         } else if (reservationEnd < reservationStart) {
             setReserveError("Reservation end cannot be before start");
             return;
-        } else if (!availableSpots) {
+        } else if (ApiService.getNumAvailableSpotsAtTime(selectedLot, reservationStart, reservationEnd) == 0) {
             setReserveError("No available spots for this time.");
             return;
         }
