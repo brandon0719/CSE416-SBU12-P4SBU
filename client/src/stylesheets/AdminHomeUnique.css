@@ -52,6 +52,10 @@
     color: black;
 }
 
+.admin-home-header-actions .admin-home-search-bar{
+    margin: auto 0 auto 0;
+}
+
 .admin-home-approve-button {
     background-color: #28a745;
     color: white;

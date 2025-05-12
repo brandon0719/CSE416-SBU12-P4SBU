@@ -34,7 +34,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 180px;
+    width: fit-content;
 }
 
 .admin-tickets-sorting-options label {

@@ -30,6 +30,8 @@ const AdminData = () => {
     const [ticketChartType, setTicketChartType] = useState("bar");
     const [reservationChartType, setReservationChartType] = useState("bar");
 
+    const admin = ApiService.getSessionUser(); // Get the admin user from session
+
     useEffect(() => {
         if (activeTab === "feedback") {
             fetchFeedbackList(); // Fetch feedback when the feedback tab is active
@@ -47,7 +49,8 @@ const AdminData = () => {
         try {
             const response = await ApiService.fetchFeedback();
             setFeedback(response); // Update the feedback state with the fetched data debugging
-            console.log("Fetched feedback:", response); // Debugging line to check fetched data
+            // console.log("Fetched feedback:", response); 
+            // Debugging line to check fetched data
         } catch (error) {
             console.error("Failed to fetch feedback:", error);
         }
@@ -170,7 +173,8 @@ const AdminData = () => {
     const handleViewFeedback = async (feedbackId) => {
         try {
             const response = await ApiService.getFeedbackDetails(feedbackId);
-            console.log("Fetched feedback details:", response); // Debugging line to check fetched data
+            // console.log("Fetched feedback details:", response);
+            // Debugging line to check fetched data
             setSelectedFeedback(response); // Update the selected feedback state
         } catch (error) {
             console.error("Failed to fetch feedback details:", error);

@@ -11,3 +11,15 @@ export const createMessage = async (senderId, recipientId, messageDetails) => {
         throw new Error("Error creating message: " + error.message);
     }
 };
+
+export const getMessagesByRecipientId = async (recipientId) => {
+    try {
+        const { rows } = await pool.query(
+            "SELECT * FROM messages WHERE recipient_id = $1 ORDER BY time_sent DESC",
+            [recipientId]
+        );
+        return rows;
+    } catch (error) {
+        throw new Error("Error fetching messages: " + error.message);
+    }
+};

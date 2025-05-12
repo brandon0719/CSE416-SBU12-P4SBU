@@ -43,71 +43,30 @@ export const getSessionUser = () => {
     }
 };
 
-const getMessages = async () => {
-    console.log("Fetching mock messages...");
-    const mockMessages = [
-        {
-            message: "You have a new message from Admin",
-            link: "/messages/admin",
-            time: new Date("2025-04-06T10:00:00"), // Example datetime
-        },
-        {
-            message: "Your reservation has been approved",
-            link: "/reservations/123",
-            time: new Date("2025-04-05T15:30:00"),
-        },
-        {
-            message: "Reminder: Meeting tomorrow at 10 AM",
-            link: "/meetings/456",
-            time: new Date("2025-04-05T08:00:00"),
-        },
-        {
-            message: "Your ticket has been updated",
-            link: "/tickets/789",
-            time: new Date("2025-04-04T18:45:00"),
-        },
-        {
-            message: "System maintenance scheduled for tonight",
-            link: "/announcements/maintenance",
-            time: new Date("2025-04-03T22:00:00"),
-        },
-    ];
+export const getMessages = async (userId) => {
+    // console.log("Fetching messages for user ID:", userId);
+    try {
+        const response = await http.get(`/messages/${userId}`);
+        // console.log("Messages fetched:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+        throw error;
+    }
+};
 
-    // Format the time for each message
-    const formattedMessages = mockMessages.map((message) => {
-        const now = new Date();
-        const diffMs = now - message.time; // Difference in milliseconds
-        const diffMinutes = Math.ceil(diffMs / (1000 * 60)); // Difference in minutes
-        const diffHours = Math.floor(diffMinutes / 60); // Difference in hours
-
-        let formattedTime;
-        if (diffMinutes < 60) {
-            formattedTime = `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""
-                } ago`;
-        } else if (diffHours < 24) {
-            formattedTime = `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-        } else {
-            const options = {
-                month: "long",
-                day: "numeric",
-                hour: "numeric",
-                minute: "numeric",
-                hour12: true,
-            };
-            formattedTime = message.time.toLocaleString("en-US", options); // Example: "April 5 at 3:30 PM"
-        }
-
-        return {
-            ...message,
-            time: formattedTime, // Replace the time with the formatted string
-        };
-    });
-
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(formattedMessages);
-        }, 1000); // Simulate a 1-second delay
-    });
+export const sendMessage = async (senderId, recipientId, messageDetails) => {
+    try {
+        const response = await http.post("/messages/send", {
+            senderId,
+            recipientId,
+            messageDetails,
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error sending message:", error);
+        throw error;
+    }
 };
 
 //newly added function
@@ -480,6 +439,7 @@ export const getFeedbackDetails = async (feedbackId) => {
 
 export const resolveFeedback = async (feedbackId, messageDetails, senderId, recipientId) => {
     try {
+        console.log("feedback info", feedbackId,'\n', messageDetails, '\n', senderId, '\n', recipientId);
         const response = await http.post("/feedback/resolve", {
             feedbackId,
             messageDetails,
@@ -619,6 +579,7 @@ const ApiService = {
     getSessionUser: getSessionUser,
     getNotifications: getNotifications,
     getMessages: getMessages,
+    sendMessage: sendMessage,
     createReservation: createReservation,
     getTickets: getTickets,
     getPaidTickets: getPaidTickets,

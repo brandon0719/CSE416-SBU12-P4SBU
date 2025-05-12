@@ -129,6 +129,12 @@ const AdminHome = () => {
                                 </option>
                             </select>
                         </div>
+                        {/* --- Search Bar --- */}
+                        <SearchBar 
+                            placeholder="Search users by name…"
+                            value={searchTerm}
+                            onChange={setSearchTerm}
+                        />
                         <button
                             className="admin-home-approve-button"
                             onClick={() => openPopup("add")}>
@@ -137,12 +143,7 @@ const AdminHome = () => {
                     </div>
                 </div>
 
-                {/* --- Search Bar --- */}
-                <SearchBar
-                    placeholder="Search users by name…"
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                />
+
 
                 {/* --- User List --- */}
                 <div className="admin-home-user-list-container">
